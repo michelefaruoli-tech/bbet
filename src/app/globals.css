@@ -1,0 +1,146 @@
+@import "tailwindcss";
+
+:root {
+  --background: #e8eef3;
+  --foreground: #0f172a;
+  --surface: #f1f5f9;
+  --accent: #047857;
+}
+
+body {
+  background:
+    radial-gradient(ellipse at top left, #dbeafe 0%, transparent 45%),
+    radial-gradient(ellipse at bottom right, #d1fae5 0%, transparent 40%),
+    var(--background);
+  color: var(--foreground);
+  min-height: 100vh;
+}
+
+input,
+select,
+textarea {
+  font: inherit;
+  background: #f8fafc;
+}
+
+table.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+table.data-table th,
+table.data-table td {
+  border-bottom: 1px solid #cbd5e1;
+  padding: 0.625rem 0.75rem;
+  text-align: left;
+}
+
+table.data-table th {
+  background: #e2e8f0;
+  font-weight: 600;
+  color: #334155;
+}
+
+table.data-table tr:hover td {
+  background: #ecfdf5;
+}
+
+/* Tabella Sospesi: righe alternate + contorno per cliente */
+table.sospesi-table {
+  border-collapse: separate;
+  border-spacing: 0 6px;
+}
+
+table.sospesi-table tbody tr.sospesi-row td {
+  border-top: 1px solid #94a3b8;
+  border-bottom: 1px solid #94a3b8;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+table.sospesi-table tbody tr.sospesi-row td:first-child {
+  border-left: 1px solid #94a3b8;
+  border-radius: 8px 0 0 8px;
+}
+
+table.sospesi-table tbody tr.sospesi-row td:last-child {
+  border-right: 1px solid #94a3b8;
+  border-radius: 0 8px 8px 0;
+}
+
+table.sospesi-table tbody tr.sospesi-row-even td {
+  background: #f1f5f9;
+}
+
+table.sospesi-table tbody tr.sospesi-row-odd td {
+  background: #e2e8f0;
+}
+
+table.sospesi-table tbody tr.sospesi-row:hover td {
+  background: #d1fae5;
+}
+
+table.sospesi-table tbody tr.sospesi-section td {
+  border: none;
+  background: transparent !important;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+/* Tabella LAY: contorno per colonna anno */
+table.lay-year-table .lay-year-col {
+  border-left: 2px solid #6ee7b7;
+  border-right: 2px solid #6ee7b7;
+}
+
+table.lay-year-table thead .lay-year-col {
+  border-top: 2px solid #10b981;
+  background: #d1fae5;
+}
+
+table.lay-year-table tfoot .lay-year-col {
+  border-bottom: 2px solid #10b981;
+}
+
+table.lay-year-table .lay-year-col-first {
+  border-left: 2px solid #10b981;
+}
+
+table.lay-year-table tbody tr:last-child .lay-year-col,
+table.lay-year-table tfoot tr:first-child .lay-year-col {
+  border-bottom: none;
+}
+
+.form-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.field label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #334155;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: #f8fafc;
+}
+
+.field textarea {
+  min-height: 5rem;
+}

@@ -1,0 +1,196 @@
+import Link from "next/link";
+import { getLaySummary } from "@/lib/calculations-server";
+import { requireSession } from "@/lib/auth";
+import { isMaster } from "@/lib/roles";
+import { formatEUR, amountClass, toNumber } from "@/lib/format";
+import { Card } from "@/components/ui";
+import { CloseLayMonthButton } from "@/components/lay/close-lay-month-button";
+import { LayYearTable } from "@/components/lay/lay-year-table";
+import { TrisYearTable } from "@/components/lay/tris-year-table";
+import { LayFilters } from "@/components/lay/lay-filters";
+import { QuickLayForm } from "@/components/lay/quick-lay-form";
+import { LayOperationsHistory } from "@/components/lay/lay-operations-history";
+import { LayMovementForm } from "@/components/lay/lay-movement-form";
+
+export default async function LayPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ anni?: string; anno?: string; mese?: string }>;
+}) {
+  const params = await searchParams;
+  const session = await requireSession();
+  const showAuthor = isMaster(session.role);
+  const summary = await getLaySummary();
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+
+  const allYears = Array.from(
+    new Set([
+      ...summary.closures.map((c) => c.year),
+      ...summary.trisClosures.map((c) => c.year),
+      ...summary.movements.map((m) => new Date(m.date).getFullYear()),
+      currentYear,
+    ]),
+  ).sort((a, b) => a - b);
+
+  const selectedYears = params.anni
+    ? params.anni
+        .split(",")
+        .map(Number)
+        .filter((y) => allYears.includes(y))
+    : allYears;
+
+  const filterYear = params.anno ?? "";
+  const filterMonth = params.mese ?? "";
+
+  const cells = summary.closures.map((c) => ({
+    year: c.year,
+    month: c.month,
+    balance: toNumber(c.monthlyBalance),
+    positiveTotal: toNumber(c.positiveTotal),
+    negativeTotal: toNumber(c.negativeTotal),
+    trisBalance: toNumber(c.trisBalance),
+    cumulativeBalance: toNumber(c.cumulativeBalance),
+    movementCount: c.movementCount,
+  }));
+
+  const trisCells = summary.trisClosures.map((c) => ({
+    year: c.year,
+    month: c.month,
+    dareTotal: toNumber(c.dareTotal),
+    avereTotal: toNumber(c.avereTotal),
+    monthlyBalance: toNumber(c.monthlyBalance),
+    cumulativeBalance: toNumber(c.cumulativeBalance),
+    movementCount: c.movementCount,
+  }));
+
+  const closedKeys = new Set(summary.closures.map((c) => `${c.year}-${c.month}`));
+  const monthAlreadyClosed = closedKeys.has(`${currentYear}-${currentMonth}`);
+
+  const operations = summary.movements.map((m) => {
+    const d = new Date(m.date);
+    const key = `${d.getFullYear()}-${d.getMonth() + 1}`;
+    return {
+      id: m.id,
+      date: m.date,
+      time: m.time,
+      amount: m.amount,
+      category: m.category,
+      description: m.description,
+      notes: m.notes,
+      createdBy: m.createdBy,
+      isOpenMonth: !closedKeys.has(key),
+    };
+  });
+
+  const monthMovements = summary.movements.filter((m) => {
+    const d = new Date(m.date);
+    return d.getFullYear() === currentYear && d.getMonth() + 1 === currentMonth;
+  });
+  const monthBalance = monthMovements.reduce((s, m) => s + toNumber(m.amount), 0);
+  const trisOpenCount = monthMovements.filter((m) => m.category === "TRIS").length;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold">LAY</h1>
+          <p className="text-sm text-slate-500">
+            Operazioni · un solo tasto chiude LAY + Tris ·{" "}
+            <Link href="/lay/tris" className="font-medium text-emerald-700 underline">
+              Scheda Rendiconto Tris
+            </Link>
+          </p>
+        </div>
+        <CloseLayMonthButton
+          year={currentYear}
+          month={currentMonth}
+          alreadyClosed={monthAlreadyClosed}
+        />
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Card title="Saldo mese corrente LAY">
+          <p className={`text-xl font-bold ${amountClass(monthBalance)}`}>{formatEUR(monthBalance)}</p>
+        </Card>
+        <Card title="Saldo cassa LAY">
+          <p className={`text-xl font-bold ${amountClass(summary.cumulativeBalance)}`}>
+            {formatEUR(summary.cumulativeBalance)}
+          </p>
+          <p className="mt-1 text-xs text-slate-400">Cassa separata</p>
+        </Card>
+        <Card title="Tris attuale (quanto devi)">
+          <p className={`text-xl font-bold ${amountClass(summary.trisCumulative)}`}>
+            {formatEUR(summary.trisCumulative)}
+          </p>
+          <p className="mt-1 text-xs text-slate-400">
+            {trisOpenCount > 0 ? `${trisOpenCount} mov. nel mese · ` : ""}
+            <Link href="/lay/tris" className="underline">
+              Vedi scheda Tris
+            </Link>
+          </p>
+        </Card>
+        <Card title="Mesi chiusi">{summary.closures.length}</Card>
+      </div>
+
+      <Card title="Inserimento rapido">
+        <QuickLayForm trisBalance={summary.trisCumulative} />
+      </Card>
+
+      <Card title="Filtri">
+        <LayFilters
+          years={allYears}
+          selectedYears={selectedYears.length ? selectedYears : allYears}
+          filterYear={filterYear}
+          filterMonth={filterMonth}
+        />
+      </Card>
+
+      <Card title="Archivio mensile LAY">
+        <p className="mb-3 text-xs text-slate-500">
+          Clicca un importo per il dettaglio. Da lì puoi <strong>riaprire il mese</strong> se hai
+          sbagliato (riapre anche Tris).
+        </p>
+        <LayYearTable
+          years={allYears}
+          cells={cells}
+          selectedYears={selectedYears.length ? selectedYears : allYears}
+        />
+      </Card>
+
+      <Card title="Archivio mensile Tris">
+        <p className="mb-3 text-xs text-slate-500">
+          Si aggiorna automaticamente quando chiudi il mese. Dettaglio movimenti nella{" "}
+          <Link href="/lay/tris" className="font-medium text-emerald-700 underline">
+            Scheda Rendiconto Tris
+          </Link>
+          .
+        </p>
+        <TrisYearTable
+          years={allYears}
+          cells={trisCells}
+          selectedYears={selectedYears.length ? selectedYears : allYears}
+        />
+      </Card>
+
+      <Card title="Cronologia operazioni">
+        <LayOperationsHistory
+          operations={operations}
+          filterYear={filterYear}
+          filterMonth={filterMonth}
+          showAuthor={showAuthor}
+        />
+      </Card>
+
+      <details className="rounded-lg border border-slate-300 bg-slate-50/80">
+        <summary className="cursor-pointer px-4 py-3 text-sm font-medium text-slate-700">
+          Form completo (data/ora personalizzata)
+        </summary>
+        <div className="border-t border-slate-200 p-4">
+          <LayMovementForm />
+        </div>
+      </details>
+    </div>
+  );
+}

@@ -1,0 +1,319 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  OPERATOR
+}
+
+enum SuspendedMovementType {
+  DARE
+  AVERE
+}
+
+enum MasterMovementType {
+  RICARICA
+  PAGAMENTO
+  BONUS
+  RETTIFICA
+  ALTRO
+}
+
+enum LayCategory {
+  GENERICO
+  TRIS
+  ALTRO
+}
+
+enum WithdrawalSource {
+  COMMISSIONI
+  FONDO_CASSA
+  MASTER
+  LAY
+  CONTANTI
+  ALTRO
+}
+
+enum CashFundMovementType {
+  INCREMENTO
+  RIDUZIONE
+  RETTIFICA
+  RIPORTO_ANNUALE
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(OPERATOR)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  suspendedMovements  SuspendedMovement[]  @relation("SuspendedCreatedBy")
+  masterMovements     MasterMovement[]     @relation("MasterCreatedBy")
+  cashFundMovements   CashFundMovement[]   @relation("CashFundCreatedBy")
+  withdrawals         Withdrawal[]         @relation("WithdrawalCreatedBy")
+  layMovements        LayMovement[]        @relation("LayCreatedBy")
+  statementSnapshots  FinancialStatementSnapshot[] @relation("SnapshotCreatedBy")
+  auditLogs           AuditLog[]
+}
+
+model Customer {
+  id        String    @id @default(cuid())
+  name      String
+  surname   String
+  phone     String?
+  notes     String?
+  active    Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  movements SuspendedMovement[]
+
+  @@index([active])
+  @@index([deletedAt])
+  @@index([name, surname])
+}
+
+model SuspendedMovement {
+  id           String                @id @default(cuid())
+  customerId   String
+  date         DateTime              @db.Date
+  time         String?
+  movementType SuspendedMovementType
+  amount       Decimal               @db.Decimal(14, 2)
+  description  String?
+  notes        String?
+  createdById  String
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+  deletedAt    DateTime?
+
+  customer  Customer @relation(fields: [customerId], references: [id])
+  createdBy User     @relation("SuspendedCreatedBy", fields: [createdById], references: [id])
+
+  @@index([customerId, date])
+  @@index([deletedAt])
+}
+
+model MasterMovement {
+  id           String             @id @default(cuid())
+  date         DateTime           @db.Date
+  time         String?
+  movementType MasterMovementType
+  amount       Decimal            @db.Decimal(14, 2)
+  description  String?
+  notes        String?
+  createdById  String
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  deletedAt    DateTime?
+
+  createdBy User @relation("MasterCreatedBy", fields: [createdById], references: [id])
+
+  @@index([date])
+  @@index([deletedAt])
+}
+
+model CommissionMonth {
+  id            String   @id @default(cuid())
+  year          Int
+  month         Int
+  invoiceAmount Decimal  @default(0) @db.Decimal(14, 2)
+  bonusAmount   Decimal  @default(0) @db.Decimal(14, 2)
+  casinoGross   Decimal  @default(0) @db.Decimal(14, 2)
+  casinoNet     Decimal  @default(0) @db.Decimal(14, 2)
+  sportNet      Decimal  @default(0) @db.Decimal(14, 2)
+  withdrawals   Decimal  @default(0) @db.Decimal(14, 2)
+  cashFund      Decimal  @default(0) @db.Decimal(14, 2)
+  partialTotal  Decimal  @default(0) @db.Decimal(14, 2)
+  finalTotal    Decimal  @default(0) @db.Decimal(14, 2)
+  notes         String?
+  closed        Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([year, month])
+  @@index([year])
+}
+
+model CashFundMovement {
+  id           String               @id @default(cuid())
+  date         DateTime             @db.Date
+  amount       Decimal              @db.Decimal(14, 2)
+  movementType CashFundMovementType
+  openingValue Decimal              @db.Decimal(14, 2)
+  closingValue Decimal              @db.Decimal(14, 2)
+  reason       String?
+  notes        String?
+  createdById  String
+  createdAt    DateTime             @default(now())
+
+  createdBy User @relation("CashFundCreatedBy", fields: [createdById], references: [id])
+
+  @@index([date])
+}
+
+model Withdrawal {
+  id            String           @id @default(cuid())
+  date          DateTime         @db.Date
+  amount        Decimal          @db.Decimal(14, 2)
+  source        WithdrawalSource
+  destination   String?
+  linkedSection String?
+  year          Int
+  month         Int
+  description   String?
+  notes         String?
+  commissionMonthId String?
+  createdById   String
+  createdAt     DateTime         @default(now())
+  deletedAt     DateTime?
+
+  createdBy User @relation("WithdrawalCreatedBy", fields: [createdById], references: [id])
+
+  @@index([year, month])
+  @@index([deletedAt])
+  @@index([commissionMonthId])
+}
+
+model LayMovement {
+  id          String      @id @default(cuid())
+  date        DateTime    @db.Date
+  time        String?
+  amount      Decimal     @db.Decimal(14, 2)
+  category    LayCategory @default(GENERICO)
+  description String?
+  notes       String?
+  createdById String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  deletedAt   DateTime?
+
+  createdBy User @relation("LayCreatedBy", fields: [createdById], references: [id])
+
+  @@index([date])
+  @@index([category])
+  @@index([deletedAt])
+}
+
+model LayMonthlyClosure {
+  id                String   @id @default(cuid())
+  year              Int
+  month             Int
+  positiveTotal     Decimal  @db.Decimal(14, 2)
+  negativeTotal     Decimal  @db.Decimal(14, 2)
+  monthlyBalance    Decimal  @db.Decimal(14, 2)
+  trisPositive      Decimal  @default(0) @db.Decimal(14, 2)
+  trisNegative      Decimal  @default(0) @db.Decimal(14, 2)
+  trisBalance       Decimal  @default(0) @db.Decimal(14, 2)
+  cumulativeBalance Decimal  @db.Decimal(14, 2)
+  movementCount     Int      @default(0)
+  notes             String?
+  closedAt          DateTime @default(now())
+  createdAt         DateTime @default(now())
+
+  @@unique([year, month])
+  @@index([year])
+}
+
+/// Archivio mensile Tris (separato da LAY): quanto si deve, Dare/Avere, cumulativo
+model TrisMonthlyClosure {
+  id                String   @id @default(cuid())
+  year              Int
+  month             Int
+  dareTotal         Decimal  @default(0) @db.Decimal(14, 2)
+  avereTotal        Decimal  @default(0) @db.Decimal(14, 2)
+  monthlyBalance    Decimal  @db.Decimal(14, 2)
+  cumulativeBalance Decimal  @db.Decimal(14, 2)
+  movementCount     Int      @default(0)
+  notes             String?
+  closedAt          DateTime @default(now())
+  createdAt         DateTime @default(now())
+
+  @@unique([year, month])
+  @@index([year])
+}
+
+model AnnualArchive {
+  id               String   @id @default(cuid())
+  year             Int      @unique
+  openingCashFund  Decimal  @db.Decimal(14, 2)
+  closingCashFund  Decimal  @db.Decimal(14, 2)
+  suspendedBalance Decimal  @db.Decimal(14, 2)
+  masterBalance    Decimal  @db.Decimal(14, 2)
+  layBalance       Decimal  @db.Decimal(14, 2)
+  commissionTotal  Decimal  @db.Decimal(14, 2)
+  withdrawalTotal  Decimal  @db.Decimal(14, 2)
+  finalBalance     Decimal  @db.Decimal(14, 2)
+  closedAt         DateTime @default(now())
+  createdAt        DateTime @default(now())
+}
+
+model FinancialStatementCurrent {
+  id                    String   @id @default("current")
+  online                Decimal  @default(0) @db.Decimal(14, 2)
+  manualCreditAdjustment Decimal @default(0) @db.Decimal(14, 2)
+  personalAccounts      Decimal  @default(0) @db.Decimal(14, 2)
+  cash                  Decimal  @default(0) @db.Decimal(14, 2)
+  coins                 Decimal  @default(0) @db.Decimal(14, 2)
+  cashTotal             Decimal  @default(0) @db.Decimal(14, 2)
+  notes                 String?
+  updatedAt             DateTime @updatedAt
+}
+
+model FinancialStatementSnapshot {
+  id                    String   @id @default(cuid())
+  snapshotDate          DateTime @db.Date
+  snapshotType          String   @default("MANUAL")
+  online                Decimal  @db.Decimal(14, 2)
+  manualCreditAdjustment Decimal @db.Decimal(14, 2)
+  personalAccounts      Decimal  @db.Decimal(14, 2)
+  cash                  Decimal  @db.Decimal(14, 2)
+  coins                 Decimal  @db.Decimal(14, 2)
+  suspendedCredit       Decimal  @db.Decimal(14, 2)
+  tris                  Decimal  @db.Decimal(14, 2)
+  master                Decimal  @db.Decimal(14, 2)
+  lay                   Decimal  @db.Decimal(14, 2)
+  calculatedTotal       Decimal  @db.Decimal(14, 2)
+  cashTotal             Decimal  @db.Decimal(14, 2)
+  difference            Decimal  @db.Decimal(14, 2)
+  notes                 String?
+  createdById           String
+  createdAt             DateTime @default(now())
+
+  createdBy User @relation("SnapshotCreatedBy", fields: [createdById], references: [id])
+
+  @@index([snapshotDate])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String
+  entityType String
+  entityId   String?
+  action     String
+  oldValue   String?
+  newValue   String?
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
+
+model AppSettings {
+  id    String @id @default("app")
+  key   String @unique
+  value String
+}
