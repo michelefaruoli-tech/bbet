@@ -15,6 +15,12 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "BBET — Gestionale Finanziario",
   description: "Gestione economica Sospesi, Master, Commissioni, LAY, Prelievi e Rendiconto",
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+    noarchive: true,
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -312,6 +312,17 @@ model AuditLog {
   @@index([createdAt])
 }
 
+model LoginAttempt {
+  id        String   @id @default(cuid())
+  email     String
+  ip        String
+  success   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([email, createdAt])
+  @@index([ip, createdAt])
+}
+
 model AppSettings {
   id    String @id @default("app")
   key   String @unique

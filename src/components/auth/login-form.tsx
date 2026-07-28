@@ -39,8 +39,9 @@ export function LoginForm() {
           name="email"
           type="email"
           required
+          autoComplete="email"
           className="w-full rounded-lg border border-slate-300 px-3 py-2"
-          placeholder="admin@bbet.local"
+          placeholder="nome@azienda.it"
         />
       </div>
       <div>
@@ -49,6 +50,7 @@ export function LoginForm() {
           name="password"
           type="password"
           required
+          autoComplete="current-password"
           className="w-full rounded-lg border border-slate-300 px-3 py-2"
         />
       </div>

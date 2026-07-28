@@ -65,6 +65,7 @@ export const ModelName = {
   FinancialStatementCurrent: 'FinancialStatementCurrent',
   FinancialStatementSnapshot: 'FinancialStatementSnapshot',
   AuditLog: 'AuditLog',
+  LoginAttempt: 'LoginAttempt',
   AppSettings: 'AppSettings'
 } as const
 
@@ -329,6 +330,17 @@ export const AuditLogScalarFieldEnum = {
 } as const
 
 export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
+
+
+export const LoginAttemptScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  ip: 'ip',
+  success: 'success',
+  createdAt: 'createdAt'
+} as const
+
+export type LoginAttemptScalarFieldEnum = (typeof LoginAttemptScalarFieldEnum)[keyof typeof LoginAttemptScalarFieldEnum]
 
 
 export const AppSettingsScalarFieldEnum = {

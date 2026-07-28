@@ -5,9 +5,11 @@ import bcrypt from "bcryptjs";
 import { Role } from "@/generated/prisma/client";
 import { prisma } from "./prisma";
 import { writeAuditLog } from "./audit";
+import { isLoginBlocked, recordLoginAttempt } from "./login-rate-limit";
+import { isProduction, validateAuthSecret } from "./security";
 
 const SESSION_COOKIE = "bbet_session";
-const SESSION_DURATION = 60 * 60 * 24 * 7;
+const SESSION_DURATION = isProduction() ? 60 * 60 * 12 : 60 * 60 * 24 * 7;
 
 export type SessionUser = {
   id: string;
@@ -17,9 +19,8 @@ export type SessionUser = {
 };
 
 function getSecret() {
-  const secret = process.env.AUTH_SECRET;
-  if (!secret) throw new Error("AUTH_SECRET non configurato");
-  return new TextEncoder().encode(secret);
+  validateAuthSecret();
+  return new TextEncoder().encode(process.env.AUTH_SECRET);
 }
 
 export async function createSession(user: SessionUser) {
@@ -37,8 +38,8 @@ export async function createSession(user: SessionUser) {
   const cookieStore = await cookies();
   cookieStore.set(SESSION_COOKIE, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    secure: isProduction(),
+    sameSite: "strict",
     maxAge: SESSION_DURATION,
     path: "/",
   });
@@ -46,7 +47,13 @@ export async function createSession(user: SessionUser) {
 
 export async function destroySession() {
   const cookieStore = await cookies();
-  cookieStore.delete(SESSION_COOKIE);
+  cookieStore.set(SESSION_COOKIE, "", {
+    httpOnly: true,
+    secure: isProduction(),
+    sameSite: "strict",
+    maxAge: 0,
+    path: "/",
+  });
 }
 
 export async function getSession(): Promise<SessionUser | null> {
@@ -79,12 +86,29 @@ export async function requireAdmin(): Promise<SessionUser> {
   return session;
 }
 
-export async function login(email: string, password: string) {
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user || !user.active) return { error: "Credenziali non valide" };
+export async function login(email: string, password: string, ip: string) {
+  const normalizedEmail = email.trim().toLowerCase();
+  if (!normalizedEmail || !password) {
+    return { error: "Credenziali non valide" };
+  }
+
+  if (await isLoginBlocked(normalizedEmail, ip)) {
+    return { error: "Troppi tentativi falliti. Riprova tra 15 minuti." };
+  }
+
+  const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
+  if (!user || !user.active) {
+    await recordLoginAttempt(normalizedEmail, ip, false);
+    return { error: "Credenziali non valide" };
+  }
 
   const valid = await bcrypt.compare(password, user.password);
-  if (!valid) return { error: "Credenziali non valide" };
+  if (!valid) {
+    await recordLoginAttempt(normalizedEmail, ip, false);
+    return { error: "Credenziali non valide" };
+  }
+
+  await recordLoginAttempt(normalizedEmail, ip, true);
 
   await createSession({
     id: user.id,

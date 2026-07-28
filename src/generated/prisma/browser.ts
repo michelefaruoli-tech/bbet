@@ -88,6 +88,11 @@ export type FinancialStatementSnapshot = Prisma.FinancialStatementSnapshotModel
  */
 export type AuditLog = Prisma.AuditLogModel
 /**
+ * Model LoginAttempt
+ * 
+ */
+export type LoginAttempt = Prisma.LoginAttemptModel
+/**
  * Model AppSettings
  * 
  */
