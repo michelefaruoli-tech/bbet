@@ -45,11 +45,11 @@ export function QuickSuspendedRow({ customerId }: { customerId: string }) {
       <select
         value={type}
         onChange={(e) => setType(e.target.value as "DARE" | "AVERE")}
-        className="w-20 rounded border border-slate-300 px-1 py-1 text-xs"
+        className="w-24 rounded border border-slate-300 px-1 py-1 text-xs"
         title="Tipo movimento"
       >
-        <option value="DARE">Dare</option>
-        <option value="AVERE">Avere</option>
+        <option value="DARE">Inviati</option>
+        <option value="AVERE">Ricevuti</option>
       </select>
       <input
         type="text"

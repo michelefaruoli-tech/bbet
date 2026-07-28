@@ -167,8 +167,8 @@ export default async function SospesiPage({
             <thead>
               <tr>
                 <th>Cliente</th>
-                <th>Dare</th>
-                <th>Avere</th>
+                <th>Inviati</th>
+                <th>Ricevuti</th>
                 <th>Saldo</th>
                 <th>Mov.</th>
                 <th>Ultimo</th>

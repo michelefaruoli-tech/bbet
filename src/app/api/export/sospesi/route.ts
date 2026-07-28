@@ -21,5 +21,9 @@ export async function GET() {
     ];
   });
 
-  return csvResponse("sospesi.csv", ["Cliente", "Dare", "Avere", "Saldo", "Movimenti", "Stato"], rows);
+  return csvResponse(
+    "sospesi.csv",
+    ["Cliente", "Inviati", "Ricevuti", "Saldo", "Movimenti", "Stato"],
+    rows,
+  );
 }

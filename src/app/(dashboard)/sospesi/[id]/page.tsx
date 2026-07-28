@@ -42,8 +42,12 @@ export default async function CustomerDetailPage({
       </div>
 
       <div className="grid gap-4 sm:grid-cols-4">
-        <Card title="Totale Dare"><p className="text-xl font-bold">{formatEUR(totals.totalDare)}</p></Card>
-        <Card title="Totale Avere"><p className="text-xl font-bold">{formatEUR(totals.totalAvere)}</p></Card>
+        <Card title="Totale Inviati">
+          <p className="text-xl font-bold">{formatEUR(totals.totalDare)}</p>
+        </Card>
+        <Card title="Totale Ricevuti">
+          <p className="text-xl font-bold">{formatEUR(totals.totalAvere)}</p>
+        </Card>
         <Card title="Saldo attuale">
           <p className={`text-xl font-bold ${amountClass(totals.balance)}`}>{formatEUR(totals.balance)}</p>
         </Card>
@@ -58,7 +62,7 @@ export default async function CustomerDetailPage({
         <SuspendedMovementForm customerId={customer.id} />
       </Card>
 
-      <Card title="Cronologia Dare/Avere">
+      <Card title="Cronologia Inviati / Ricevuti">
         <div className="overflow-x-auto">
           <table className="data-table">
             <thead>
@@ -75,7 +79,7 @@ export default async function CustomerDetailPage({
               {customer.movements.map((m) => (
                 <tr key={m.id}>
                   <td>{formatDateIT(m.date)}{m.time ? ` ${m.time}` : ""}</td>
-                  <td>{m.movementType}</td>
+                  <td>{m.movementType === "DARE" ? "Inviati" : "Ricevuti"}</td>
                   <td className={amountClass(Number(m.amount))}>{formatEUR(m.amount)}</td>
                   <td>{m.description ?? "—"}</td>
                   <td>{m.createdBy.name}</td>

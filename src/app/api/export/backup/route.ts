@@ -125,7 +125,7 @@ export async function GET() {
   sheetFromRows(
     wb,
     "Clienti",
-    ["ID", "Cognome", "Nome", "Telefono", "Attivo", "Tot Dare", "Tot Avere", "Saldo", "N. mov", "Note"],
+    ["ID", "Cognome", "Nome", "Telefono", "Attivo", "Tot Inviati", "Tot Ricevuti", "Saldo", "N. mov", "Note"],
     customers.map((c) => {
       const t = calcCustomerBalance(c.movements);
       return [
@@ -152,7 +152,7 @@ export async function GET() {
       d(m.date),
       m.time ?? "",
       `${m.customer.surname} ${m.customer.name}`,
-      m.movementType,
+      m.movementType === "DARE" ? "Inviati" : "Ricevuti",
       n(m.amount),
       m.description ?? "",
       m.notes ?? "",

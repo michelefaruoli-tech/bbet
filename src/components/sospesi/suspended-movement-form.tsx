@@ -14,8 +14,8 @@ export function SuspendedMovementForm({ customerId }: { customerId: string }) {
       <div className="field">
         <label>Tipo movimento</label>
         <select name="movementType" required defaultValue="DARE">
-          <option value="DARE">Dare (anticipo al cliente)</option>
-          <option value="AVERE">Avere (restituzione cliente)</option>
+          <option value="DARE">Inviati (anticipo al cliente)</option>
+          <option value="AVERE">Ricevuti (restituzione cliente)</option>
         </select>
       </div>
       <AmountField />
