@@ -30,12 +30,31 @@ export default async function CommissioniPage({
         { cashFund: { not: 0 } },
       ],
     },
-    select: { year: true },
-    distinct: ["year"],
+    select: {
+      year: true,
+      invoiceAmount: true,
+      bonusAmount: true,
+      cashFund: true,
+    },
     orderBy: { year: "desc" },
   });
 
-  const defaultYear = yearsWithData[0]?.year ?? currentYear;
+  // Preferisci l'anno con Commissioni/Fondo (non solo Prelievi), così non si apre un anno "vuoto"
+  const yearsWithCommissions = [
+    ...new Set(
+      yearsWithData
+        .filter(
+          (m) =>
+            toNumber(m.invoiceAmount) !== 0 ||
+            toNumber(m.bonusAmount) !== 0 ||
+            toNumber(m.cashFund) !== 0,
+        )
+        .map((m) => m.year),
+    ),
+  ].sort((a, b) => b - a);
+
+  const allDataYears = [...new Set(yearsWithData.map((y) => y.year))].sort((a, b) => b - a);
+  const defaultYear = yearsWithCommissions[0] ?? allDataYears[0] ?? currentYear;
   const year = params.year ? Number(params.year) : defaultYear;
 
   const [existingMonths, history, dashboard] = await Promise.all([
@@ -77,7 +96,7 @@ export default async function CommissioniPage({
     closed: m.closed,
   }));
 
-  const yearSet = new Set(yearsWithData.map((y) => y.year));
+  const yearSet = new Set(allDataYears);
   for (let y = currentYear - 2; y <= currentYear + 1; y++) yearSet.add(y);
   yearSet.add(2024);
   const yearOptions = Array.from(yearSet).sort((a, b) => b - a);
@@ -91,7 +110,7 @@ export default async function CommissioniPage({
       toNumber(m.withdrawals) !== 0 ||
       toNumber(m.cashFund) !== 0,
   );
-  const latestDataYear = yearsWithData[0]?.year;
+  const latestDataYear = yearsWithCommissions[0] ?? allDataYears[0];
 
   const totFatt = allMonths.reduce((s, m) => s + toNumber(m.invoiceAmount), 0);
   const totBonus = allMonths.reduce((s, m) => s + toNumber(m.bonusAmount), 0);
@@ -157,13 +176,15 @@ export default async function CommissioniPage({
       </div>
 
       <Card title={`BBET ${year}`}>
-        {!hasData && latestDataYear && latestDataYear !== year && (
+        {(!hasData || (totFatt === 0 && totBonus === 0 && totFondo === 0)) &&
+          latestDataYear &&
+          latestDataYear !== year && (
           <p className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
-            Nessun dato per il {year}. I dati importati dal foglio Excel sono nel{" "}
+            Stai guardando il {year}, ma le Commissioni (Fatture/Bonus/Fondo) sono nel{" "}
             <a href={`/commissioni?year=${latestDataYear}`} className="font-semibold underline">
               {latestDataYear}
             </a>
-            .
+            . Clicca qui per aprirle.
           </p>
         )}
         <CommissionTable key={year} year={year} months={tableMonths} />
