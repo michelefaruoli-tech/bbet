@@ -15,8 +15,9 @@ export type TrisClosureCell = {
   dareTotal: number;
   avereTotal: number;
   monthlyBalance: number;
-  cumulativeBalance: number;
+  cumulativeBalance: number | null;
   movementCount: number;
+  closed: boolean;
 };
 
 type Props = {
@@ -83,11 +84,26 @@ export function TrisYearTable({ years, cells, selectedYears }: Props) {
                           type="button"
                           onClick={() => setSelectedKey(isSelected ? null : key)}
                           className={`w-full rounded px-1 py-0.5 font-medium transition hover:ring-2 hover:ring-violet-400 ${amountClass(value)} ${
-                            value < 0 ? "bg-red-50" : value > 0 ? "bg-violet-50" : ""
+                            !data.closed
+                              ? "border border-dashed border-amber-300 bg-amber-50/70"
+                              : value < 0
+                                ? "bg-red-50"
+                                : value > 0
+                                  ? "bg-violet-50"
+                                  : ""
                           } ${isSelected ? "ring-2 ring-violet-600" : ""}`}
-                          title="Dettaglio rendiconto Tris"
+                          title={
+                            data.closed
+                              ? "Mese chiuso — dettaglio Tris"
+                              : "Mese aperto — somma live Tris"
+                          }
                         >
                           {formatEUR(value)}
+                          {!data.closed && (
+                            <span className="mt-0.5 block text-[10px] font-normal text-amber-700">
+                              in corso
+                            </span>
+                          )}
                         </button>
                       </td>
                     );
@@ -100,13 +116,24 @@ export function TrisYearTable({ years, cells, selectedYears }: Props) {
       </div>
 
       {selected && (
-        <div className="rounded-lg border-2 border-violet-300 bg-violet-50/50 p-4">
+        <div
+          className={`rounded-lg border-2 p-4 ${
+            selected.closed
+              ? "border-violet-300 bg-violet-50/50"
+              : "border-amber-300 bg-amber-50/50"
+          }`}
+        >
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-            <h3 className="font-semibold text-violet-900">
-              Rendiconto Tris {MONTH_LABELS[selected.month - 1]} {selected.year}
+            <h3
+              className={`font-semibold ${selected.closed ? "text-violet-900" : "text-amber-900"}`}
+            >
+              {selected.closed ? "Rendiconto Tris" : "Tris in corso"}{" "}
+              {MONTH_LABELS[selected.month - 1]} {selected.year}
             </h3>
             <div className="flex items-center gap-2">
-              <ReopenTrisMonthButton year={selected.year} month={selected.month} />
+              {selected.closed && (
+                <ReopenTrisMonthButton year={selected.year} month={selected.month} />
+              )}
               <button
                 type="button"
                 onClick={() => setSelectedKey(null)}
@@ -133,8 +160,10 @@ export function TrisYearTable({ years, cells, selectedYears }: Props) {
             </div>
             <div>
               <p className="text-xs text-slate-500">Cumulativo (quanto devi)</p>
-              <p className={`font-semibold ${amountClass(selected.cumulativeBalance)}`}>
-                {formatEUR(selected.cumulativeBalance)}
+              <p className={`font-semibold ${amountClass(selected.cumulativeBalance ?? 0)}`}>
+                {selected.cumulativeBalance === null
+                  ? "—"
+                  : formatEUR(selected.cumulativeBalance)}
               </p>
             </div>
             <div>
@@ -142,13 +171,17 @@ export function TrisYearTable({ years, cells, selectedYears }: Props) {
               <p className="font-semibold">{selected.movementCount}</p>
             </div>
           </div>
+          {!selected.closed && (
+            <p className="mt-3 text-xs text-amber-800">
+              Somma automatica delle operazioni Tris del mese. Si aggiorna a ogni inserimento.
+            </p>
+          )}
         </div>
       )}
 
       {!selected && (
         <p className="text-xs text-slate-400">
-          Clicca su un importo per il dettaglio del rendiconto Tris mensile. Puoi anche riaprirlo se
-          hai sbagliato.
+          Clicca un importo per il dettaglio. Celle tratteggiate = mese aperto (live).
         </p>
       )}
     </div>

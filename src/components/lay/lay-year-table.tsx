@@ -16,8 +16,10 @@ export type LayClosureCell = {
   positiveTotal: number;
   negativeTotal: number;
   trisBalance: number;
-  cumulativeBalance: number;
+  cumulativeBalance: number | null;
   movementCount: number;
+  /** true = archiviato; false = somma live dalla cronologia */
+  closed: boolean;
 };
 
 type Props = {
@@ -96,11 +98,26 @@ export function LayYearTable({ years, cells, selectedYears }: Props) {
                           type="button"
                           onClick={() => setSelectedKey(isSelected ? null : key)}
                           className={`w-full rounded px-1 py-0.5 font-medium transition hover:ring-2 hover:ring-emerald-400 ${amountClass(value)} ${
-                            value < 0 ? "bg-red-50" : value > 0 ? "bg-emerald-50/60" : ""
+                            !data.closed
+                              ? "border border-dashed border-amber-300 bg-amber-50/70"
+                              : value < 0
+                                ? "bg-red-50"
+                                : value > 0
+                                  ? "bg-emerald-50/60"
+                                  : ""
                           } ${isSelected ? "ring-2 ring-emerald-600" : ""}`}
-                          title="Clicca per dettaglio chiusura mensile"
+                          title={
+                            data.closed
+                              ? "Mese chiuso — clicca per dettaglio"
+                              : "Mese aperto — somma live dalla cronologia"
+                          }
                         >
                           {formatEUR(value)}
+                          {!data.closed && (
+                            <span className="mt-0.5 block text-[10px] font-normal text-amber-700">
+                              in corso
+                            </span>
+                          )}
                         </button>
                       </td>
                     );
@@ -123,9 +140,11 @@ export function LayYearTable({ years, cells, selectedYears }: Props) {
             </tr>
             <tr className="bg-slate-50 text-xs text-slate-600">
               <td className="sticky left-0 z-10 bg-slate-50" colSpan={visibleYears.length + 1}>
-                Totale complessivo: <strong className={amountClass(grandTotal)}>{formatEUR(grandTotal)}</strong>
+                Totale complessivo:{" "}
+                <strong className={amountClass(grandTotal)}>{formatEUR(grandTotal)}</strong>
                 {" · "}Media annuale: <strong>{formatEUR(yearAvg)}</strong>
                 {" · "}Media mensile: <strong>{formatEUR(monthAvg)}</strong>
+                {" · "}Celle tratteggiate = mese aperto (si aggiorna da solo)
               </td>
             </tr>
           </tfoot>
@@ -133,13 +152,24 @@ export function LayYearTable({ years, cells, selectedYears }: Props) {
       </div>
 
       {selected && (
-        <div className="rounded-lg border-2 border-emerald-300 bg-emerald-50/50 p-4">
+        <div
+          className={`rounded-lg border-2 p-4 ${
+            selected.closed
+              ? "border-emerald-300 bg-emerald-50/50"
+              : "border-amber-300 bg-amber-50/50"
+          }`}
+        >
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-            <h3 className="font-semibold text-emerald-900">
-              Chiusura {MONTH_LABELS[selected.month - 1]} {selected.year}
+            <h3
+              className={`font-semibold ${selected.closed ? "text-emerald-900" : "text-amber-900"}`}
+            >
+              {selected.closed ? "Chiusura" : "In corso"} {MONTH_LABELS[selected.month - 1]}{" "}
+              {selected.year}
             </h3>
             <div className="flex items-center gap-2">
-              <ReopenLayMonthButton year={selected.year} month={selected.month} />
+              {selected.closed && (
+                <ReopenLayMonthButton year={selected.year} month={selected.month} />
+              )}
               <button
                 type="button"
                 onClick={() => setSelectedKey(null)}
@@ -152,7 +182,9 @@ export function LayYearTable({ years, cells, selectedYears }: Props) {
           <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
             <div>
               <p className="text-xs text-slate-500">Positivo</p>
-              <p className="font-semibold text-emerald-600">{formatEUR(selected.positiveTotal)}</p>
+              <p className="font-semibold text-emerald-600">
+                {formatEUR(selected.positiveTotal)}
+              </p>
             </div>
             <div>
               <p className="text-xs text-slate-500">Negativo</p>
@@ -160,27 +192,39 @@ export function LayYearTable({ years, cells, selectedYears }: Props) {
             </div>
             <div>
               <p className="text-xs text-slate-500">Saldo mese</p>
-              <p className={`font-semibold ${amountClass(selected.balance)}`}>{formatEUR(selected.balance)}</p>
+              <p className={`font-semibold ${amountClass(selected.balance)}`}>
+                {formatEUR(selected.balance)}
+              </p>
             </div>
             <div>
-              <p className="text-xs text-slate-500">Tris</p>
+              <p className="text-xs text-slate-500">Tris nel mese</p>
               <p className="font-semibold">{formatEUR(selected.trisBalance)}</p>
             </div>
             <div>
               <p className="text-xs text-slate-500">Cumulativo cassa</p>
-              <p className="font-semibold">{formatEUR(selected.cumulativeBalance)}</p>
+              <p className="font-semibold">
+                {selected.cumulativeBalance === null
+                  ? "—"
+                  : formatEUR(selected.cumulativeBalance)}
+              </p>
             </div>
             <div>
               <p className="text-xs text-slate-500">Movimenti</p>
               <p className="font-semibold">{selected.movementCount}</p>
             </div>
           </div>
+          {!selected.closed && (
+            <p className="mt-3 text-xs text-amber-800">
+              Somma automatica dalla cronologia. Quando chiudi il mese, il valore resta archiviato.
+            </p>
+          )}
         </div>
       )}
 
       {!selected && (
         <p className="text-xs text-slate-400">
-          Clicca su un importo nella tabella per vedere il dettaglio della chiusura mensile.
+          Clicca un importo per il dettaglio. I mesi aperti (bordo tratteggiato) si aggiornano da soli
+          quando inserisci operazioni.
         </p>
       )}
 

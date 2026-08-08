@@ -3,7 +3,7 @@ import { getLaySummary } from "@/lib/calculations-server";
 import { requireSession } from "@/lib/auth";
 import { isMaster } from "@/lib/roles";
 import { formatEUR, amountClass, toNumber } from "@/lib/format";
-import { findNextMonthToClose } from "@/lib/lay-month";
+import { findNextMonthToClose, sumLayMovementsByMonth, sumTrisMovementsByMonth } from "@/lib/lay-month";
 import { Card } from "@/components/ui";
 import { CloseLayMonthButton } from "@/components/lay/close-lay-month-button";
 import { LayYearTable } from "@/components/lay/lay-year-table";
@@ -32,7 +32,7 @@ export default async function LayPage({
     new Set([
       ...summary.closures.map((c) => c.year),
       ...summary.trisClosures.map((c) => c.year),
-      ...summary.movements.map((m) => new Date(m.date).getFullYear()),
+      ...summary.movements.map((m) => new Date(m.date).getUTCFullYear()),
       currentYear,
     ]),
   ).sort((a, b) => a - b);
@@ -47,32 +47,95 @@ export default async function LayPage({
   const filterYear = params.anno ?? "";
   const filterMonth = params.mese ?? "";
 
-  const cells = summary.closures.map((c) => ({
-    year: c.year,
-    month: c.month,
-    balance: toNumber(c.monthlyBalance),
-    positiveTotal: toNumber(c.positiveTotal),
-    negativeTotal: toNumber(c.negativeTotal),
-    trisBalance: toNumber(c.trisBalance),
-    cumulativeBalance: toNumber(c.cumulativeBalance),
-    movementCount: c.movementCount,
-  }));
-
-  const trisCells = summary.trisClosures.map((c) => ({
-    year: c.year,
-    month: c.month,
-    dareTotal: toNumber(c.dareTotal),
-    avereTotal: toNumber(c.avereTotal),
-    monthlyBalance: toNumber(c.monthlyBalance),
-    cumulativeBalance: toNumber(c.cumulativeBalance),
-    movementCount: c.movementCount,
-  }));
-
   const closedKeys = new Set(summary.closures.map((c) => `${c.year}-${c.month}`));
+  const trisClosedKeys = new Set(summary.trisClosures.map((c) => `${c.year}-${c.month}`));
+
+  const liveLay = sumLayMovementsByMonth(summary.movements);
+  const liveTris = sumTrisMovementsByMonth(summary.movements);
+
+  // Celle LAY: mesi chiusi dall'archivio + mesi aperti dalla somma live cronologia
+  const cellsMap = new Map<string, {
+    year: number;
+    month: number;
+    balance: number;
+    positiveTotal: number;
+    negativeTotal: number;
+    trisBalance: number;
+    cumulativeBalance: number | null;
+    movementCount: number;
+    closed: boolean;
+  }>();
+
+  for (const c of summary.closures) {
+    cellsMap.set(`${c.year}-${c.month}`, {
+      year: c.year,
+      month: c.month,
+      balance: toNumber(c.monthlyBalance),
+      positiveTotal: toNumber(c.positiveTotal),
+      negativeTotal: toNumber(c.negativeTotal),
+      trisBalance: toNumber(c.trisBalance),
+      cumulativeBalance: toNumber(c.cumulativeBalance),
+      movementCount: c.movementCount,
+      closed: true,
+    });
+  }
+  for (const [key, live] of liveLay) {
+    if (closedKeys.has(key)) continue;
+    cellsMap.set(key, {
+      year: live.year,
+      month: live.month,
+      balance: live.positive - live.negative,
+      positiveTotal: live.positive,
+      negativeTotal: live.negative,
+      trisBalance: live.tris,
+      cumulativeBalance: null,
+      movementCount: live.count,
+      closed: false,
+    });
+  }
+  const cells = Array.from(cellsMap.values());
+
+  const trisCellsMap = new Map<string, {
+    year: number;
+    month: number;
+    dareTotal: number;
+    avereTotal: number;
+    monthlyBalance: number;
+    cumulativeBalance: number | null;
+    movementCount: number;
+    closed: boolean;
+  }>();
+
+  for (const c of summary.trisClosures) {
+    trisCellsMap.set(`${c.year}-${c.month}`, {
+      year: c.year,
+      month: c.month,
+      dareTotal: toNumber(c.dareTotal),
+      avereTotal: toNumber(c.avereTotal),
+      monthlyBalance: toNumber(c.monthlyBalance),
+      cumulativeBalance: toNumber(c.cumulativeBalance),
+      movementCount: c.movementCount,
+      closed: true,
+    });
+  }
+  for (const [key, live] of liveTris) {
+    if (trisClosedKeys.has(key)) continue;
+    trisCellsMap.set(key, {
+      year: live.year,
+      month: live.month,
+      dareTotal: live.dare,
+      avereTotal: live.avere,
+      monthlyBalance: live.avere - live.dare,
+      cumulativeBalance: null,
+      movementCount: live.count,
+      closed: false,
+    });
+  }
+  const trisCells = Array.from(trisCellsMap.values());
 
   const operations = summary.movements.map((m) => {
     const d = new Date(m.date);
-    const key = `${d.getFullYear()}-${d.getMonth() + 1}`;
+    const key = `${d.getUTCFullYear()}-${d.getUTCMonth() + 1}`;
     return {
       id: m.id,
       date: m.date,
@@ -90,7 +153,7 @@ export default async function LayPage({
   const closeMonth = nextClose?.month ?? currentMonth;
   const monthMovements = summary.movements.filter((m) => {
     const d = new Date(m.date);
-    return d.getFullYear() === closeYear && d.getMonth() + 1 === closeMonth;
+    return d.getUTCFullYear() === closeYear && d.getUTCMonth() + 1 === closeMonth;
   });
   const monthBalance = monthMovements.reduce((s, m) => s + toNumber(m.amount), 0);
   const trisOpenCount = monthMovements.filter((m) => m.category === "TRIS").length;
@@ -170,8 +233,9 @@ export default async function LayPage({
 
       <Card title="Archivio mensile LAY">
         <p className="mb-3 text-xs text-slate-500">
-          Clicca un importo per il dettaglio. Da lì puoi <strong>riaprire il mese</strong> se hai
-          sbagliato (riapre anche Tris).
+          Ogni cella = somma delle operazioni di quel mese. I mesi aperti (bordo tratteggiato /
+          “in corso”) si aggiornano da soli quando inserisci movimenti. Dopo la chiusura restano
+          archiviati. Clicca un importo per il dettaglio.
         </p>
         <LayYearTable
           years={allYears}
@@ -182,7 +246,7 @@ export default async function LayPage({
 
       <Card title="Archivio mensile Tris">
         <p className="mb-3 text-xs text-slate-500">
-          Si aggiorna automaticamente quando chiudi il mese. Dettaglio movimenti nella{" "}
+          Stessa logica: somma live delle sole operazioni Tris del mese. Dettaglio completo nella{" "}
           <Link href="/lay/tris" className="font-medium text-emerald-700 underline">
             Scheda Rendiconto Tris
           </Link>
