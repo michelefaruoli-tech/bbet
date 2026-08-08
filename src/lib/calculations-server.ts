@@ -127,22 +127,8 @@ export async function getCashFundCurrent(): Promise<number> {
   const last = await prisma.cashFundMovement.findFirst({ orderBy: { date: "desc" } });
   if (last) return toNumber(last.closingValue);
 
-  // Saldo cassa reale Commissioni = Fatt + Bonus + Fondo − Prelievi (anno più recente con dati)
-  const years = await prisma.commissionMonth.findMany({
-    where: {
-      OR: [
-        { invoiceAmount: { not: 0 } },
-        { bonusAmount: { not: 0 } },
-        { cashFund: { not: 0 } },
-        { withdrawals: { not: 0 } },
-      ],
-    },
-    select: { year: true },
-    distinct: ["year"],
-    orderBy: { year: "desc" },
-    take: 1,
-  });
-  const year = years[0]?.year ?? new Date().getFullYear();
+  // Usa l'anno con Commissioni/Fondo reali (non solo Prelievi)
+  const year = await getLatestCommissionYear();
   const months = await prisma.commissionMonth.findMany({ where: { year } });
   if (months.length === 0) return 0;
 
@@ -190,23 +176,36 @@ export async function getCommissionYearTotal(year: number) {
   };
 }
 
-/** Anno Commissioni più recente con dati (es. 2024) */
+/**
+ * Anno Commissioni da usare in Dashboard / KPI.
+ * Preferisce anni con Fatture o Bonus (dati Commissioni reali).
+ * Non sceglie un anno che ha solo Prelievi (es. 2026 con −2000).
+ */
 export async function getLatestCommissionYear(): Promise<number> {
-  const years = await prisma.commissionMonth.findMany({
+  const rows = await prisma.commissionMonth.findMany({
     where: {
       OR: [
         { invoiceAmount: { not: 0 } },
         { bonusAmount: { not: 0 } },
         { cashFund: { not: 0 } },
-        { withdrawals: { not: 0 } },
       ],
     },
-    select: { year: true },
-    distinct: ["year"],
+    select: { year: true, invoiceAmount: true, bonusAmount: true },
     orderBy: { year: "desc" },
-    take: 1,
   });
-  return years[0]?.year ?? new Date().getFullYear();
+
+  const withInvoices = [
+    ...new Set(
+      rows
+        .filter((m) => toNumber(m.invoiceAmount) !== 0 || toNumber(m.bonusAmount) !== 0)
+        .map((m) => m.year),
+    ),
+  ].sort((a, b) => b - a);
+
+  if (withInvoices[0]) return withInvoices[0];
+
+  const withFund = [...new Set(rows.map((m) => m.year))].sort((a, b) => b - a);
+  return withFund[0] ?? new Date().getFullYear();
 }
 
 export async function getFullDashboard() {

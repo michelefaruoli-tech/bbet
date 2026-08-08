@@ -38,14 +38,14 @@ export default async function DashboardPage() {
         <KpiCard
           title="Fondo cassa (fisso)"
           value={cy.cashFund}
-          href="/commissioni"
-          subtitle="Chiusura anno precedente"
+          href={`/commissioni?year=${cy.year}`}
+          subtitle={`Anno ${cy.year} · chiusura anno precedente`}
         />
         <KpiCard
           title="Totale Commissioni"
           value={cy.totale}
-          href="/commissioni"
-          subtitle="Commissioni + Fondo − Prelievi"
+          href={`/commissioni?year=${cy.year}`}
+          subtitle={`${cy.year}: Commissioni + Fondo − Prelievi`}
           highlight="ok"
         />
       </div>
