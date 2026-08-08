@@ -393,6 +393,56 @@ export async function closeLayMonthAction(year: number, month: number) {
   const start = new Date(year, month - 1, 1);
   const end = new Date(year, month, 0, 23, 59, 59);
 
+  // Se esistono chiusure successive (es. chiuso agosto saltando luglio),
+  // le riapriamo così si può chiudere il mese mancante in sequenza.
+  const laterClosures = await prisma.layMonthlyClosure.findMany({
+    where: {
+      OR: [{ year: { gt: year } }, { year, month: { gt: month } }],
+    },
+    orderBy: [{ year: "desc" }, { month: "desc" }],
+  });
+  for (const later of laterClosures) {
+    await prisma.layMonthlyClosure.delete({ where: { id: later.id } });
+    await writeAuditLog({
+      userId: session.id,
+      entityType: "LayMonthlyClosure",
+      entityId: later.id,
+      action: "REOPEN_MONTH",
+      oldValue: later,
+      newValue: {
+        year: later.year,
+        month: later.month,
+        reopened: true,
+        via: "closeEarlierMonth",
+        closing: `${month}/${year}`,
+      },
+    });
+  }
+
+  const laterTris = await prisma.trisMonthlyClosure.findMany({
+    where: {
+      OR: [{ year: { gt: year } }, { year, month: { gt: month } }],
+    },
+    orderBy: [{ year: "desc" }, { month: "desc" }],
+  });
+  for (const later of laterTris) {
+    await prisma.trisMonthlyClosure.delete({ where: { id: later.id } });
+    await writeAuditLog({
+      userId: session.id,
+      entityType: "TrisMonthlyClosure",
+      entityId: later.id,
+      action: "REOPEN_MONTH",
+      oldValue: later,
+      newValue: {
+        year: later.year,
+        month: later.month,
+        reopened: true,
+        via: "closeEarlierMonth",
+        closing: `${month}/${year}`,
+      },
+    });
+  }
+
   const movements = await prisma.layMovement.findMany({
     where: { deletedAt: null, date: { gte: start, lte: end } },
   });
@@ -466,14 +516,20 @@ export async function closeLayMonthAction(year: number, month: number) {
     userId: session.id,
     entityType: "LayMonthlyClosure",
     action: "CLOSE_MONTH",
-    newValue: { year, month, monthlyBalance },
+    newValue: { year, month, monthlyBalance, trisBalance, movementCount: movements.length },
   });
 
   revalidatePath("/lay");
   revalidatePath("/lay/tris");
   revalidatePath("/rendiconto");
   revalidatePath("/");
-  return { success: true };
+  return {
+    success: true,
+    year,
+    month,
+    monthlyBalance,
+    reopenedLater: laterClosures.map((c) => `${c.month}/${c.year}`),
+  };
 }
 
 async function closeTrisMonthInternal(

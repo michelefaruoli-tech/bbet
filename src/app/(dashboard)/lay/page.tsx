@@ -3,6 +3,7 @@ import { getLaySummary } from "@/lib/calculations-server";
 import { requireSession } from "@/lib/auth";
 import { isMaster } from "@/lib/roles";
 import { formatEUR, amountClass, toNumber } from "@/lib/format";
+import { findNextMonthToClose } from "@/lib/lay-month";
 import { Card } from "@/components/ui";
 import { CloseLayMonthButton } from "@/components/lay/close-lay-month-button";
 import { LayYearTable } from "@/components/lay/lay-year-table";
@@ -24,6 +25,8 @@ export default async function LayPage({
   const now = new Date();
   const currentYear = now.getFullYear();
   const currentMonth = now.getMonth() + 1;
+
+  const nextClose = findNextMonthToClose(summary.closures, currentYear, currentMonth);
 
   const allYears = Array.from(
     new Set([
@@ -66,7 +69,6 @@ export default async function LayPage({
   }));
 
   const closedKeys = new Set(summary.closures.map((c) => `${c.year}-${c.month}`));
-  const monthAlreadyClosed = closedKeys.has(`${currentYear}-${currentMonth}`);
 
   const operations = summary.movements.map((m) => {
     const d = new Date(m.date);
@@ -84,9 +86,11 @@ export default async function LayPage({
     };
   });
 
+  const closeYear = nextClose?.year ?? currentYear;
+  const closeMonth = nextClose?.month ?? currentMonth;
   const monthMovements = summary.movements.filter((m) => {
     const d = new Date(m.date);
-    return d.getFullYear() === currentYear && d.getMonth() + 1 === currentMonth;
+    return d.getFullYear() === closeYear && d.getMonth() + 1 === closeMonth;
   });
   const monthBalance = monthMovements.reduce((s, m) => s + toNumber(m.amount), 0);
   const trisOpenCount = monthMovements.filter((m) => m.category === "TRIS").length;
@@ -103,15 +107,32 @@ export default async function LayPage({
             </Link>
           </p>
         </div>
-        <CloseLayMonthButton
-          year={currentYear}
-          month={currentMonth}
-          alreadyClosed={monthAlreadyClosed}
-        />
+        {nextClose ? (
+          <CloseLayMonthButton
+            year={nextClose.year}
+            month={nextClose.month}
+            alreadyClosed={false}
+            previewBalance={monthBalance}
+          />
+        ) : (
+          <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+            Nessun mese da chiudere fino a {currentMonth}/{currentYear}
+          </p>
+        )}
       </div>
 
+      {nextClose && (nextClose.year !== currentYear || nextClose.month !== currentMonth) && (
+        <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+          C’è un mese precedente ancora aperto: chiudi prima{" "}
+          <strong>
+            {nextClose.month}/{nextClose.year}
+          </strong>{" "}
+          (saldo {formatEUR(monthBalance)}), poi potrai chiudere i mesi successivi.
+        </p>
+      )}
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card title="Saldo mese corrente LAY">
+        <Card title={`Saldo da chiudere ${closeMonth}/${closeYear}`}>
           <p className={`text-xl font-bold ${amountClass(monthBalance)}`}>{formatEUR(monthBalance)}</p>
         </Card>
         <Card title="Saldo cassa LAY">
@@ -125,7 +146,7 @@ export default async function LayPage({
             {formatEUR(summary.trisCumulative)}
           </p>
           <p className="mt-1 text-xs text-slate-400">
-            {trisOpenCount > 0 ? `${trisOpenCount} mov. nel mese · ` : ""}
+            {trisOpenCount > 0 ? `${trisOpenCount} mov. nel mese da chiudere · ` : ""}
             <Link href="/lay/tris" className="underline">
               Vedi scheda Tris
             </Link>
