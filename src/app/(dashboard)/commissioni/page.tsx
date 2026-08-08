@@ -96,7 +96,6 @@ export default async function CommissioniPage({
 
   const yearSet = new Set(allDataYears);
   for (let y = currentYear - 2; y <= currentYear + 1; y++) yearSet.add(y);
-  yearSet.add(2024);
   const yearOptions = Array.from(yearSet).sort((a, b) => b - a);
 
   const hasData = allMonths.some(
