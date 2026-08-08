@@ -3,9 +3,9 @@ import { prisma } from "@/lib/prisma";
 import { isSuspendedBalanceZero } from "@/lib/calculations";
 import { openSuspendedTotals } from "@/lib/sospesi-period";
 import { formatEUR, amountClass } from "@/lib/format";
-import { formatDateIT } from "@/lib/timezone";
+import { formatMovementDateTime } from "@/lib/timezone";
 import { Card, Button } from "@/components/ui";
-import { CustomerForm } from "@/components/sospesi/customer-form";
+import { NewCustomerPanel } from "@/components/sospesi/new-customer-panel";
 import { QuickSuspendedRow } from "@/components/sospesi/quick-suspended-row";
 
 type Row = {
@@ -21,7 +21,7 @@ type Row = {
     balance: number;
     movementCount: number;
   };
-  last: { date: Date; time: string | null } | undefined;
+  last: { date: Date; time: string | null; createdAt: Date } | undefined;
 };
 
 function byAlphabet(a: Row, b: Row) {
@@ -31,10 +31,6 @@ function byAlphabet(a: Row, b: Row) {
     { sensitivity: "base" },
   );
   return sa;
-}
-
-function formatDateTimeCell(date: Date, time: string | null | undefined) {
-  return time ? `${formatDateIT(date)} ${time}` : formatDateIT(date);
 }
 
 function CustomerRows({ rows, stripeStart = 0 }: { rows: Row[]; stripeStart?: number }) {
@@ -56,7 +52,7 @@ function CustomerRows({ rows, stripeStart = 0 }: { rows: Row[]; stripeStart?: nu
           <td className={amountClass(totals.balance)}>{formatEUR(totals.balance)}</td>
           <td>{totals.movementCount}</td>
           <td className="whitespace-nowrap">
-            {last ? formatDateTimeCell(last.date, last.time) : "—"}
+            {last ? formatMovementDateTime(last.date, last.time, last.createdAt) : "—"}
           </td>
           <td>
             <QuickSuspendedRow customerId={customer.id} />
@@ -146,7 +142,11 @@ export default async function SospesiPage({
       return (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0);
     });
     const last = sortedOpen[0]
-      ? { date: sortedOpen[0].date, time: sortedOpen[0].time ?? null }
+      ? {
+          date: sortedOpen[0].date,
+          time: sortedOpen[0].time ?? null,
+          createdAt: sortedOpen[0].createdAt ?? sortedOpen[0].date,
+        }
       : undefined;
 
     return { customer: c, totals, last };
@@ -182,54 +182,7 @@ export default async function SospesiPage({
         </Card>
       </div>
 
-      <Card title="Ultimi 10 movimenti">
-        <div className="overflow-x-auto">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Data / ora</th>
-                <th>Cliente</th>
-                <th>Tipo</th>
-                <th>Importo</th>
-                <th>Descrizione</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {last10.map((m) => (
-                <tr key={m.id}>
-                  <td className="whitespace-nowrap">{formatDateTimeCell(m.date, m.time)}</td>
-                  <td>
-                    {m.customer.surname} {m.customer.name}
-                  </td>
-                  <td>{m.movementType === "DARE" ? "Inviati" : "Ricevuti"}</td>
-                  <td className={amountClass(Number(m.amount))}>{formatEUR(m.amount)}</td>
-                  <td>{m.description ?? "—"}</td>
-                  <td>
-                    <Link
-                      href={`/sospesi/${m.customer.id}`}
-                      className="text-sm text-emerald-600 hover:underline whitespace-nowrap"
-                    >
-                      Scheda
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-              {last10.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="py-6 text-center text-slate-400">
-                    Nessun movimento ancora
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </Card>
-
-      <Card title="Nuovo cliente" action={<span className="text-xs text-slate-400">Compila e salva</span>}>
-        <CustomerForm />
-      </Card>
+      <NewCustomerPanel />
 
       <Card title="Clienti">
         <form className="mb-4 flex flex-wrap gap-2">
@@ -295,7 +248,54 @@ export default async function SospesiPage({
               {rows.length === 0 && (
                 <tr>
                   <td colSpan={8} className="py-8 text-center text-slate-400">
-                    Nessun cliente. Crea il primo cliente sopra oppure importa lo storico.
+                    Nessun cliente. Usa “+ Nuovo cliente” oppure importa lo storico.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
+      <Card title="Ultimi 10 movimenti">
+        <div className="overflow-x-auto">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Data / ora</th>
+                <th>Cliente</th>
+                <th>Tipo</th>
+                <th>Importo</th>
+                <th>Descrizione</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {last10.map((m) => (
+                <tr key={m.id}>
+                  <td className="whitespace-nowrap">
+                    {formatMovementDateTime(m.date, m.time, m.createdAt)}
+                  </td>
+                  <td>
+                    {m.customer.surname} {m.customer.name}
+                  </td>
+                  <td>{m.movementType === "DARE" ? "Inviati" : "Ricevuti"}</td>
+                  <td className={amountClass(Number(m.amount))}>{formatEUR(m.amount)}</td>
+                  <td>{m.description ?? "—"}</td>
+                  <td>
+                    <Link
+                      href={`/sospesi/${m.customer.id}`}
+                      className="text-sm text-emerald-600 hover:underline whitespace-nowrap"
+                    >
+                      Scheda
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+              {last10.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="py-6 text-center text-slate-400">
+                    Nessun movimento ancora
                   </td>
                 </tr>
               )}

@@ -22,6 +22,20 @@ export function formatTimeIT(date: Date | string = new Date()): string {
   return formatInTimeZone(d, TIMEZONE, "HH:mm");
 }
 
+/**
+ * Data + ora di un movimento.
+ * Usa il campo time se presente, altrimenti l'ora di createdAt (sempre HH:mm).
+ */
+export function formatMovementDateTime(
+  date: Date | string,
+  time?: string | null,
+  createdAt?: Date | string | null,
+): string {
+  const day = formatDateIT(date);
+  const hhmm = (time && time.trim()) || (createdAt ? formatTimeIT(createdAt) : null);
+  return hhmm ? `${day} ${hhmm}` : day;
+}
+
 export function parseItalianDate(value: string): Date | null {
   const match = value.trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
   if (!match) return null;

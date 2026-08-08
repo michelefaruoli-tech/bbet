@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { calcCustomerBalance, isSuspendedBalanceZero } from "@/lib/calculations";
 import { openSuspendedTotals } from "@/lib/sospesi-period";
 import { formatEUR, amountClass } from "@/lib/format";
-import { formatDateIT } from "@/lib/timezone";
+import { formatMovementDateTime } from "@/lib/timezone";
 import { Card } from "@/components/ui";
 import { CustomerForm } from "@/components/sospesi/customer-form";
 import { SuspendedMovementForm } from "@/components/sospesi/suspended-movement-form";
@@ -141,9 +141,8 @@ export default async function CustomerDetailPage({
                     </tr>
                     {movements.map((m) => (
                       <tr key={m.id} className={isOpen ? undefined : "opacity-80"}>
-                        <td>
-                          {formatDateIT(m.date)}
-                          {m.time ? ` ${m.time}` : ""}
+                        <td className="whitespace-nowrap">
+                          {formatMovementDateTime(m.date, m.time, m.createdAt)}
                         </td>
                         <td>{m.movementType === "DARE" ? "Inviati" : "Ricevuti"}</td>
                         <td className={amountClass(Number(m.amount))}>{formatEUR(m.amount)}</td>

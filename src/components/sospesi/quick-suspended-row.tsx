@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { saveSuspendedMovementAction } from "@/lib/actions";
-import { formatDateIT } from "@/lib/timezone";
+import { formatDateIT, formatTimeIT } from "@/lib/timezone";
 import { Button } from "@/components/ui";
 
 export function QuickSuspendedRow({ customerId }: { customerId: string }) {
@@ -25,6 +25,7 @@ export function QuickSuspendedRow({ customerId }: { customerId: string }) {
         const fd = new FormData();
         fd.set("customerId", customerId);
         fd.set("date", today);
+        fd.set("time", formatTimeIT());
         fd.set("movementType", type);
         fd.set("amount", amount);
         startTransition(async () => {
