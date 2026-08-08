@@ -109,8 +109,8 @@ export default async function TrisSchedaPage() {
 
       <Card title="Archivi mensili Tris">
         <p className="mb-3 text-sm text-slate-500">
-          A ogni chiusura mese restano registrati Dare, Avere e Saldo Tris del mese, più il
-          cumulativo (debito).
+          Debito Tris: ogni <strong>Avere (+)</strong> lo riduce, ogni <strong>Dare (−)</strong> lo
+          aumenta. Esempio: giugno 2099 − luglio 14 = 2085 − agosto 200 = 1885.
         </p>
         <div className="overflow-x-auto">
           <table className="data-table text-sm">
