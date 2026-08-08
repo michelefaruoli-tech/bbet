@@ -11,7 +11,12 @@ export function NewCustomerPanel() {
   if (!open) {
     return (
       <div className="flex justify-end">
-        <Button type="button" variant="secondary" onClick={() => setOpen(true)}>
+        <Button
+          type="button"
+          variant="primary"
+          onClick={() => setOpen(true)}
+          className="!bg-emerald-600 !px-5 !py-2.5 !text-base !font-semibold shadow-md ring-2 ring-emerald-300 hover:!bg-emerald-700"
+        >
           + Nuovo cliente
         </Button>
       </div>
