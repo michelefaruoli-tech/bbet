@@ -27,7 +27,7 @@ export default async function TrisSchedaPage() {
 
   const chronological = [...trisMovements].reverse();
   const closureMap = new Map(
-    summary.trisClosures.map((c) => [`${c.year}-${c.month}`, c] as const),
+    summary.trisClosures.map((c) => [`${c.year}-${c.month}`, c]),
   );
 
   // Raggruppa per mese e calcola saldo debito dopo ogni operazione
