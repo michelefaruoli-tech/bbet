@@ -67,15 +67,17 @@ model User {
 }
 
 model Customer {
-  id        String    @id @default(cuid())
-  name      String
-  surname   String
-  phone     String?
-  notes     String?
-  active    Boolean   @default(true)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
+  id            String    @id @default(cuid())
+  name          String
+  surname       String
+  phone         String?
+  notes         String?
+  active        Boolean   @default(true)
+  /** Periodo aperto corrente: a saldo 0 si archivia e si passa al successivo */
+  currentPeriod Int       @default(1)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
 
   movements SuspendedMovement[]
 
@@ -93,6 +95,8 @@ model SuspendedMovement {
   amount       Decimal               @db.Decimal(14, 2)
   description  String?
   notes        String?
+  /** Numero periodo: quando il saldo torna a 0 si archivia e si apre un periodo nuovo */
+  period       Int                   @default(1)
   createdById  String
   createdAt    DateTime              @default(now())
   updatedAt    DateTime              @updatedAt
@@ -102,6 +106,7 @@ model SuspendedMovement {
   createdBy User     @relation("SuspendedCreatedBy", fields: [createdById], references: [id])
 
   @@index([customerId, date])
+  @@index([customerId, period])
   @@index([deletedAt])
 }
 

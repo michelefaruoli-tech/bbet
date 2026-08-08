@@ -16,6 +16,12 @@ export function formatDateTimeIT(date: Date | string): string {
   return formatInTimeZone(d, TIMEZONE, "dd/MM/yyyy HH:mm");
 }
 
+/** Ora corrente a Roma nel formato HH:mm (per i campi time dei movimenti) */
+export function formatTimeIT(date: Date | string = new Date()): string {
+  const d = typeof date === "string" ? new Date(date) : date;
+  return formatInTimeZone(d, TIMEZONE, "HH:mm");
+}
+
 export function parseItalianDate(value: string): Date | null {
   const match = value.trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
   if (!match) return null;

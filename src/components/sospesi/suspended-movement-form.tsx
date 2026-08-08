@@ -2,14 +2,15 @@
 
 import { saveSuspendedMovementAction } from "@/lib/actions";
 import { MovementForm, DateField, AmountField } from "@/components/forms/movement-form";
+import { formatTimeIT } from "@/lib/timezone";
 
 export function SuspendedMovementForm({ customerId }: { customerId: string }) {
   return (
     <MovementForm action={saveSuspendedMovementAction} hidden={{ customerId }}>
       <DateField />
       <div className="field">
-        <label>Ora (facoltativa)</label>
-        <input name="time" placeholder="HH:MM" />
+        <label>Ora</label>
+        <input name="time" type="time" required defaultValue={formatTimeIT()} />
       </div>
       <div className="field">
         <label>Tipo movimento</label>

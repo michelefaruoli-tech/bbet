@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { requireSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { toNumber } from "@/lib/format";
-import { calcCustomerBalance } from "@/lib/calculations";
+import { openSuspendedTotals } from "@/lib/sospesi-period";
 
 function sheetFromRows(
   wb: ExcelJS.Workbook,
@@ -127,7 +127,7 @@ export async function GET() {
     "Clienti",
     ["ID", "Cognome", "Nome", "Telefono", "Attivo", "Tot Inviati", "Tot Ricevuti", "Saldo", "N. mov", "Note"],
     customers.map((c) => {
-      const t = calcCustomerBalance(c.movements);
+      const { openMovements: _o, ...t } = openSuspendedTotals(c.currentPeriod, c.movements);
       return [
         c.id,
         c.surname,

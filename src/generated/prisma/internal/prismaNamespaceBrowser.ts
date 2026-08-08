@@ -106,6 +106,7 @@ export const CustomerScalarFieldEnum = {
   phone: 'phone',
   notes: 'notes',
   active: 'active',
+  currentPeriod: 'currentPeriod',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   deletedAt: 'deletedAt'
@@ -123,6 +124,7 @@ export const SuspendedMovementScalarFieldEnum = {
   amount: 'amount',
   description: 'description',
   notes: 'notes',
+  period: 'period',
   createdById: 'createdById',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',

@@ -6,12 +6,14 @@ import { prisma } from "./prisma";
 import { requireSession } from "./auth";
 import { writeAuditLog } from "./audit";
 import { parseItalianNumber } from "./format";
-import { parseItalianDate } from "./timezone";
+import { parseItalianDate, formatTimeIT } from "./timezone";
 import {
   calcCasinoNet,
   calcCommissionFinal,
   calcCommissionPartial,
+  calcCustomerBalance,
   detectTrisCategory,
+  isSuspendedBalanceZero,
 } from "./calculations";
 
 const customerSchema = z.object({
@@ -94,19 +96,34 @@ export async function saveSuspendedMovementAction(formData: FormData) {
   const customerId = String(formData.get("customerId"));
   const dateStr = String(formData.get("date"));
   const date = parseItalianDate(dateStr) ?? new Date(dateStr);
+
+  const customer = await prisma.customer.findUnique({ where: { id: customerId } });
+  if (!customer || customer.deletedAt) return { error: "Cliente non trovato" };
+
   const payload = {
     customerId,
     date,
-    time: (formData.get("time") as string) || null,
+    time: (formData.get("time") as string)?.trim() || formatTimeIT(),
     movementType: formData.get("movementType") as "DARE" | "AVERE",
     amount: parseItalianNumber(String(formData.get("amount"))),
     description: (formData.get("description") as string) || null,
     notes: (formData.get("notes") as string) || null,
+    period: customer.currentPeriod,
   };
 
   if (id) {
     const old = await prisma.suspendedMovement.findUnique({ where: { id } });
-    const updated = await prisma.suspendedMovement.update({ where: { id }, data: payload });
+    const updated = await prisma.suspendedMovement.update({
+      where: { id },
+      data: {
+        date: payload.date,
+        time: payload.time,
+        movementType: payload.movementType,
+        amount: payload.amount,
+        description: payload.description,
+        notes: payload.notes,
+      },
+    });
     await writeAuditLog({
       userId: session.id,
       entityType: "SuspendedMovement",
@@ -128,11 +145,46 @@ export async function saveSuspendedMovementAction(formData: FormData) {
     });
   }
 
+  await maybeCloseSuspendedPeriod(customerId, session.id);
+
   revalidatePath("/sospesi");
   revalidatePath(`/sospesi/${customerId}`);
   revalidatePath("/");
   revalidatePath("/rendiconto");
   return { success: true };
+}
+
+/** Se il saldo del periodo aperto è 0, archivia e apre un periodo nuovo (contatori a zero). */
+async function maybeCloseSuspendedPeriod(customerId: string, userId: string) {
+  const customer = await prisma.customer.findUnique({ where: { id: customerId } });
+  if (!customer) return;
+
+  const openMovements = await prisma.suspendedMovement.findMany({
+    where: { customerId, deletedAt: null, period: customer.currentPeriod },
+  });
+  if (openMovements.length === 0) return;
+
+  const totals = calcCustomerBalance(openMovements);
+  if (!isSuspendedBalanceZero(totals.balance)) return;
+
+  const nextPeriod = customer.currentPeriod + 1;
+  await prisma.customer.update({
+    where: { id: customerId },
+    data: { currentPeriod: nextPeriod },
+  });
+
+  await writeAuditLog({
+    userId,
+    entityType: "Customer",
+    entityId: customerId,
+    action: "CLOSE_SOSPESI_PERIOD",
+    newValue: {
+      closedPeriod: customer.currentPeriod,
+      nextPeriod,
+      totalDare: totals.totalDare,
+      totalAvere: totals.totalAvere,
+    },
+  });
 }
 
 export async function deleteSuspendedMovementAction(id: string, customerId: string) {
@@ -148,6 +200,9 @@ export async function deleteSuspendedMovementAction(id: string, customerId: stri
     action: "SOFT_DELETE",
     newValue: updated,
   });
+
+  await maybeCloseSuspendedPeriod(customerId, session.id);
+
   revalidatePath("/sospesi");
   revalidatePath(`/sospesi/${customerId}`);
   revalidatePath("/");

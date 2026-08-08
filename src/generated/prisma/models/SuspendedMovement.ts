@@ -28,10 +28,12 @@ export type AggregateSuspendedMovement = {
 
 export type SuspendedMovementAvgAggregateOutputType = {
   amount: runtime.Decimal | null
+  period: number | null
 }
 
 export type SuspendedMovementSumAggregateOutputType = {
   amount: runtime.Decimal | null
+  period: number | null
 }
 
 export type SuspendedMovementMinAggregateOutputType = {
@@ -43,6 +45,7 @@ export type SuspendedMovementMinAggregateOutputType = {
   amount: runtime.Decimal | null
   description: string | null
   notes: string | null
+  period: number | null
   createdById: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -58,6 +61,7 @@ export type SuspendedMovementMaxAggregateOutputType = {
   amount: runtime.Decimal | null
   description: string | null
   notes: string | null
+  period: number | null
   createdById: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -73,6 +77,7 @@ export type SuspendedMovementCountAggregateOutputType = {
   amount: number
   description: number
   notes: number
+  period: number
   createdById: number
   createdAt: number
   updatedAt: number
@@ -83,10 +88,12 @@ export type SuspendedMovementCountAggregateOutputType = {
 
 export type SuspendedMovementAvgAggregateInputType = {
   amount?: true
+  period?: true
 }
 
 export type SuspendedMovementSumAggregateInputType = {
   amount?: true
+  period?: true
 }
 
 export type SuspendedMovementMinAggregateInputType = {
@@ -98,6 +105,7 @@ export type SuspendedMovementMinAggregateInputType = {
   amount?: true
   description?: true
   notes?: true
+  period?: true
   createdById?: true
   createdAt?: true
   updatedAt?: true
@@ -113,6 +121,7 @@ export type SuspendedMovementMaxAggregateInputType = {
   amount?: true
   description?: true
   notes?: true
+  period?: true
   createdById?: true
   createdAt?: true
   updatedAt?: true
@@ -128,6 +137,7 @@ export type SuspendedMovementCountAggregateInputType = {
   amount?: true
   description?: true
   notes?: true
+  period?: true
   createdById?: true
   createdAt?: true
   updatedAt?: true
@@ -230,6 +240,7 @@ export type SuspendedMovementGroupByOutputType = {
   amount: runtime.Decimal
   description: string | null
   notes: string | null
+  period: number
   createdById: string
   createdAt: Date
   updatedAt: Date
@@ -268,6 +279,7 @@ export type SuspendedMovementWhereInput = {
   amount?: Prisma.DecimalFilter<"SuspendedMovement"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   description?: Prisma.StringNullableFilter<"SuspendedMovement"> | string | null
   notes?: Prisma.StringNullableFilter<"SuspendedMovement"> | string | null
+  period?: Prisma.IntFilter<"SuspendedMovement"> | number
   createdById?: Prisma.StringFilter<"SuspendedMovement"> | string
   createdAt?: Prisma.DateTimeFilter<"SuspendedMovement"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SuspendedMovement"> | Date | string
@@ -285,6 +297,7 @@ export type SuspendedMovementOrderByWithRelationInput = {
   amount?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  period?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -305,6 +318,7 @@ export type SuspendedMovementWhereUniqueInput = Prisma.AtLeast<{
   amount?: Prisma.DecimalFilter<"SuspendedMovement"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   description?: Prisma.StringNullableFilter<"SuspendedMovement"> | string | null
   notes?: Prisma.StringNullableFilter<"SuspendedMovement"> | string | null
+  period?: Prisma.IntFilter<"SuspendedMovement"> | number
   createdById?: Prisma.StringFilter<"SuspendedMovement"> | string
   createdAt?: Prisma.DateTimeFilter<"SuspendedMovement"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SuspendedMovement"> | Date | string
@@ -322,6 +336,7 @@ export type SuspendedMovementOrderByWithAggregationInput = {
   amount?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  period?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -345,6 +360,7 @@ export type SuspendedMovementScalarWhereWithAggregatesInput = {
   amount?: Prisma.DecimalWithAggregatesFilter<"SuspendedMovement"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   description?: Prisma.StringNullableWithAggregatesFilter<"SuspendedMovement"> | string | null
   notes?: Prisma.StringNullableWithAggregatesFilter<"SuspendedMovement"> | string | null
+  period?: Prisma.IntWithAggregatesFilter<"SuspendedMovement"> | number
   createdById?: Prisma.StringWithAggregatesFilter<"SuspendedMovement"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SuspendedMovement"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SuspendedMovement"> | Date | string
@@ -359,6 +375,7 @@ export type SuspendedMovementCreateInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   description?: string | null
   notes?: string | null
+  period?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -375,6 +392,7 @@ export type SuspendedMovementUncheckedCreateInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   description?: string | null
   notes?: string | null
+  period?: number
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -389,6 +407,7 @@ export type SuspendedMovementUpdateInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  period?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -405,6 +424,7 @@ export type SuspendedMovementUncheckedUpdateInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  period?: Prisma.IntFieldUpdateOperationsInput | number
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -420,6 +440,7 @@ export type SuspendedMovementCreateManyInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   description?: string | null
   notes?: string | null
+  period?: number
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -434,6 +455,7 @@ export type SuspendedMovementUpdateManyMutationInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  period?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -448,6 +470,7 @@ export type SuspendedMovementUncheckedUpdateManyInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  period?: Prisma.IntFieldUpdateOperationsInput | number
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -473,6 +496,7 @@ export type SuspendedMovementCountOrderByAggregateInput = {
   amount?: Prisma.SortOrder
   description?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  period?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -481,6 +505,7 @@ export type SuspendedMovementCountOrderByAggregateInput = {
 
 export type SuspendedMovementAvgOrderByAggregateInput = {
   amount?: Prisma.SortOrder
+  period?: Prisma.SortOrder
 }
 
 export type SuspendedMovementMaxOrderByAggregateInput = {
@@ -492,6 +517,7 @@ export type SuspendedMovementMaxOrderByAggregateInput = {
   amount?: Prisma.SortOrder
   description?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  period?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -507,6 +533,7 @@ export type SuspendedMovementMinOrderByAggregateInput = {
   amount?: Prisma.SortOrder
   description?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  period?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -515,6 +542,7 @@ export type SuspendedMovementMinOrderByAggregateInput = {
 
 export type SuspendedMovementSumOrderByAggregateInput = {
   amount?: Prisma.SortOrder
+  period?: Prisma.SortOrder
 }
 
 export type SuspendedMovementCreateNestedManyWithoutCreatedByInput = {
@@ -621,6 +649,7 @@ export type SuspendedMovementCreateWithoutCreatedByInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   description?: string | null
   notes?: string | null
+  period?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -636,6 +665,7 @@ export type SuspendedMovementUncheckedCreateWithoutCreatedByInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   description?: string | null
   notes?: string | null
+  period?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -679,6 +709,7 @@ export type SuspendedMovementScalarWhereInput = {
   amount?: Prisma.DecimalFilter<"SuspendedMovement"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   description?: Prisma.StringNullableFilter<"SuspendedMovement"> | string | null
   notes?: Prisma.StringNullableFilter<"SuspendedMovement"> | string | null
+  period?: Prisma.IntFilter<"SuspendedMovement"> | number
   createdById?: Prisma.StringFilter<"SuspendedMovement"> | string
   createdAt?: Prisma.DateTimeFilter<"SuspendedMovement"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SuspendedMovement"> | Date | string
@@ -693,6 +724,7 @@ export type SuspendedMovementCreateWithoutCustomerInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   description?: string | null
   notes?: string | null
+  period?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -707,6 +739,7 @@ export type SuspendedMovementUncheckedCreateWithoutCustomerInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   description?: string | null
   notes?: string | null
+  period?: number
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -748,6 +781,7 @@ export type SuspendedMovementCreateManyCreatedByInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   description?: string | null
   notes?: string | null
+  period?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -761,6 +795,7 @@ export type SuspendedMovementUpdateWithoutCreatedByInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  period?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -776,6 +811,7 @@ export type SuspendedMovementUncheckedUpdateWithoutCreatedByInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  period?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -790,6 +826,7 @@ export type SuspendedMovementUncheckedUpdateManyWithoutCreatedByInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  period?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -803,6 +840,7 @@ export type SuspendedMovementCreateManyCustomerInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   description?: string | null
   notes?: string | null
+  period?: number
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -817,6 +855,7 @@ export type SuspendedMovementUpdateWithoutCustomerInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  period?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -831,6 +870,7 @@ export type SuspendedMovementUncheckedUpdateWithoutCustomerInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  period?: Prisma.IntFieldUpdateOperationsInput | number
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -845,6 +885,7 @@ export type SuspendedMovementUncheckedUpdateManyWithoutCustomerInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  period?: Prisma.IntFieldUpdateOperationsInput | number
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -862,6 +903,7 @@ export type SuspendedMovementSelect<ExtArgs extends runtime.Types.Extensions.Int
   amount?: boolean
   description?: boolean
   notes?: boolean
+  period?: boolean
   createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -879,6 +921,7 @@ export type SuspendedMovementSelectCreateManyAndReturn<ExtArgs extends runtime.T
   amount?: boolean
   description?: boolean
   notes?: boolean
+  period?: boolean
   createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -896,6 +939,7 @@ export type SuspendedMovementSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   amount?: boolean
   description?: boolean
   notes?: boolean
+  period?: boolean
   createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -913,13 +957,14 @@ export type SuspendedMovementSelectScalar = {
   amount?: boolean
   description?: boolean
   notes?: boolean
+  period?: boolean
   createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
 }
 
-export type SuspendedMovementOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerId" | "date" | "time" | "movementType" | "amount" | "description" | "notes" | "createdById" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["suspendedMovement"]>
+export type SuspendedMovementOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerId" | "date" | "time" | "movementType" | "amount" | "description" | "notes" | "period" | "createdById" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["suspendedMovement"]>
 export type SuspendedMovementInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -948,6 +993,10 @@ export type $SuspendedMovementPayload<ExtArgs extends runtime.Types.Extensions.I
     amount: runtime.Decimal
     description: string | null
     notes: string | null
+    /**
+     * * Numero periodo: quando il saldo torna a 0 si archivia e si apre un periodo nuovo
+     */
+    period: number
     createdById: string
     createdAt: Date
     updatedAt: Date
@@ -1385,6 +1434,7 @@ export interface SuspendedMovementFieldRefs {
   readonly amount: Prisma.FieldRef<"SuspendedMovement", 'Decimal'>
   readonly description: Prisma.FieldRef<"SuspendedMovement", 'String'>
   readonly notes: Prisma.FieldRef<"SuspendedMovement", 'String'>
+  readonly period: Prisma.FieldRef<"SuspendedMovement", 'Int'>
   readonly createdById: Prisma.FieldRef<"SuspendedMovement", 'String'>
   readonly createdAt: Prisma.FieldRef<"SuspendedMovement", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"SuspendedMovement", 'DateTime'>

@@ -1676,6 +1676,7 @@ export const CustomerScalarFieldEnum = {
   phone: 'phone',
   notes: 'notes',
   active: 'active',
+  currentPeriod: 'currentPeriod',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   deletedAt: 'deletedAt'
@@ -1693,6 +1694,7 @@ export const SuspendedMovementScalarFieldEnum = {
   amount: 'amount',
   description: 'description',
   notes: 'notes',
+  period: 'period',
   createdById: 'createdById',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
@@ -2002,6 +2004,20 @@ export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
 
 
 /**
+ * Reference to a field of type 'Int'
+ */
+export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+/**
+ * Reference to a field of type 'Int[]'
+ */
+export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
  * Reference to a field of type 'SuspendedMovementType'
  */
 export type EnumSuspendedMovementTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SuspendedMovementType'>
@@ -2040,20 +2056,6 @@ export type EnumMasterMovementTypeFieldRefInput<$PrismaModel> = FieldRefInputTyp
  * Reference to a field of type 'MasterMovementType[]'
  */
 export type ListEnumMasterMovementTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MasterMovementType[]'>
-    
-
-
-/**
- * Reference to a field of type 'Int'
- */
-export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
-    
-
-
-/**
- * Reference to a field of type 'Int[]'
- */
-export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
     
 
 

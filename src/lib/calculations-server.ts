@@ -2,12 +2,12 @@ import { prisma } from "./prisma";
 import { toNumber } from "./format";
 import {
   buildFinancialStatement,
-  calcCustomerBalance,
   calcLayBalance,
   calcMasterBalance,
   calcTrisFromMovements,
   applyTrisDebt,
 } from "./calculations";
+import { openSuspendedTotals } from "./sospesi-period";
 
 export async function getSuspendedSummary() {
   const customers = await prisma.customer.findMany({
@@ -22,7 +22,7 @@ export async function getSuspendedSummary() {
   let netTotal = 0;
 
   const customerSummaries = customers.map((c) => {
-    const totals = calcCustomerBalance(c.movements);
+    const { openMovements: _open, ...totals } = openSuspendedTotals(c.currentPeriod, c.movements);
     if (totals.balance > 0) positiveCredits += totals.balance;
     if (totals.balance < 0) negativeBalances += totals.balance;
     netTotal += totals.balance;

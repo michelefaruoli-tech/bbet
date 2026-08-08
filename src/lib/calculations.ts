@@ -25,6 +25,41 @@ export function calcCustomerBalance(
   };
 }
 
+/** Saldo ≈ 0 (tolleranza centesimi) */
+export function isSuspendedBalanceZero(balance: number): boolean {
+  return Math.abs(balance) < 0.005;
+}
+
+/**
+ * Ricostruisce i numeri di periodo dalla cronologia:
+ * ogni volta che Inviati − Ricevuti torna a 0, il periodo si chiude.
+ */
+export function assignSuspendedPeriods<T extends { id: string; movementType: string; amount: unknown; date: Date | string; createdAt?: Date | string }>(
+  movementsChronological: T[],
+): { assignments: Array<{ id: string; period: number }>; currentPeriod: number } {
+  let period = 1;
+  let dare = 0;
+  let avere = 0;
+  const assignments: Array<{ id: string; period: number }> = [];
+
+  for (const m of movementsChronological) {
+    const amount = toNumber(m.amount);
+    if (m.movementType === "DARE") dare += amount;
+    else avere += amount;
+    assignments.push({ id: m.id, period });
+
+    const balance = dare - avere;
+    if (isSuspendedBalanceZero(balance) && (dare !== 0 || avere !== 0)) {
+      period += 1;
+      dare = 0;
+      avere = 0;
+    }
+  }
+
+  // Se l'ultimo movimento ha chiuso il periodo, currentPeriod è già il nuovo (vuoto)
+  return { assignments, currentPeriod: period };
+}
+
 export function calcCasinoNet(casinoGross: number): number {
   return casinoGross * 0.4;
 }

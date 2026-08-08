@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { calcCustomerBalance } from "@/lib/calculations";
+import { isSuspendedBalanceZero } from "@/lib/calculations";
+import { openSuspendedTotals } from "@/lib/sospesi-period";
 import { formatEUR, amountClass } from "@/lib/format";
 import { formatDateIT } from "@/lib/timezone";
 import { Card, Button } from "@/components/ui";
@@ -20,7 +21,7 @@ type Row = {
     balance: number;
     movementCount: number;
   };
-  last: { date: Date } | undefined;
+  last: { date: Date; time: string | null } | undefined;
 };
 
 function byAlphabet(a: Row, b: Row) {
@@ -30,6 +31,10 @@ function byAlphabet(a: Row, b: Row) {
     { sensitivity: "base" },
   );
   return sa;
+}
+
+function formatDateTimeCell(date: Date, time: string | null | undefined) {
+  return time ? `${formatDateIT(date)} ${time}` : formatDateIT(date);
 }
 
 function CustomerRows({ rows, stripeStart = 0 }: { rows: Row[]; stripeStart?: number }) {
@@ -50,7 +55,9 @@ function CustomerRows({ rows, stripeStart = 0 }: { rows: Row[]; stripeStart?: nu
           <td>{formatEUR(totals.totalAvere)}</td>
           <td className={amountClass(totals.balance)}>{formatEUR(totals.balance)}</td>
           <td>{totals.movementCount}</td>
-          <td>{last ? formatDateIT(last.date) : "—"}</td>
+          <td className="whitespace-nowrap">
+            {last ? formatDateTimeCell(last.date, last.time) : "—"}
+          </td>
           <td>
             <QuickSuspendedRow customerId={customer.id} />
           </td>
@@ -77,41 +84,76 @@ export default async function SospesiPage({
   const q = params.q?.trim() ?? "";
   const stato = params.stato ?? "attivi";
 
-  const customers = await prisma.customer.findMany({
-    where: {
-      deletedAt: null,
-      ...(stato === "archiviati" ? { active: false } : stato === "attivi" ? { active: true } : {}),
-      ...(q
-        ? {
-            OR: [
-              { name: { contains: q, mode: "insensitive" } },
-              { surname: { contains: q, mode: "insensitive" } },
-              { phone: { contains: q } },
-            ],
-          }
-        : {}),
-    },
-    include: {
-      movements: { where: { deletedAt: null }, orderBy: { date: "desc" } },
-    },
-    orderBy: [{ surname: "asc" }, { name: "asc" }],
-  });
+  const [customers, recentMovements] = await Promise.all([
+    prisma.customer.findMany({
+      where: {
+        deletedAt: null,
+        ...(stato === "archiviati" ? { active: false } : stato === "attivi" ? { active: true } : {}),
+        ...(q
+          ? {
+              OR: [
+                { name: { contains: q, mode: "insensitive" } },
+                { surname: { contains: q, mode: "insensitive" } },
+                { phone: { contains: q } },
+              ],
+            }
+          : {}),
+      },
+      include: {
+        movements: {
+          where: { deletedAt: null },
+          orderBy: [{ date: "desc" }, { createdAt: "desc" }],
+        },
+      },
+      orderBy: [{ surname: "asc" }, { name: "asc" }],
+    }),
+    prisma.suspendedMovement.findMany({
+      where: { deletedAt: null },
+      include: {
+        customer: { select: { id: true, name: true, surname: true } },
+      },
+      orderBy: [{ date: "desc" }, { createdAt: "desc" }],
+      take: 40,
+    }),
+  ]);
+
+  const last10 = [...recentMovements]
+    .sort((a, b) => {
+      const dateDiff = b.date.getTime() - a.date.getTime();
+      if (dateDiff !== 0) return dateDiff;
+      const timeA = a.time ?? "";
+      const timeB = b.time ?? "";
+      if (timeA !== timeB) return timeB.localeCompare(timeA);
+      return b.createdAt.getTime() - a.createdAt.getTime();
+    })
+    .slice(0, 10);
 
   let totalPositive = 0;
   let totalNegative = 0;
   let netTotal = 0;
 
   const rows: Row[] = customers.map((c) => {
-    const totals = calcCustomerBalance(c.movements);
+    const { openMovements, ...totals } = openSuspendedTotals(c.currentPeriod, c.movements);
     if (totals.balance > 0) totalPositive += totals.balance;
     if (totals.balance < 0) totalNegative += totals.balance;
     netTotal += totals.balance;
-    const last = c.movements[0];
+
+    const sortedOpen = [...openMovements].sort((a, b) => {
+      const dateDiff = b.date.getTime() - a.date.getTime();
+      if (dateDiff !== 0) return dateDiff;
+      const timeCmp = (b.time ?? "").localeCompare(a.time ?? "");
+      if (timeCmp !== 0) return timeCmp;
+      return (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0);
+    });
+    const last = sortedOpen[0]
+      ? { date: sortedOpen[0].date, time: sortedOpen[0].time ?? null }
+      : undefined;
+
     return { customer: c, totals, last };
   });
 
-  const withBalance = rows.filter((r) => r.totals.balance !== 0).sort(byAlphabet);
-  const zeroBalance = rows.filter((r) => r.totals.balance === 0).sort(byAlphabet);
+  const withBalance = rows.filter((r) => !isSuspendedBalanceZero(r.totals.balance)).sort(byAlphabet);
+  const zeroBalance = rows.filter((r) => isSuspendedBalanceZero(r.totals.balance)).sort(byAlphabet);
 
   return (
     <div className="space-y-6">
@@ -119,7 +161,7 @@ export default async function SospesiPage({
         <div>
           <h1 className="text-2xl font-bold">Sospesi</h1>
           <p className="text-sm text-slate-500">
-            In alto saldi aperti · sotto saldo 0 · ordine alfabetico · inserimento rapido
+            Contatori del periodo aperto · a saldo 0 si archivia e si riparte da zero · ordine alfabetico
           </p>
         </div>
         <a href="/api/export/sospesi" className="text-sm text-emerald-600 hover:underline">
@@ -139,6 +181,51 @@ export default async function SospesiPage({
           <p className="mt-1 text-xs text-slate-400">Alimenta il campo Credito del Rendiconto</p>
         </Card>
       </div>
+
+      <Card title="Ultimi 10 movimenti">
+        <div className="overflow-x-auto">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Data / ora</th>
+                <th>Cliente</th>
+                <th>Tipo</th>
+                <th>Importo</th>
+                <th>Descrizione</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {last10.map((m) => (
+                <tr key={m.id}>
+                  <td className="whitespace-nowrap">{formatDateTimeCell(m.date, m.time)}</td>
+                  <td>
+                    {m.customer.surname} {m.customer.name}
+                  </td>
+                  <td>{m.movementType === "DARE" ? "Inviati" : "Ricevuti"}</td>
+                  <td className={amountClass(Number(m.amount))}>{formatEUR(m.amount)}</td>
+                  <td>{m.description ?? "—"}</td>
+                  <td>
+                    <Link
+                      href={`/sospesi/${m.customer.id}`}
+                      className="text-sm text-emerald-600 hover:underline whitespace-nowrap"
+                    >
+                      Scheda
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+              {last10.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="py-6 text-center text-slate-400">
+                    Nessun movimento ancora
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
 
       <Card title="Nuovo cliente" action={<span className="text-xs text-slate-400">Compila e salva</span>}>
         <CustomerForm />
@@ -193,7 +280,7 @@ export default async function SospesiPage({
 
               <tr className="sospesi-section bg-slate-100">
                 <td colSpan={8} className="py-2 text-sm font-semibold text-slate-600">
-                  Saldo 0 — {zeroBalance.length} clienti · ordine alfabetico
+                  Saldo 0 — {zeroBalance.length} clienti · contatori azzerati · ordine alfabetico
                 </td>
               </tr>
               <CustomerRows rows={zeroBalance} />
