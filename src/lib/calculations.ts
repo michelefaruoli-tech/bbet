@@ -87,7 +87,17 @@ export function calcTrisFromMovements(
     if (amount >= 0) positive += amount;
     else negative += Math.abs(amount);
   }
+  // balance mese = Avere − Dare (attività del mese)
   return { positive, negative, balance: positive - negative, count };
+}
+
+/**
+ * Saldo debito Tris.
+ * Avere (+) riduce il debito · Dare (−) lo aumenta.
+ * effect = −Avere + Dare = −(Avere − Dare)
+ */
+export function applyTrisDebt(previousDebt: number, monthAvereMinusDare: number): number {
+  return previousDebt - monthAvereMinusDare;
 }
 
 export type FinancialStatementValues = {

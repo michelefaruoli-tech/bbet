@@ -580,7 +580,8 @@ async function closeTrisMonthInternal(
   });
   const last = prev[prev.length - 1];
   const prevCum = last ? Number(last.cumulativeBalance) : 0;
-  const cumulativeBalance = prevCum + (monthlyBalance ?? 0);
+  // Debito Tris: Avere riduce, Dare aumenta → cumulativo = precedente − (Avere − Dare)
+  const cumulativeBalance = prevCum - (monthlyBalance ?? 0);
 
   const row = await prisma.trisMonthlyClosure.upsert({
     where: { year_month: { year, month } },

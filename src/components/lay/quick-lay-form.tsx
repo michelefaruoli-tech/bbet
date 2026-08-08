@@ -22,7 +22,7 @@ export function QuickLayForm({ trisBalance = 0 }: { trisBalance?: number }) {
   return (
     <div className="space-y-3">
       <p className="text-sm text-slate-600">
-        <strong>Tris</strong>: saldo{" "}
+        <strong>Tris</strong>: saldo attuale{" "}
         <span
           className={
             trisBalance >= 0 ? "font-semibold text-amber-700" : "font-semibold text-emerald-700"
@@ -34,9 +34,9 @@ export function QuickLayForm({ trisBalance = 0 }: { trisBalance?: number }) {
           })}{" "}
           €
         </span>
-        {trisBalance >= 0 ? " (quanto devi)" : " (loro devono a te)"}. Se attivi{" "}
-        <strong>Tris</strong>, l’operazione scala/aggiorna automaticamente il credito Tris e il
-        Rendiconto.
+        {trisBalance >= 0 ? " (quanto devi)" : " (loro devono a te)"}. Con{" "}
+        <strong>Tris attivo</strong>: <strong>Avere (+)</strong> riduce il debito,{" "}
+        <strong>Dare (−)</strong> lo aumenta.
       </p>
 
       <form
@@ -63,8 +63,8 @@ export function QuickLayForm({ trisBalance = 0 }: { trisBalance?: number }) {
               if (trisActive) {
                 setMessage(
                   type === "AVERE"
-                    ? "Salvato · Avere (+) aggiornato su Tris e Rendiconto"
-                    : "Salvato · Dare (−) scalato dal Tris e Rendiconto aggiornato",
+                    ? "Salvato · Avere: saldo Tris ridotto"
+                    : "Salvato · Dare: saldo Tris aumentato",
                 );
               } else {
                 setMessage("Salvato (solo LAY, senza Tris)");

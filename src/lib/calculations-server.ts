@@ -6,6 +6,7 @@ import {
   calcLayBalance,
   calcMasterBalance,
   calcTrisFromMovements,
+  applyTrisDebt,
 } from "./calculations";
 
 export async function getSuspendedSummary() {
@@ -74,7 +75,7 @@ export async function getLaySummary() {
   const closedCash = lastClosure ? toNumber(lastClosure.cumulativeBalance) : 0;
   const cumulativeBalance = closedCash + openBalance;
 
-  // Tris: archivio mensile separato + movimenti TRIS dei mesi non ancora archiviati
+  // Tris: debito. Avere (+) lo riduce, Dare (−) lo aumenta.
   const openTrisMovements = movements.filter((m) => {
     if (m.category !== "TRIS") return false;
     const d = new Date(m.date);
@@ -83,7 +84,18 @@ export async function getLaySummary() {
   const trisOpen = calcTrisFromMovements(openTrisMovements);
   const lastTris = trisClosures.length > 0 ? trisClosures[trisClosures.length - 1] : null;
   const trisFromArchive = lastTris ? toNumber(lastTris.cumulativeBalance) : 0;
-  const trisCumulative = trisFromArchive + trisOpen.balance;
+  const trisCumulative = applyTrisDebt(trisFromArchive, trisOpen.balance);
+
+  // Contatori mese calendario corrente (si azzerano ogni mese)
+  const now = new Date();
+  const curY = now.getFullYear();
+  const curM = now.getMonth() + 1;
+  const monthTrisMovements = movements.filter((m) => {
+    if (m.category !== "TRIS") return false;
+    const d = new Date(m.date);
+    return d.getUTCFullYear() === curY && d.getUTCMonth() + 1 === curM;
+  });
+  const trisMonth = calcTrisFromMovements(monthTrisMovements);
 
   const positives =
     closures.reduce((s, c) => s + toNumber(c.positiveTotal), 0) +
@@ -100,6 +112,11 @@ export async function getLaySummary() {
     movementCount: movements.length,
     trisCumulative,
     trisCurrent: trisOpen,
+    trisMonthAvere: trisMonth.positive,
+    trisMonthDare: trisMonth.negative,
+    trisMonthBalance: trisMonth.balance,
+    trisMonthYear: curY,
+    trisMonthMonth: curM,
     trisClosures,
     movements,
     closures,

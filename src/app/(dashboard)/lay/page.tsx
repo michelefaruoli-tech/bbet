@@ -120,13 +120,15 @@ export default async function LayPage({
   }
   for (const [key, live] of liveTris) {
     if (trisClosedKeys.has(key)) continue;
+    const monthNet = live.avere - live.dare;
     trisCellsMap.set(key, {
       year: live.year,
       month: live.month,
       dareTotal: live.dare,
       avereTotal: live.avere,
-      monthlyBalance: live.avere - live.dare,
-      cumulativeBalance: null,
+      monthlyBalance: monthNet,
+      // anteprima debito dopo questo mese aperto
+      cumulativeBalance: summary.trisCumulative,
       movementCount: live.count,
       closed: false,
     });
@@ -156,7 +158,6 @@ export default async function LayPage({
     return d.getUTCFullYear() === closeYear && d.getUTCMonth() + 1 === closeMonth;
   });
   const monthBalance = monthMovements.reduce((s, m) => s + toNumber(m.amount), 0);
-  const trisOpenCount = monthMovements.filter((m) => m.category === "TRIS").length;
 
   return (
     <div className="space-y-6">
@@ -204,18 +205,26 @@ export default async function LayPage({
           </p>
           <p className="mt-1 text-xs text-slate-400">Cassa separata</p>
         </Card>
-        <Card title="Tris attuale (quanto devi)">
+        <Card title="Saldo Tris attuale">
           <p className={`text-xl font-bold ${amountClass(summary.trisCumulative)}`}>
             {formatEUR(summary.trisCumulative)}
           </p>
           <p className="mt-1 text-xs text-slate-400">
-            {trisOpenCount > 0 ? `${trisOpenCount} mov. nel mese da chiudere · ` : ""}
+            Avere lo riduce · Dare lo aumenta ·{" "}
             <Link href="/lay/tris" className="underline">
-              Vedi scheda Tris
+              Scheda Tris
             </Link>
           </p>
         </Card>
-        <Card title="Mesi chiusi">{summary.closures.length}</Card>
+        <Card title={`Tris mese ${summary.trisMonthMonth}/${summary.trisMonthYear}`}>
+          <p className="text-sm text-emerald-700">
+            Avere: <strong>{formatEUR(summary.trisMonthAvere)}</strong>
+          </p>
+          <p className="text-sm text-amber-700">
+            Dare: <strong>{formatEUR(summary.trisMonthDare)}</strong>
+          </p>
+          <p className="mt-1 text-xs text-slate-400">Si azzera ogni mese</p>
+        </Card>
       </div>
 
       <Card title="Inserimento rapido">
