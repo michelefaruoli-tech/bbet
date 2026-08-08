@@ -39,22 +39,20 @@ export default async function CommissioniPage({
     orderBy: { year: "desc" },
   });
 
-  // Preferisci l'anno con Commissioni/Fondo (non solo Prelievi), così non si apre un anno "vuoto"
-  const yearsWithCommissions = [
+  // Preferisci l'anno con Fatture/Bonus mensili (non solo Fondo o Prelievi).
+  // Es. 2026 ha il riparto fondo ma i mesi con le transazioni sono nel 2024.
+  const yearsWithMonthlyTx = [
     ...new Set(
       yearsWithData
         .filter(
-          (m) =>
-            toNumber(m.invoiceAmount) !== 0 ||
-            toNumber(m.bonusAmount) !== 0 ||
-            toNumber(m.cashFund) !== 0,
+          (m) => toNumber(m.invoiceAmount) !== 0 || toNumber(m.bonusAmount) !== 0,
         )
         .map((m) => m.year),
     ),
   ].sort((a, b) => b - a);
 
   const allDataYears = [...new Set(yearsWithData.map((y) => y.year))].sort((a, b) => b - a);
-  const defaultYear = yearsWithCommissions[0] ?? allDataYears[0] ?? currentYear;
+  const defaultYear = yearsWithMonthlyTx[0] ?? allDataYears[0] ?? currentYear;
   const year = params.year ? Number(params.year) : defaultYear;
 
   const [existingMonths, history, dashboard] = await Promise.all([
@@ -110,7 +108,7 @@ export default async function CommissioniPage({
       toNumber(m.withdrawals) !== 0 ||
       toNumber(m.cashFund) !== 0,
   );
-  const latestDataYear = yearsWithCommissions[0] ?? allDataYears[0];
+  const latestDataYear = yearsWithMonthlyTx[0] ?? allDataYears[0];
 
   const totFatt = allMonths.reduce((s, m) => s + toNumber(m.invoiceAmount), 0);
   const totBonus = allMonths.reduce((s, m) => s + toNumber(m.bonusAmount), 0);
@@ -176,15 +174,16 @@ export default async function CommissioniPage({
       </div>
 
       <Card title={`BBET ${year}`}>
-        {(!hasData || (totFatt === 0 && totBonus === 0 && totFondo === 0)) &&
+        {(!hasData || (totFatt === 0 && totBonus === 0)) &&
           latestDataYear &&
           latestDataYear !== year && (
           <p className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
-            Stai guardando il {year}, ma le Commissioni (Fatture/Bonus/Fondo) sono nel{" "}
+            Stai guardando il {year}: qui non ci sono Fatture/Bonus mensili. Le transazioni per mese
+            sono nel{" "}
             <a href={`/commissioni?year=${latestDataYear}`} className="font-semibold underline">
               {latestDataYear}
             </a>
-            . Clicca qui per aprirle.
+            .
           </p>
         )}
         <CommissionTable key={year} year={year} months={tableMonths} />
