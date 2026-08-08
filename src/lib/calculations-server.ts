@@ -65,7 +65,7 @@ export async function getLaySummary() {
   // Movimenti dei mesi NON ancora chiusi (evita doppio conteggio con le chiusure)
   const openMovements = movements.filter((m) => {
     const d = new Date(m.date);
-    return !closedKeys.has(yearMonthKey(d.getFullYear(), d.getMonth() + 1));
+    return !closedKeys.has(yearMonthKey(d.getUTCFullYear(), d.getUTCMonth() + 1));
   });
 
   const openBalance = calcLayBalance(openMovements);
@@ -78,7 +78,7 @@ export async function getLaySummary() {
   const openTrisMovements = movements.filter((m) => {
     if (m.category !== "TRIS") return false;
     const d = new Date(m.date);
-    return !trisClosedKeys.has(yearMonthKey(d.getFullYear(), d.getMonth() + 1));
+    return !trisClosedKeys.has(yearMonthKey(d.getUTCFullYear(), d.getUTCMonth() + 1));
   });
   const trisOpen = calcTrisFromMovements(openTrisMovements);
   const lastTris = trisClosures.length > 0 ? trisClosures[trisClosures.length - 1] : null;
