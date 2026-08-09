@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { amountClass, formatEUR } from "@/lib/format";
 import { formatDateIT } from "@/lib/timezone";
 import { DeleteLayButton } from "@/components/lay/delete-lay-button";
+import { EditLayButton } from "@/components/lay/edit-lay-button";
 
 const MONTH_LABELS = [
   "Gen", "Feb", "Mar", "Apr", "Mag", "Giu",
@@ -120,7 +121,10 @@ export function LayOperationsHistory({
                   <td className="max-w-[14rem] truncate">{m.notes || m.description || "—"}</td>
                   {showAuthor && <td>{m.createdBy.name}</td>}
                   <td>
-                    <DeleteLayButton id={m.id} />
+                    <div className="flex flex-wrap items-center justify-end gap-1">
+                      <EditLayButton operation={m} />
+                      <DeleteLayButton id={m.id} />
+                    </div>
                   </td>
                 </tr>
               );
