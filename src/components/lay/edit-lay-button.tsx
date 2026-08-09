@@ -84,8 +84,8 @@ export function EditLayButton({ operation }: { operation: EditableLayOperation }
                   setError("");
                   try {
                     const result = await saveLayMovementAction(fd);
-                    if (result?.error) {
-                      setError(result.error);
+                    if (!result?.success) {
+                      setError("Errore durante il salvataggio");
                       return;
                     }
                     setOpen(false);
