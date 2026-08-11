@@ -7,11 +7,9 @@ import { formatEUR, amountClass, toNumber } from "@/lib/format";
 import { formatDateIT } from "@/lib/timezone";
 import { Card } from "@/components/ui";
 import { MasterMovementForm } from "@/components/master/master-movement-form";
+import { DeleteMasterButton } from "@/components/master/delete-master-button";
 import { QuickMasterRow } from "@/components/master/quick-master-row";
-import {
-  MasterMovementsTable,
-  type MasterMovementRow,
-} from "@/components/master/master-movements-table";
+import { EditMasterNotes } from "@/components/master/edit-master-notes";
 
 function masterDareAvereLabel(amount: number, movementType: string) {
   if (amount > 0) return "Avere";
@@ -35,21 +33,6 @@ export default async function MasterSchedaPage() {
   const totalDare = movements
     .filter((m) => toNumber(m.amount) < 0)
     .reduce((s, m) => s + Math.abs(toNumber(m.amount)), 0);
-
-  const movementRows: MasterMovementRow[] = movements.map((m) => {
-    const amount = toNumber(m.amount);
-    return {
-      id: m.id,
-      dateLabel: `${formatDateIT(m.date)}${m.time ? ` ${m.time}` : ""}`,
-      tipo: masterDareAvereLabel(amount, m.movementType),
-      movementType: m.movementType,
-      amount,
-      amountLabel: formatEUR(Math.abs(amount)),
-      description: m.description ?? "—",
-      notes: m.notes,
-      authorName: m.createdBy.name,
-    };
-  });
 
   return (
     <div className="space-y-6">
@@ -95,7 +78,56 @@ export default async function MasterSchedaPage() {
       </Card>
 
       <Card title="Cronologia operazioni">
-        <MasterMovementsTable rows={movementRows} showAuthor={showAuthor} />
+        <div className="overflow-x-auto">
+          <table className="data-table sospesi-table">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Tipo</th>
+                <th>Dettaglio</th>
+                <th>Importo</th>
+                <th>Descrizione</th>
+                <th>Note</th>
+                {showAuthor && <th>Inserito da</th>}
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {movements.map((m, i) => {
+                const amount = toNumber(m.amount);
+                return (
+                  <tr
+                    key={m.id}
+                    className={`sospesi-row ${i % 2 === 0 ? "sospesi-row-even" : "sospesi-row-odd"}`}
+                  >
+                    <td>
+                      {formatDateIT(m.date)}
+                      {m.time ? ` ${m.time}` : ""}
+                    </td>
+                    <td className={amountClass(amount)}>{masterDareAvereLabel(amount, m.movementType)}</td>
+                    <td className="text-xs text-slate-500">{m.movementType}</td>
+                    <td className={amountClass(amount)}>{formatEUR(Math.abs(amount))}</td>
+                    <td>{m.description ?? "—"}</td>
+                    <td>
+                      <EditMasterNotes id={m.id} initialNotes={m.notes} />
+                    </td>
+                    {showAuthor && <td>{m.createdBy.name}</td>}
+                    <td>
+                      <DeleteMasterButton id={m.id} />
+                    </td>
+                  </tr>
+                );
+              })}
+              {movements.length === 0 && (
+                <tr>
+                  <td colSpan={showAuthor ? 8 : 7} className="py-6 text-center text-slate-400">
+                    Nessun movimento registrato
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </Card>
     </div>
   );

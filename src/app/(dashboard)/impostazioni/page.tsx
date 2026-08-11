@@ -2,15 +2,11 @@ import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/auth";
 import { isMaster, roleLabel } from "@/lib/roles";
 import { formatDateTimeIT } from "@/lib/timezone";
-import { Card } from "@/components/ui";
+import { Card, Badge } from "@/components/ui";
 import { CreateUserForm } from "@/components/impostazioni/create-user-form";
+import { ToggleUserButton } from "@/components/impostazioni/toggle-user-button";
 import { ChangePasswordForm } from "@/components/impostazioni/change-password-form";
-import {
-  AuditLogTable,
-  UsersTable,
-  type AuditRow,
-  type UserRow,
-} from "@/components/impostazioni/settings-tables";
+import { ResetUserPasswordForm } from "@/components/impostazioni/reset-user-password-form";
 
 export default async function ImpostazioniPage() {
   const session = await requireSession();
@@ -27,26 +23,6 @@ export default async function ImpostazioniPage() {
         include: { user: { select: { name: true, email: true } } },
       })
     : [];
-
-  const userRows: UserRow[] = users.map((u) => ({
-    id: u.id,
-    name: u.name,
-    email: u.email,
-    role: u.role,
-    roleLabel: roleLabel(u.role),
-    active: u.active,
-    statusLabel: u.active ? "Attivo" : "Disattivo",
-    isSelf: u.id === session.id,
-  }));
-
-  const auditRows: AuditRow[] = audit.map((a) => ({
-    id: a.id,
-    whenLabel: formatDateTimeIT(a.createdAt),
-    userName: a.user.name,
-    action: a.action,
-    entityType: a.entityType,
-    entityId: a.entityId ?? "—",
-  }));
 
   return (
     <div className="space-y-6">
@@ -87,14 +63,80 @@ export default async function ImpostazioniPage() {
           </Card>
 
           <Card title="Elenco utenze">
-            <UsersTable rows={userRows} sessionUserId={session.id} />
+            <div className="overflow-x-auto">
+              <table className="data-table text-sm">
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Ruolo</th>
+                    <th>Stato</th>
+                    <th>Azioni</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.map((u) => (
+                    <tr key={u.id}>
+                      <td className="font-medium">{u.name}</td>
+                      <td>{u.email}</td>
+                      <td>{roleLabel(u.role)}</td>
+                      <td>
+                        <Badge tone={u.active ? "ok" : "danger"}>
+                          {u.active ? "Attivo" : "Disattivo"}
+                        </Badge>
+                      </td>
+                      <td className="space-y-2">
+                        {u.id !== session.id && (
+                          <ToggleUserButton userId={u.id} active={u.active} />
+                        )}
+                        {u.id !== session.id && u.role === "OPERATOR" && (
+                          <ResetUserPasswordForm userId={u.id} userName={u.name} />
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </Card>
 
           <Card title="Ultime modifiche (chi ha fatto cosa)">
             <p className="mb-3 text-sm text-slate-500">
               Visibile solo al Master · ultime 50 operazioni registrate
             </p>
-            <AuditLogTable rows={auditRows} />
+            <div className="overflow-x-auto">
+              <table className="data-table text-sm">
+                <thead>
+                  <tr>
+                    <th>Quando</th>
+                    <th>Utente</th>
+                    <th>Azione</th>
+                    <th>Sezione</th>
+                    <th>ID</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {audit.map((a) => (
+                    <tr key={a.id}>
+                      <td className="whitespace-nowrap">{formatDateTimeIT(a.createdAt)}</td>
+                      <td className="font-medium">{a.user.name}</td>
+                      <td>{a.action}</td>
+                      <td>{a.entityType}</td>
+                      <td className="max-w-[8rem] truncate text-xs text-slate-400">
+                        {a.entityId ?? "—"}
+                      </td>
+                    </tr>
+                  ))}
+                  {audit.length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="py-4 text-center text-slate-400">
+                        Nessuna modifica registrata
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </Card>
         </>
       )}

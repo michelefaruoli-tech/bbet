@@ -4,7 +4,7 @@ import { formatEUR, amountClass, toNumber } from "@/lib/format";
 import { formatDateIT } from "@/lib/timezone";
 import { Card } from "@/components/ui";
 import { WithdrawalForm } from "@/components/prelievi/withdrawal-form";
-import { WithdrawalsTable, type WithdrawalRow } from "@/components/prelievi/withdrawals-table";
+import { DeleteWithdrawalButton } from "@/components/prelievi/delete-withdrawal-button";
 
 const MONTH_LABELS = [
   "Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno",
@@ -41,17 +41,6 @@ export default async function PrelieviPage({
 
   const commissionFinal = commissionMonth ? toNumber(commissionMonth.finalTotal) : 0;
   const commissionWithdrawalsMonth = commissionMonth ? toNumber(commissionMonth.withdrawals) : 0;
-
-  const withdrawalRows: WithdrawalRow[] = withdrawals.map((w) => ({
-    id: w.id,
-    dateLabel: formatDateIT(w.date),
-    amountLabel: formatEUR(w.amount),
-    sourceLabel: w.source === "LAY" ? "LAY" : "Commissioni",
-    destination: w.destination ?? "Contanti",
-    periodLabel: `${MONTH_LABELS[w.month - 1]} ${w.year}`,
-    notes: w.notes ?? w.description ?? "—",
-    userName: w.createdBy.name,
-  }));
 
   return (
     <div className="space-y-6">
@@ -114,7 +103,58 @@ export default async function PrelieviPage({
       </Card>
 
       <Card title={`Elenco prelievi ${year}`}>
-        <WithdrawalsTable rows={withdrawalRows} />
+        <div className="overflow-x-auto">
+          <table className="data-table sospesi-table">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Importo</th>
+                <th>Da</th>
+                <th>Destinazione</th>
+                <th>Periodo</th>
+                <th>Note</th>
+                <th>Utente</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {withdrawals.map((w, i) => (
+                <tr
+                  key={w.id}
+                  className={`sospesi-row ${i % 2 === 0 ? "sospesi-row-even" : "sospesi-row-odd"}`}
+                >
+                  <td>{formatDateIT(w.date)}</td>
+                  <td className="font-medium">{formatEUR(w.amount)}</td>
+                  <td>
+                    {w.source === "LAY" ? (
+                      <span className="rounded bg-sky-100 px-1.5 py-0.5 text-xs text-sky-800">LAY</span>
+                    ) : (
+                      <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-xs text-emerald-800">
+                        Commissioni
+                      </span>
+                    )}
+                  </td>
+                  <td>{w.destination ?? "Contanti"}</td>
+                  <td>
+                    {MONTH_LABELS[w.month - 1]} {w.year}
+                  </td>
+                  <td className="max-w-[12rem] truncate">{w.notes ?? w.description ?? "—"}</td>
+                  <td>{w.createdBy.name}</td>
+                  <td>
+                    <DeleteWithdrawalButton id={w.id} />
+                  </td>
+                </tr>
+              ))}
+              {withdrawals.length === 0 && (
+                <tr>
+                  <td colSpan={8} className="py-6 text-center text-slate-400">
+                    Nessun prelievo registrato quest’anno
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </Card>
     </div>
   );

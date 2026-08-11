@@ -7,12 +7,7 @@ import { formatEUR, amountClass, toNumber } from "@/lib/format";
 import { applyTrisDebt } from "@/lib/calculations";
 import { formatDateIT, formatDateTimeIT } from "@/lib/timezone";
 import { Card } from "@/components/ui";
-import {
-  TrisArchivesTable,
-  TrisMovementsTable,
-  type TrisArchiveRow,
-  type TrisMovementRow,
-} from "@/components/lay/tris-tables";
+import { DeleteLayButton } from "@/components/lay/delete-lay-button";
 
 const MONTH_LABELS = [
   "Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno",
@@ -81,56 +76,6 @@ export default async function TrisSchedaPage() {
 
   const monthLabel = `${MONTH_LABELS[summary.trisMonthMonth - 1]} ${summary.trisMonthYear}`;
 
-  const archiveRows: TrisArchiveRow[] = [
-    ...summary.trisClosures.map((c) => ({
-      id: c.id,
-      monthLabel: `${MONTH_LABELS[c.month - 1]} ${c.year}`,
-      avereLabel: formatEUR(c.avereTotal),
-      dareLabel: formatEUR(c.dareTotal),
-      monthBalanceLabel: formatEUR(c.monthlyBalance),
-      monthBalance: toNumber(c.monthlyBalance),
-      cumulativeLabel: formatEUR(c.cumulativeBalance),
-      cumulative: toNumber(c.cumulativeBalance),
-      movementCount: String(c.movementCount),
-      statusLabel: "Chiuso",
-    })),
-    ...((summary.trisMonthAvere !== 0 || summary.trisMonthDare !== 0) &&
-    !summary.trisClosures.some(
-      (c) => c.year === summary.trisMonthYear && c.month === summary.trisMonthMonth,
-    )
-      ? [
-          {
-            id: `open-${summary.trisMonthYear}-${summary.trisMonthMonth}`,
-            monthLabel,
-            avereLabel: formatEUR(summary.trisMonthAvere),
-            dareLabel: formatEUR(summary.trisMonthDare),
-            monthBalanceLabel: formatEUR(summary.trisMonthBalance),
-            monthBalance: summary.trisMonthBalance,
-            cumulativeLabel: formatEUR(summary.trisCumulative),
-            cumulative: summary.trisCumulative,
-            movementCount: "—",
-            statusLabel: "In corso",
-          },
-        ]
-      : []),
-  ];
-
-  const movementRows: TrisMovementRow[] = display.map((m) => {
-    const amount = toNumber(m.amount);
-    return {
-      id: m.id,
-      dateLabel: `${formatDateIT(m.date)}${m.time ? ` ${m.time}` : ""}`,
-      tipo: amount >= 0 ? "Avere" : "Dare",
-      amount,
-      amountLabel: formatEUR(Math.abs(amount)),
-      runningLabel: formatEUR(m.runningBalance),
-      runningBalance: m.runningBalance,
-      notes: m.notes || m.description || "—",
-      authorName: m.createdBy.name,
-      authorDetail: formatDateTimeIT(m.createdAt),
-    };
-  });
-
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center gap-3">
@@ -167,14 +112,129 @@ export default async function TrisSchedaPage() {
           Debito Tris: ogni <strong>Avere (+)</strong> lo riduce, ogni <strong>Dare (−)</strong> lo
           aumenta. Esempio: giugno 2099 − luglio 14 = 2085 − agosto 200 = 1885.
         </p>
-        <TrisArchivesTable rows={archiveRows} />
+        <div className="overflow-x-auto">
+          <table className="data-table text-sm">
+            <thead>
+              <tr>
+                <th>Mese</th>
+                <th>Avere (+)</th>
+                <th>Dare (−)</th>
+                <th>Saldo mese</th>
+                <th>Cumulativo (debito)</th>
+                <th>Mov.</th>
+              </tr>
+            </thead>
+            <tbody>
+              {summary.trisClosures.map((c) => (
+                <tr key={c.id}>
+                  <td>
+                    {MONTH_LABELS[c.month - 1]} {c.year}
+                  </td>
+                  <td className="text-emerald-700">{formatEUR(c.avereTotal)}</td>
+                  <td className="text-amber-700">{formatEUR(c.dareTotal)}</td>
+                  <td className={amountClass(toNumber(c.monthlyBalance))}>
+                    {formatEUR(c.monthlyBalance)}
+                  </td>
+                  <td className={amountClass(toNumber(c.cumulativeBalance))}>
+                    {formatEUR(c.cumulativeBalance)}
+                  </td>
+                  <td>{c.movementCount}</td>
+                </tr>
+              ))}
+              {(summary.trisMonthAvere !== 0 || summary.trisMonthDare !== 0) &&
+                !summary.trisClosures.some(
+                  (c) => c.year === summary.trisMonthYear && c.month === summary.trisMonthMonth,
+                ) && (
+                  <tr className="bg-amber-50">
+                    <td>
+                      {monthLabel}{" "}
+                      <span className="text-xs font-normal text-amber-700">(in corso)</span>
+                    </td>
+                    <td className="text-emerald-700">{formatEUR(summary.trisMonthAvere)}</td>
+                    <td className="text-amber-700">{formatEUR(summary.trisMonthDare)}</td>
+                    <td className={amountClass(summary.trisMonthBalance)}>
+                      {formatEUR(summary.trisMonthBalance)}
+                    </td>
+                    <td className={amountClass(summary.trisCumulative)}>
+                      {formatEUR(summary.trisCumulative)}
+                    </td>
+                    <td>—</td>
+                  </tr>
+                )}
+              {summary.trisClosures.length === 0 &&
+                summary.trisMonthAvere === 0 &&
+                summary.trisMonthDare === 0 && (
+                  <tr>
+                    <td colSpan={6} className="py-4 text-center text-slate-400">
+                      Nessun archivio mensile ancora
+                    </td>
+                  </tr>
+                )}
+            </tbody>
+          </table>
+        </div>
       </Card>
 
       <Card title="Tutti i movimenti Tris">
         <p className="mb-3 text-sm text-slate-500">
           Avere (+) riduce il debito · Dare (−) lo aumenta · “Saldo dopo” = debito aggiornato
         </p>
-        <TrisMovementsTable rows={movementRows} showAuthor={showAuthor} />
+        <div className="overflow-x-auto">
+          <table className="data-table sospesi-table text-sm">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Tipo</th>
+                <th>Importo</th>
+                <th>Saldo dopo</th>
+                <th>Note</th>
+                {showAuthor && <th>Inserito da</th>}
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {display.map((m, i) => {
+                const amount = toNumber(m.amount);
+                const tipo = amount >= 0 ? "Avere" : "Dare";
+                return (
+                  <tr
+                    key={m.id}
+                    className={`sospesi-row ${i % 2 === 0 ? "sospesi-row-even" : "sospesi-row-odd"}`}
+                  >
+                    <td className="whitespace-nowrap">
+                      {formatDateIT(m.date)}
+                      {m.time ? ` ${m.time}` : ""}
+                    </td>
+                    <td className={amountClass(amount)}>{tipo}</td>
+                    <td className={amountClass(amount)}>{formatEUR(Math.abs(amount))}</td>
+                    <td className={amountClass(m.runningBalance)}>
+                      {formatEUR(m.runningBalance)}
+                    </td>
+                    <td className="max-w-[14rem] truncate">{m.notes || m.description || "—"}</td>
+                    {showAuthor && (
+                      <td className="text-xs text-slate-600">
+                        {m.createdBy.name}
+                        <span className="mt-0.5 block text-slate-400">
+                          {formatDateTimeIT(m.createdAt)}
+                        </span>
+                      </td>
+                    )}
+                    <td>
+                      <DeleteLayButton id={m.id} />
+                    </td>
+                  </tr>
+                );
+              })}
+              {display.length === 0 && (
+                <tr>
+                  <td colSpan={showAuthor ? 7 : 6} className="py-6 text-center text-slate-400">
+                    Nessun movimento Tris ancora
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </Card>
     </div>
   );

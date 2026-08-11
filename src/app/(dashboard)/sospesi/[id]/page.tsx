@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Fragment } from "react";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { calcCustomerBalance, isSuspendedBalanceZero } from "@/lib/calculations";
@@ -8,10 +9,7 @@ import { formatMovementDateTime } from "@/lib/timezone";
 import { Card } from "@/components/ui";
 import { CustomerForm } from "@/components/sospesi/customer-form";
 import { SuspendedMovementForm } from "@/components/sospesi/suspended-movement-form";
-import {
-  SuspendedMovementsTable,
-  type SuspendedMovementRow,
-} from "@/components/sospesi/suspended-movements-table";
+import { DeleteSuspendedButton } from "@/components/sospesi/delete-suspended-button";
 
 export default async function CustomerDetailPage({
   params,
@@ -60,24 +58,6 @@ export default async function CustomerDetailPage({
     }),
   ];
 
-  const movementTableRows: SuspendedMovementRow[] = sections.flatMap(
-    ({ period, movements, periodTotals, isOpen }) =>
-      movements.map((m) => ({
-        id: m.id,
-        customerId: customer.id,
-        dateTimeLabel: formatMovementDateTime(m.date, m.time, m.createdAt),
-        tipo: m.movementType === "DARE" ? "Inviati" : "Ricevuti",
-        amount: Number(m.amount),
-        amountLabel: formatEUR(m.amount),
-        description: m.description ?? "—",
-        userName: m.createdBy.name,
-        periodLabel: isOpen
-          ? `Periodo ${period} (aperto) — saldo ${formatEUR(periodTotals.balance)}`
-          : `Periodo ${period} chiuso — saldo 0`,
-        isOpenPeriod: isOpen,
-      })),
-  );
-
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center gap-3">
@@ -118,7 +98,74 @@ export default async function CustomerDetailPage({
           Quando Inviati − Ricevuti torna a 0, il periodo si archivia e i contatori ripartono da zero.
           I numeri in alto riguardano solo il periodo aperto.
         </p>
-        <SuspendedMovementsTable rows={movementTableRows} customerId={customer.id} />
+        <div className="overflow-x-auto">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Data / ora</th>
+                <th>Tipo</th>
+                <th>Importo</th>
+                <th>Descrizione</th>
+                <th>Utente</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {customer.movements.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-6 text-center text-slate-400">
+                    Nessun movimento registrato
+                  </td>
+                </tr>
+              ) : (
+                sections.map(({ period, movements, periodTotals, isOpen }) => (
+                  <Fragment key={`period-${period}`}>
+                    <tr className={isOpen ? "bg-emerald-50" : "bg-slate-100"}>
+                      <td colSpan={6} className="py-2 text-sm font-semibold">
+                        {isOpen ? (
+                          <span className="text-emerald-800">
+                            Periodo {period} (aperto) — Inviati{" "}
+                            {formatEUR(isSuspendedBalanceZero(periodTotals.balance) ? 0 : periodTotals.totalDare)} ·
+                            Ricevuti{" "}
+                            {formatEUR(isSuspendedBalanceZero(periodTotals.balance) ? 0 : periodTotals.totalAvere)} ·
+                            saldo {formatEUR(periodTotals.balance)}
+                            {movements.length === 0 ? " · contatori azzerati" : ""}
+                          </span>
+                        ) : (
+                          <span className="text-slate-600">
+                            ── Periodo {period} chiuso ── Inviati {formatEUR(periodTotals.totalDare)} · Ricevuti{" "}
+                            {formatEUR(periodTotals.totalAvere)} · saldo 0
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                    {movements.map((m) => (
+                      <tr key={m.id} className={isOpen ? undefined : "opacity-80"}>
+                        <td className="whitespace-nowrap">
+                          {formatMovementDateTime(m.date, m.time, m.createdAt)}
+                        </td>
+                        <td>{m.movementType === "DARE" ? "Inviati" : "Ricevuti"}</td>
+                        <td className={amountClass(Number(m.amount))}>{formatEUR(m.amount)}</td>
+                        <td>{m.description ?? "—"}</td>
+                        <td>{m.createdBy.name}</td>
+                        <td>
+                          <DeleteSuspendedButton id={m.id} customerId={customer.id} />
+                        </td>
+                      </tr>
+                    ))}
+                    {isOpen && movements.length === 0 && (
+                      <tr>
+                        <td colSpan={6} className="py-3 text-center text-slate-400 text-sm">
+                          Contatori a zero — inserisci un nuovo movimento per ripartire
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </Card>
     </div>
   );

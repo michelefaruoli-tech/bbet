@@ -3,26 +3,12 @@ import { formatEUR } from "@/lib/format";
 import { formatDateIT } from "@/lib/timezone";
 import { Card } from "@/components/ui";
 import { CloseYearButton } from "@/components/archivio/close-year-button";
-import { ArchivesTable, type ArchiveRow } from "@/components/archivio/archives-table";
+import { ReopenYearButton } from "@/components/archivio/reopen-year-button";
 
 export default async function ArchivioPage() {
   const archives = await prisma.annualArchive.findMany({ orderBy: { year: "desc" } });
   const year = new Date().getFullYear();
   const alreadyClosed = archives.some((a) => a.year === year);
-
-  const archiveRows: ArchiveRow[] = archives.map((a) => ({
-    id: a.id,
-    year: a.year,
-    yearLabel: String(a.year),
-    openingLabel: formatEUR(a.openingCashFund),
-    closingLabel: formatEUR(a.closingCashFund),
-    suspendedLabel: formatEUR(a.suspendedBalance),
-    masterLabel: formatEUR(a.masterBalance),
-    layLabel: formatEUR(a.layBalance),
-    commissionLabel: formatEUR(a.commissionTotal),
-    withdrawalLabel: formatEUR(a.withdrawalTotal),
-    closedAtLabel: formatDateIT(a.closedAt),
-  }));
 
   return (
     <div className="space-y-6">
@@ -70,7 +56,49 @@ export default async function ArchivioPage() {
       </Card>
 
       <Card title="Anni archiviati">
-        <ArchivesTable rows={archiveRows} />
+        <div className="overflow-x-auto">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Anno</th>
+                <th>Fondo cassa apertura</th>
+                <th>Fondo cassa chiusura</th>
+                <th>Sospesi</th>
+                <th>Master</th>
+                <th>LAY</th>
+                <th>Commissioni</th>
+                <th>Prelievi</th>
+                <th>Chiuso il</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {archives.map((a) => (
+                <tr key={a.id}>
+                  <td className="font-semibold">{a.year}</td>
+                  <td>{formatEUR(a.openingCashFund)}</td>
+                  <td>{formatEUR(a.closingCashFund)}</td>
+                  <td>{formatEUR(a.suspendedBalance)}</td>
+                  <td>{formatEUR(a.masterBalance)}</td>
+                  <td>{formatEUR(a.layBalance)}</td>
+                  <td>{formatEUR(a.commissionTotal)}</td>
+                  <td>{formatEUR(a.withdrawalTotal)}</td>
+                  <td>{formatDateIT(a.closedAt)}</td>
+                  <td>
+                    <ReopenYearButton year={a.year} />
+                  </td>
+                </tr>
+              ))}
+              {archives.length === 0 && (
+                <tr>
+                  <td colSpan={10} className="py-6 text-center text-slate-400">
+                    Nessun anno archiviato. Quando chiudi {year}, comparirà qui con il bottone Riapri.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </Card>
     </div>
   );

@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
-import { Filter, X } from "lucide-react";
 import { saveCommissionMonthAction } from "@/lib/actions";
 import { formatEUR, toNumber } from "@/lib/format";
 import {
@@ -89,7 +88,6 @@ function calcRow(row: RowState) {
 
 export function CommissionTable({ year, months }: { year: number; months: Month[] }) {
   const router = useRouter();
-  const [monthFilter, setMonthFilter] = useState<Set<number>>(new Set());
   const [rows, setRows] = useState<Record<string, RowState>>(() =>
     Object.fromEntries(months.map((m) => [m.id, initRow(m)])),
   );
@@ -97,27 +95,8 @@ export function CommissionTable({ year, months }: { year: number; months: Month[
   const [status, setStatus] = useState<Record<string, string>>({});
   const [pendingId, startTransition] = useTransition();
 
-  const visibleMonths = useMemo(() => {
-    if (monthFilter.size === 0) return months;
-    return months.filter((m) => monthFilter.has(m.month));
-  }, [months, monthFilter]);
-
-  function toggleMonthFilter(month: number) {
-    setMonthFilter((prev) => {
-      const next = new Set(prev);
-      if (prev.size === 0) {
-        for (let m = 1; m <= 12; m++) if (m !== month) next.add(m);
-        return next;
-      }
-      if (next.has(month)) next.delete(month);
-      else next.add(month);
-      if (next.size === 12) return new Set();
-      return next;
-    });
-  }
-
   const totals = useMemo(() => {
-    return visibleMonths.reduce(
+    return months.reduce(
       (acc, m) => {
         const c = calcRow(rows[m.id] ?? initRow(m));
         return {
@@ -146,7 +125,7 @@ export function CommissionTable({ year, months }: { year: number; months: Month[
         indicators: 0,
       },
     );
-  }, [visibleMonths, rows]);
+  }, [months, rows]);
 
   // Saldo cassa reale annuale (da confrontare col Rendiconto)
   const saldoCassaReale = calcCommissionCashBalance({
@@ -192,42 +171,6 @@ export function CommissionTable({ year, months }: { year: number; months: Month[
 
   return (
     <div className="space-y-5">
-      <div className="rounded-lg border border-slate-200 bg-slate-50/80 px-3 py-2">
-        <p className="mb-2 text-xs font-medium text-slate-600">
-          <Filter className="mr-1 inline h-3.5 w-3.5" />
-          Filtra mesi nelle tabelle (multiselezione)
-        </p>
-        <div className="flex flex-wrap gap-1.5">
-          {MONTH_LABELS.map((label, idx) => {
-            const month = idx + 1;
-            const active = monthFilter.size === 0 || monthFilter.has(month);
-            return (
-              <button
-                key={month}
-                type="button"
-                onClick={() => toggleMonthFilter(month)}
-                className={`rounded-full px-2.5 py-0.5 text-xs font-medium transition ${
-                  active
-                    ? "bg-emerald-600 text-white"
-                    : "bg-white text-slate-500 ring-1 ring-slate-200 line-through"
-                }`}
-              >
-                {label.slice(0, 3)}
-              </button>
-            );
-          })}
-          {monthFilter.size > 0 && (
-            <button
-              type="button"
-              onClick={() => setMonthFilter(new Set())}
-              className="inline-flex items-center gap-1 rounded-full bg-slate-200 px-2 py-0.5 text-xs text-slate-700 hover:bg-slate-300"
-            >
-              <X className="h-3 w-3" /> Tutti i mesi
-            </button>
-          )}
-        </div>
-      </div>
-
       {/* SALDO = Commissioni + Fondo − Prelievi */}
       <div className="rounded-xl border-2 border-amber-400 bg-gradient-to-br from-amber-50 to-orange-50 p-4 shadow-sm">
         <p className="text-xs font-semibold uppercase tracking-wide text-amber-800">
@@ -276,7 +219,7 @@ export function CommissionTable({ year, months }: { year: number; months: Month[
               </tr>
             </thead>
             <tbody>
-              {visibleMonths.map((m) => {
+              {months.map((m) => {
                 const row = rows[m.id] ?? initRow(m);
                 const c = calcRow(row);
                 return (
@@ -350,7 +293,7 @@ export function CommissionTable({ year, months }: { year: number; months: Month[
               </tr>
             </thead>
             <tbody>
-              {visibleMonths.map((m) => {
+              {months.map((m) => {
                 const row = rows[m.id] ?? initRow(m);
                 const c = calcRow(row);
                 return (
@@ -430,7 +373,7 @@ export function CommissionTable({ year, months }: { year: number; months: Month[
               </tr>
             </thead>
             <tbody>
-              {visibleMonths.map((m) => {
+              {months.map((m) => {
                 const row = rows[m.id] ?? initRow(m);
                 const c = calcRow(row);
                 return (

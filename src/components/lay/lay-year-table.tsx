@@ -1,9 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { amountClass, formatEUR } from "@/lib/format";
 import { ReopenLayMonthButton } from "@/components/lay/reopen-lay-month-button";
-import { Filter, X } from "lucide-react";
 
 const MONTH_LABELS = [
   "Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno",
@@ -33,27 +32,6 @@ export function LayYearTable({ years, cells, selectedYears }: Props) {
   const visibleYears = selectedYears.length > 0 ? selectedYears : years;
   const map = new Map(cells.map((c) => [`${c.year}-${c.month}`, c]));
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
-  const [monthFilter, setMonthFilter] = useState<Set<number>>(new Set());
-
-  const visibleMonths = useMemo(() => {
-    const all = MONTH_LABELS.map((label, idx) => ({ label, month: idx + 1 }));
-    if (monthFilter.size === 0) return all;
-    return all.filter((m) => monthFilter.has(m.month));
-  }, [monthFilter]);
-
-  function toggleMonth(month: number) {
-    setMonthFilter((prev) => {
-      const next = new Set(prev);
-      if (prev.size === 0) {
-        for (let m = 1; m <= 12; m++) if (m !== month) next.add(m);
-        return next;
-      }
-      if (next.has(month)) next.delete(month);
-      else next.add(month);
-      if (next.size === 12) return new Set();
-      return next;
-    });
-  }
 
   function cell(year: number, month: number): LayClosureCell | null {
     return map.get(`${year}-${month}`) ?? null;
@@ -73,42 +51,6 @@ export function LayYearTable({ years, cells, selectedYears }: Props) {
 
   return (
     <div className="space-y-3">
-      <div className="rounded-lg border border-slate-200 bg-slate-50/80 px-3 py-2">
-        <p className="mb-2 text-xs font-medium text-slate-600">
-          <Filter className="mr-1 inline h-3.5 w-3.5" />
-          Filtra mesi (multiselezione)
-        </p>
-        <div className="flex flex-wrap gap-1.5">
-          {MONTH_LABELS.map((label, idx) => {
-            const month = idx + 1;
-            const active = monthFilter.size === 0 || monthFilter.has(month);
-            return (
-              <button
-                key={month}
-                type="button"
-                onClick={() => toggleMonth(month)}
-                className={`rounded-full px-2.5 py-0.5 text-xs font-medium transition ${
-                  active
-                    ? "bg-emerald-600 text-white"
-                    : "bg-white text-slate-500 ring-1 ring-slate-200 line-through"
-                }`}
-              >
-                {label.slice(0, 3)}
-              </button>
-            );
-          })}
-          {monthFilter.size > 0 && (
-            <button
-              type="button"
-              onClick={() => setMonthFilter(new Set())}
-              className="inline-flex items-center gap-1 rounded-full bg-slate-200 px-2 py-0.5 text-xs text-slate-700 hover:bg-slate-300"
-            >
-              <X className="h-3 w-3" /> Tutti
-            </button>
-          )}
-        </div>
-      </div>
-
       <div className="overflow-x-auto">
         <table className="data-table lay-year-table text-sm">
           <thead>
@@ -125,7 +67,8 @@ export function LayYearTable({ years, cells, selectedYears }: Props) {
             </tr>
           </thead>
           <tbody>
-            {visibleMonths.map(({ label, month }) => {
+            {MONTH_LABELS.map((label, idx) => {
+              const month = idx + 1;
               return (
                 <tr key={month}>
                   <td className="sticky left-0 z-10 bg-white font-medium whitespace-nowrap">{label}</td>
