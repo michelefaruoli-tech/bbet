@@ -4,7 +4,7 @@ import { calcCommissionCashBalance } from "@/lib/calculations";
 import { getFullDashboard } from "@/lib/calculations-server";
 import { Card } from "@/components/ui";
 import { CommissionTable } from "@/components/commissioni/commission-table";
-import { CommissionHistory } from "@/components/commissioni/commission-history";
+import { CommissionHistoryTable } from "@/components/commissioni/commission-history-table";
 import { YearSelector } from "@/components/commissioni/year-selector";
 import {
   CommissioniTotaleBreakdown,
@@ -188,7 +188,9 @@ export default async function CommissioniPage({
         <CommissionTable key={year} year={year} months={tableMonths} />
       </Card>
 
-      <CommissionHistory entries={history} />
+      <Card title="Storico modifiche">
+        <CommissionHistoryTable entries={history} />
+      </Card>
 
       <p className="text-xs text-slate-400">
         <a href="/api/export/commissioni" className="text-emerald-600 hover:underline">

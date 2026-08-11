@@ -5,7 +5,10 @@ import { formatEUR, amountClass, toNumber } from "@/lib/format";
 import { formatDateIT } from "@/lib/timezone";
 import { Card } from "@/components/ui";
 import { QuickMasterRow } from "@/components/master/quick-master-row";
-import { EditMasterNotes } from "@/components/master/edit-master-notes";
+import {
+  MasterRecentTransactionsTable,
+  type MasterMovementRow,
+} from "@/components/master/master-movements-table";
 
 export default async function MasterPage({
   searchParams,
@@ -35,6 +38,20 @@ export default async function MasterPage({
   });
   const last = movements[0];
   const lastFive = movements.slice(0, 5);
+
+  function toMasterRow(m: (typeof movements)[0]): MasterMovementRow {
+    const amount = toNumber(m.amount);
+    return {
+      id: m.id,
+      dateLabel: `${formatDateIT(m.date)}${m.time ? ` ${m.time}` : ""}`,
+      tipo: amount > 0 ? "Avere" : amount < 0 ? "Dare" : m.movementType,
+      movementType: m.movementType,
+      amount,
+      amountLabel: formatEUR(Math.abs(amount)),
+      description: m.description ?? "—",
+      notes: m.notes,
+    };
+  }
 
   return (
     <div className="space-y-6">
@@ -119,49 +136,7 @@ export default async function MasterPage({
       </Card>
 
       <Card title="Ultime 5 transazioni">
-        <div className="overflow-x-auto">
-          <table className="data-table sospesi-table">
-            <thead>
-              <tr>
-                <th>Data</th>
-                <th>Tipo</th>
-                <th>Importo</th>
-                <th>Descrizione</th>
-                <th>Note</th>
-              </tr>
-            </thead>
-            <tbody>
-              {lastFive.map((m, i) => {
-                const amount = toNumber(m.amount);
-                const tipo = amount > 0 ? "Avere" : amount < 0 ? "Dare" : m.movementType;
-                return (
-                  <tr
-                    key={m.id}
-                    className={`sospesi-row ${i % 2 === 0 ? "sospesi-row-even" : "sospesi-row-odd"}`}
-                  >
-                    <td>
-                      {formatDateIT(m.date)}
-                      {m.time ? ` ${m.time}` : ""}
-                    </td>
-                    <td className={amountClass(amount)}>{tipo}</td>
-                    <td className={amountClass(amount)}>{formatEUR(Math.abs(amount))}</td>
-                    <td>{m.description ?? "—"}</td>
-                    <td>
-                      <EditMasterNotes id={m.id} initialNotes={m.notes} />
-                    </td>
-                  </tr>
-                );
-              })}
-              {lastFive.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="py-6 text-center text-slate-400">
-                    Nessuna transazione ancora
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        <MasterRecentTransactionsTable rows={lastFive.map(toMasterRow)} />
         <p className="mt-3 text-sm">
           <Link href="/master/scheda" className="text-emerald-600 hover:underline">
             Vedi tutta la cronologia →

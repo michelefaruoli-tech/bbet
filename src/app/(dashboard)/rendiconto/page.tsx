@@ -5,6 +5,7 @@ import { formatDateIT, formatDateTimeIT } from "@/lib/timezone";
 import { Card } from "@/components/ui";
 import { RendicontoForm } from "@/components/rendiconto/rendiconto-form";
 import { SnapshotButton } from "@/components/rendiconto/snapshot-button";
+import { SnapshotTable, type SnapshotRow } from "@/components/rendiconto/snapshot-table";
 import { RendicontoVsCommissioni } from "@/components/rendiconto/rendiconto-vs-commissioni";
 
 export default async function RendicontoPage() {
@@ -17,6 +18,16 @@ export default async function RendicontoPage() {
   });
 
   const s = data.statement;
+
+  const snapshotRows: SnapshotRow[] = snapshots.map((snap) => ({
+    id: snap.id,
+    dateLabel: formatDateIT(snap.snapshotDate),
+    calculatedLabel: formatEUR(snap.calculatedTotal),
+    cashLabel: formatEUR(snap.cashTotal),
+    differenceLabel: formatEUR(snap.difference),
+    difference: toNumber(snap.difference),
+    userName: snap.createdBy.name,
+  }));
 
   return (
     <div className="space-y-6">
@@ -118,37 +129,7 @@ export default async function RendicontoPage() {
       </Card>
 
       <Card title="Storico snapshot">
-        <div className="overflow-x-auto">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Data</th>
-                <th>Totale calc.</th>
-                <th>In cassa</th>
-                <th>Differenza</th>
-                <th>Utente</th>
-              </tr>
-            </thead>
-            <tbody>
-              {snapshots.map((snap) => (
-                <tr key={snap.id}>
-                  <td>{formatDateIT(snap.snapshotDate)}</td>
-                  <td>{formatEUR(snap.calculatedTotal)}</td>
-                  <td>{formatEUR(snap.cashTotal)}</td>
-                  <td className={amountClass(toNumber(snap.difference))}>{formatEUR(snap.difference)}</td>
-                  <td>{snap.createdBy.name}</td>
-                </tr>
-              ))}
-              {snapshots.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="py-4 text-center text-slate-400">
-                    Nessuno snapshot ancora
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        <SnapshotTable rows={snapshotRows} />
       </Card>
     </div>
   );

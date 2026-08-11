@@ -1,12 +1,17 @@
-import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { isSuspendedBalanceZero } from "@/lib/calculations";
 import { openSuspendedTotals } from "@/lib/sospesi-period";
 import { formatEUR, amountClass } from "@/lib/format";
-import { formatMovementDateTime } from "@/lib/timezone";
-import { Card, Button } from "@/components/ui";
+import { formatMovementDateTime } from "@/lib/timezone";import { Card, Button } from "@/components/ui";
 import { NewCustomerPanel } from "@/components/sospesi/new-customer-panel";
-import { QuickSuspendedRow } from "@/components/sospesi/quick-suspended-row";
+import {
+  SospesiCustomersTable,
+  type SospesiCustomerRow,
+} from "@/components/sospesi/sospesi-customers-table";
+import {
+  SospesiRecentMovementsTable,
+  type SospesiRecentMovementRow,
+} from "@/components/sospesi/sospesi-recent-movements-table";
 
 type Row = {
   customer: {
@@ -33,46 +38,7 @@ function byAlphabet(a: Row, b: Row) {
   return sa;
 }
 
-function CustomerRows({ rows, stripeStart = 0 }: { rows: Row[]; stripeStart?: number }) {
-  return (
-    <>
-      {rows.map(({ customer, totals, last }, i) => (
-        <tr
-          key={customer.id}
-          className={`sospesi-row ${(stripeStart + i) % 2 === 0 ? "sospesi-row-even" : "sospesi-row-odd"}`}
-        >
-          <td>
-            <div className="font-medium">
-              {customer.surname} {customer.name}
-            </div>
-            {!customer.active && <span className="text-xs text-amber-600">Archiviato</span>}
-          </td>
-          <td>{formatEUR(totals.totalDare)}</td>
-          <td>{formatEUR(totals.totalAvere)}</td>
-          <td className={amountClass(totals.balance)}>{formatEUR(totals.balance)}</td>
-          <td>{totals.movementCount}</td>
-          <td className="whitespace-nowrap">
-            {last ? formatMovementDateTime(last.date, last.time, last.createdAt) : "—"}
-          </td>
-          <td>
-            <QuickSuspendedRow customerId={customer.id} />
-          </td>
-          <td>
-            <Link
-              href={`/sospesi/${customer.id}`}
-              className="text-emerald-600 hover:underline text-sm whitespace-nowrap"
-            >
-              Scheda
-            </Link>
-          </td>
-        </tr>
-      ))}
-    </>
-  );
-}
-
-export default async function SospesiPage({
-  searchParams,
+export default async function SospesiPage({  searchParams,
 }: {
   searchParams: Promise<{ q?: string; stato?: string }>;
 }) {
@@ -155,8 +121,33 @@ export default async function SospesiPage({
   const withBalance = rows.filter((r) => !isSuspendedBalanceZero(r.totals.balance)).sort(byAlphabet);
   const zeroBalance = rows.filter((r) => isSuspendedBalanceZero(r.totals.balance)).sort(byAlphabet);
 
-  return (
-    <div className="space-y-6">
+  const customerTableRows: SospesiCustomerRow[] = [...withBalance, ...zeroBalance].map(
+    ({ customer, totals, last }) => ({
+      id: customer.id,
+      name: customer.name,
+      surname: customer.surname,
+      active: customer.active,
+      section: isSuspendedBalanceZero(totals.balance) ? "zero" : "aperto",
+      totalDare: totals.totalDare,
+      totalAvere: totals.totalAvere,
+      balance: totals.balance,
+      movementCount: totals.movementCount,
+      lastLabel: last ? formatMovementDateTime(last.date, last.time, last.createdAt) : "—",
+    }),
+  );
+
+  const recentTableRows: SospesiRecentMovementRow[] = last10.map((m) => ({
+    id: m.id,
+    customerId: m.customer.id,
+    customerLabel: `${m.customer.surname} ${m.customer.name}`,
+    dateTimeLabel: formatMovementDateTime(m.date, m.time, m.createdAt),
+    tipo: m.movementType === "DARE" ? "Inviati" : "Ricevuti",
+    amount: Number(m.amount),
+    amountLabel: formatEUR(m.amount),
+    description: m.description ?? "—",
+  }));
+
+  return (    <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold">Sospesi</h1>
@@ -202,107 +193,11 @@ export default async function SospesiPage({
           </Button>
         </form>
 
-        <div className="overflow-x-auto">
-          <table className="data-table sospesi-table">
-            <thead>
-              <tr>
-                <th>Cliente</th>
-                <th>Inviati</th>
-                <th>Ricevuti</th>
-                <th>Saldo</th>
-                <th>Mov.</th>
-                <th>Ultimo</th>
-                <th>Inserimento rapido</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="sospesi-section bg-emerald-50">
-                <td colSpan={8} className="py-2 text-sm font-semibold text-emerald-800">
-                  Saldi aperti (positivo o negativo) — {withBalance.length} clienti · ordine alfabetico
-                </td>
-              </tr>
-              <CustomerRows rows={withBalance} />
-              {withBalance.length === 0 && (
-                <tr>
-                  <td colSpan={8} className="py-4 text-center text-slate-400">
-                    Nessun cliente con saldo aperto
-                  </td>
-                </tr>
-              )}
-
-              <tr className="sospesi-section bg-slate-100">
-                <td colSpan={8} className="py-2 text-sm font-semibold text-slate-600">
-                  Saldo 0 — {zeroBalance.length} clienti · contatori azzerati · ordine alfabetico
-                </td>
-              </tr>
-              <CustomerRows rows={zeroBalance} />
-              {zeroBalance.length === 0 && (
-                <tr>
-                  <td colSpan={8} className="py-4 text-center text-slate-400">
-                    Nessun cliente a saldo 0
-                  </td>
-                </tr>
-              )}
-
-              {rows.length === 0 && (
-                <tr>
-                  <td colSpan={8} className="py-8 text-center text-slate-400">
-                    Nessun cliente. Usa “+ Nuovo cliente” oppure importa lo storico.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        <SospesiCustomersTable rows={customerTableRows} />
       </Card>
 
       <Card title="Ultimi 10 movimenti">
-        <div className="overflow-x-auto">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Data / ora</th>
-                <th>Cliente</th>
-                <th>Tipo</th>
-                <th>Importo</th>
-                <th>Descrizione</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {last10.map((m) => (
-                <tr key={m.id}>
-                  <td className="whitespace-nowrap">
-                    {formatMovementDateTime(m.date, m.time, m.createdAt)}
-                  </td>
-                  <td>
-                    {m.customer.surname} {m.customer.name}
-                  </td>
-                  <td>{m.movementType === "DARE" ? "Inviati" : "Ricevuti"}</td>
-                  <td className={amountClass(Number(m.amount))}>{formatEUR(m.amount)}</td>
-                  <td>{m.description ?? "—"}</td>
-                  <td>
-                    <Link
-                      href={`/sospesi/${m.customer.id}`}
-                      className="text-sm text-emerald-600 hover:underline whitespace-nowrap"
-                    >
-                      Scheda
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-              {last10.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="py-6 text-center text-slate-400">
-                    Nessun movimento ancora
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </Card>
-    </div>
+        <SospesiRecentMovementsTable rows={recentTableRows} />
+      </Card>    </div>
   );
 }
