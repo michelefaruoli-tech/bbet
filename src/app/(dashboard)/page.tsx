@@ -5,8 +5,9 @@ import { formatEUR, toNumber } from "@/lib/format";
 import { formatDateIT, TIMEZONE } from "@/lib/timezone";
 import { formatInTimeZone } from "date-fns-tz";
 import { it } from "date-fns/locale";
-import { BalanceText, Badge, KpiCard, SignedAmount, quadratureWords } from "@/components/ui";
+import { BalanceText, KpiCard, SignedAmount, quadratureWords } from "@/components/ui";
 import { cn } from "@/lib/cn";
+import { SECTIONS, type SectionKey } from "@/components/layout/sections";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,7 @@ type Recent = {
   id: string;
   at: Date;
   kind: string;
+  section: SectionKey;
   label: string;
   amount: React.ReactNode;
   href: string;
@@ -52,6 +54,7 @@ export default async function OggiPage() {
       id: `s-${m.id}`,
       at: m.createdAt,
       kind: m.customer.systemKey ? "Tris" : "Cliente",
+      section: (m.customer.systemKey ? "tris" : "clienti") as SectionKey,
       label: `${m.customer.systemKey ? "Conto Tris" : `${m.customer.surname} ${m.customer.name}`.trim()} · ${
         m.movementType === "DARE" ? "Dare" : "Avere"
       }`,
@@ -62,6 +65,7 @@ export default async function OggiPage() {
       id: `l-${m.id}`,
       at: m.createdAt,
       kind: m.category === "POSTA" ? "Posta" : "LAY",
+      section: (m.category === "POSTA" ? "posta" : "lay") as SectionKey,
       label:
         m.category === "POSTA"
           ? `${toNumber(m.amount) >= 0 ? "Deposito" : "Prelievo"}${m.notes ? ` · ${m.notes}` : ""}`
@@ -73,6 +77,7 @@ export default async function OggiPage() {
       id: `t-${p.id}`,
       at: p.createdAt,
       kind: "Giocata Tris",
+      section: "tris" as SectionKey,
       label: `${p.playType === "DARE" ? "Dare" : "Avere"}${p.notes ? ` · ${p.notes}` : ""}`,
       amount: <span className="font-semibold tnum">{formatEUR(p.amount)}</span>,
       href: "/conti/tris",
@@ -81,6 +86,7 @@ export default async function OggiPage() {
       id: `m-${m.id}`,
       at: m.createdAt,
       kind: "Master",
+      section: "master" as SectionKey,
       label: m.notes || m.description || m.movementType.toLowerCase(),
       amount: <SignedAmount value={toNumber(m.amount)} />,
       href: "/conti/master",
@@ -89,6 +95,7 @@ export default async function OggiPage() {
       id: `w-${w.id}`,
       at: w.createdAt,
       kind: "Prelievo",
+      section: "cassa" as SectionKey,
       label: w.description || w.destination || "Prelievo",
       amount: <SignedAmount value={-toNumber(w.amount)} />,
       href: "/cassa/prelievi",
@@ -137,7 +144,7 @@ export default async function OggiPage() {
           "flex flex-wrap items-center justify-between gap-6 rounded-xl border p-7",
           q.tone === "ok" && "border-accent bg-accent-soft",
           q.tone === "warn" && "border-minus-line bg-minus-soft",
-          q.tone === "plus" && "border-[#BFD0F7] bg-plus-soft",
+          q.tone === "plus" && "border-plus-line bg-plus-soft",
         )}
       >
         <div className="flex flex-col gap-2">
@@ -161,13 +168,13 @@ export default async function OggiPage() {
           >
             {q.title}
           </h2>
-          <p className="text-[15px] text-[#3F3F46] tnum">
+          <p className="text-[15px] text-ink-soft tnum">
             Fondo cassa {formatEUR(data.cashFund)} · Quello che risulta {formatEUR(s.calculatedTotal)}
           </p>
         </div>
         <Link
           href="/cassa/conta"
-          className="inline-flex min-h-11 items-center rounded-[10px] bg-ink px-5 text-[15px] font-semibold text-white hover:bg-black"
+          className="inline-flex min-h-11 items-center rounded-[10px] bg-btn px-5 text-[15px] font-semibold text-white hover:bg-btn-hover"
         >
           Rifai la conta
         </Link>
@@ -176,6 +183,7 @@ export default async function OggiPage() {
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <KpiCard
           title="Clienti"
+          section="clienti"
           value={data.suspended.clientsNet}
           perspective="customer"
           href="/clienti"
@@ -183,6 +191,7 @@ export default async function OggiPage() {
         />
         <KpiCard
           title="LAY"
+          section="lay"
           value={data.lay.cumulativeBalance}
           perspective="lay"
           href="/conti"
@@ -190,6 +199,7 @@ export default async function OggiPage() {
         />
         <KpiCard
           title="Tris · nei Sospesi"
+          section="tris"
           value={data.suspended.trisBalance}
           perspective="tris"
           href="/conti/tris"
@@ -197,6 +207,7 @@ export default async function OggiPage() {
         />
         <KpiCard
           title="Master"
+          section="master"
           value={data.master.balance}
           perspective="master"
           href="/conti/master"
@@ -205,7 +216,7 @@ export default async function OggiPage() {
       </section>
 
       <section className="flex flex-wrap gap-4">
-        <div className="min-w-0 flex-[3_1_420px] rounded-xl border border-line bg-white px-6 py-5">
+        <div className="min-w-0 flex-[3_1_420px] rounded-xl border border-line bg-card px-6 py-5">
           <div className="mb-1 flex items-center justify-between">
             <h3 className="text-base font-semibold">Ultimi movimenti</h3>
           </div>
@@ -214,17 +225,25 @@ export default async function OggiPage() {
             <Link
               key={r.id}
               href={r.href}
-              className="flex items-center justify-between gap-3 border-t border-[#EFEFEA] py-3 text-sm hover:bg-accent-soft"
+              className="flex items-center justify-between gap-3 border-t border-line-soft py-3 text-sm hover:bg-accent-soft"
             >
               <span className="flex min-w-0 items-center gap-2">
-                <Badge>{r.kind}</Badge>
+                <span
+                  className={cn(
+                    "inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-xs font-semibold",
+                    SECTIONS[r.section].soft,
+                    SECTIONS[r.section].text,
+                  )}
+                >
+                  {r.kind}
+                </span>
                 <span className="truncate">{r.label}</span>
               </span>
               {r.amount}
             </Link>
           ))}
         </div>
-        <div className="min-w-0 flex-[2_1_300px] rounded-xl border border-line bg-white px-6 py-5">
+        <div className="min-w-0 flex-[2_1_300px] rounded-xl border border-line bg-card px-6 py-5">
           <div className="mb-1 flex items-center justify-between">
             <h3 className="text-base font-semibold">Clienti con saldo più alto</h3>
             <Link href="/clienti" className="text-sm text-accent hover:underline">
@@ -236,7 +255,7 @@ export default async function OggiPage() {
             <Link
               key={c.customer.id}
               href={`/clienti/${c.customer.id}`}
-              className="flex items-center justify-between gap-3 border-t border-[#EFEFEA] py-3 text-sm hover:bg-accent-soft"
+              className="flex items-center justify-between gap-3 border-t border-line-soft py-3 text-sm hover:bg-accent-soft"
             >
               <span>
                 {c.customer.surname} {c.customer.name}
@@ -249,7 +268,7 @@ export default async function OggiPage() {
         </div>
       </section>
 
-      <section className="flex flex-wrap items-center gap-8 rounded-xl border border-line bg-white px-6 py-5 tnum">
+      <section className="flex flex-wrap items-center gap-8 rounded-xl border border-line bg-card px-6 py-5 tnum">
         <div>
           <span className="text-[13px] font-medium text-muted">Commissioni {data.commissionYear.year}</span>
           <div className="text-xl font-bold">{formatEUR(data.commissionYear.commissioniAnnuali)}</div>

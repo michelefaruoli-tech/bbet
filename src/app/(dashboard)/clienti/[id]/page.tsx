@@ -7,6 +7,7 @@ import { openSuspendedTotals } from "@/lib/sospesi-period";
 import { formatEUR } from "@/lib/format";
 import { formatMovementDateTime } from "@/lib/timezone";
 import { BalanceText, Card, KpiCard } from "@/components/ui";
+import { SectionIcon } from "@/components/layout/sections";
 import { getPostaAccount, getTrisAccount } from "@/lib/calculations-server";
 import { DeleteLayButton } from "@/components/lay/delete-lay-button";
 import { toNumber } from "@/lib/format";
@@ -70,7 +71,8 @@ export default async function CustomerDetailPage({
         <Link href="/clienti" className="text-sm text-accent hover:underline">
           ← Clienti
         </Link>
-        <h1 className="text-[28px] font-bold tracking-tight">
+        <h1 className="flex items-center gap-3 text-[28px] font-bold tracking-tight">
+          <SectionIcon section="clienti" />
           {customer.surname} {customer.name}
         </h1>
       </div>
@@ -117,7 +119,7 @@ export default async function CustomerDetailPage({
               ) : (
                 sections.map(({ period, movements, periodTotals, isOpen }) => (
                   <Fragment key={`period-${period}`}>
-                    <tr className={isOpen ? "bg-accent-soft" : "bg-[#F6F6F3]"}>
+                    <tr className={isOpen ? "bg-accent-soft" : "bg-paper"}>
                       <td colSpan={6} className="py-2 text-sm font-semibold">
                         {isOpen ? (
                           <span className="text-accent-dark">
@@ -186,21 +188,24 @@ async function TrisAccountPage() {
         <Link href="/clienti" className="text-sm text-accent hover:underline">
           ← Clienti
         </Link>
-        <h1 className="text-[28px] font-bold tracking-tight">Conto Tris</h1>
+        <h1 className="flex items-center gap-3 text-[28px] font-bold tracking-tight">
+          <SectionIcon section="tris" />
+          Conto Tris
+        </h1>
       </div>
 
-      <section className="flex flex-wrap items-center justify-between gap-5 rounded-xl border border-minus-line bg-minus-soft px-6 py-5">
+      <section className="flex flex-wrap items-center justify-between gap-5 rounded-xl border border-l-4 border-line border-l-sec-tris bg-sec-tris-soft px-6 py-5">
         <div className="flex flex-col gap-1">
-          <span className="text-[13px] font-medium text-minus-dark">Saldo conto Tris (entra nel saldo sospesi)</span>
+          <span className="text-[13px] font-semibold text-sec-tris">Saldo conto Tris (entra nel saldo sospesi)</span>
           <BalanceText value={tris.balance} perspective="tris" className="text-[30px]" />
-          <span className="text-sm text-[#3F3F46]">
+          <span className="text-sm text-ink-soft">
             Soldi: <BalanceText value={tris.moneyBalance} perspective="tris" className="!font-medium" /> · Giocate:{" "}
             <BalanceText value={tris.playsBalance} perspective="tris" className="!font-medium" />
           </span>
         </div>
         <Link
           href="/conti/tris"
-          className="inline-flex min-h-11 items-center rounded-[10px] bg-ink px-5 font-semibold text-white hover:bg-black"
+          className="inline-flex min-h-11 items-center rounded-[10px] bg-btn px-5 font-semibold text-white hover:bg-btn-hover"
         >
           Vai alle giocate
         </Link>
@@ -269,18 +274,21 @@ async function PostaAccountPage() {
         <Link href="/clienti" className="text-sm text-accent hover:underline">
           ← Clienti
         </Link>
-        <h1 className="text-[28px] font-bold tracking-tight">Conto Posta</h1>
+        <h1 className="flex items-center gap-3 text-[28px] font-bold tracking-tight">
+          <SectionIcon section="posta" />
+          Conto Posta
+        </h1>
       </div>
 
-      <section className="flex flex-wrap items-center justify-between gap-5 rounded-xl border border-line bg-white px-6 py-5">
+      <section className="flex flex-wrap items-center justify-between gap-5 rounded-xl border border-l-4 border-line border-l-sec-posta bg-sec-posta-soft px-6 py-5">
         <div className="flex flex-col gap-1">
-          <span className="text-[13px] font-medium text-muted">Cassa LAY</span>
+          <span className="text-[13px] font-semibold text-sec-posta">Cassa LAY</span>
           <BalanceText value={posta.balance} perspective="posta" className="text-[30px]" />
-          <span className="text-sm text-[#3F3F46]">
+          <span className="text-sm text-ink-soft">
             Il saldo LAY è {formatEUR(posta.layBalance)}. Ogni deposito o prelievo che registri qui aggiorna il LAY.
           </span>
         </div>
-        <Link href="/conti" className="inline-flex min-h-11 items-center rounded-[10px] bg-ink px-5 font-semibold text-white hover:bg-black">
+        <Link href="/conti" className="inline-flex min-h-11 items-center rounded-[10px] bg-btn px-5 font-semibold text-white hover:bg-btn-hover">
           Vai al LAY
         </Link>
       </section>

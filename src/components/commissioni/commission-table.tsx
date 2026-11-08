@@ -166,7 +166,7 @@ export function CommissionTable({ year, months }: { year: number; months: Month[
   }
 
   const cellInput =
-    "w-full min-w-[4.5rem] rounded border border-slate-200 bg-white px-1.5 py-1 text-right text-sm focus:border-emerald-500 focus:outline-none";
+    "w-full min-w-[4.5rem] rounded border border-slate-200 bg-card px-1.5 py-1 text-right text-sm focus:border-emerald-500 focus:outline-none";
   const cellReadonly = "text-right text-sm text-slate-700 tabular-nums";
 
   return (
@@ -178,17 +178,17 @@ export function CommissionTable({ year, months }: { year: number; months: Month[
         </p>
         <p className="mt-1 text-3xl font-bold text-amber-950">{formatEUR(saldoCassaReale)}</p>
         <div className="mt-3 grid gap-2 text-sm sm:grid-cols-3">
-          <div className="rounded-lg border border-accent bg-white/80 px-3 py-2">
+          <div className="rounded-lg border border-accent bg-card/80 px-3 py-2">
             <p className="text-xs text-accent-dark">Commissioni annuali</p>
             <p className="font-bold text-emerald-950">
               {formatEUR(totals.invoice + totals.bonus)}
             </p>
           </div>
-          <div className="rounded-lg border border-sky-200 bg-white/80 px-3 py-2">
+          <div className="rounded-lg border border-sky-200 bg-card/80 px-3 py-2">
             <p className="text-xs text-sky-700">+ Fondo cassa (fisso)</p>
             <p className="font-bold text-sky-950">{formatEUR(totals.cashFund)}</p>
           </div>
-          <div className="rounded-lg border border-rose-200 bg-white/80 px-3 py-2">
+          <div className="rounded-lg border border-rose-200 bg-card/80 px-3 py-2">
             <p className="text-xs text-rose-700">− Prelievi</p>
             <p className="font-bold text-rose-700">{formatEUR(totals.withdrawals)}</p>
             <a href="/cassa/prelievi" className="text-xs text-rose-600 underline">
@@ -202,7 +202,7 @@ export function CommissionTable({ year, months }: { year: number; months: Month[
       </div>
 
       {/* TABELLA 1 — Fatture + Bonus (Commissioni) */}
-      <div className="overflow-hidden rounded-xl border-2 border-emerald-300 bg-white">
+      <div className="overflow-hidden rounded-xl border-2 border-emerald-300 bg-card">
         <div className="border-b border-accent bg-accent-soft px-4 py-2">
           <h3 className="font-semibold text-emerald-900">1 · Fatture + Bonus (Commissioni)</h3>
           <p className="text-xs text-accent-dark">Parziale mese = Fatt + Bonus</p>
@@ -224,7 +224,7 @@ export function CommissionTable({ year, months }: { year: number; months: Month[
                 const c = calcRow(row);
                 return (
                   <tr key={`comm-${m.id}`} className={m.closed ? "opacity-60" : ""}>
-                    <td className="sticky left-0 bg-white font-medium whitespace-nowrap">
+                    <td className="sticky left-0 bg-card font-medium whitespace-nowrap">
                       {MONTH_LABELS[m.month - 1]}
                     </td>
                     <td>
@@ -273,7 +273,7 @@ export function CommissionTable({ year, months }: { year: number; months: Month[
       </div>
 
       {/* TABELLA 2 — Casino / Sport */}
-      <div className="overflow-hidden rounded-xl border-2 border-sky-300 bg-white">
+      <div className="overflow-hidden rounded-xl border-2 border-sky-300 bg-card">
         <div className="border-b border-sky-200 bg-sky-50 px-4 py-2">
           <h3 className="font-semibold text-sky-900">2 · Casino lordo / netto · Sport</h3>
           <p className="text-xs text-sky-700">
@@ -298,7 +298,7 @@ export function CommissionTable({ year, months }: { year: number; months: Month[
                 const c = calcRow(row);
                 return (
                   <tr key={`casino-${m.id}`} className={m.closed ? "opacity-60" : ""}>
-                    <td className="sticky left-0 bg-white font-medium whitespace-nowrap">
+                    <td className="sticky left-0 bg-card font-medium whitespace-nowrap">
                       {MONTH_LABELS[m.month - 1]}
                     </td>
                     <td>
@@ -349,7 +349,7 @@ export function CommissionTable({ year, months }: { year: number; months: Month[
       </div>
 
       {/* TABELLA 3 — Cassa / Prelievi */}
-      <div className="overflow-hidden rounded-xl border-2 border-amber-300 bg-white">
+      <div className="overflow-hidden rounded-xl border-2 border-amber-300 bg-card">
         <div className="border-b border-amber-200 bg-amber-50 px-4 py-2">
           <h3 className="font-semibold text-amber-900">3 · Fondo cassa · Prelievi</h3>
           <p className="text-xs text-amber-800">
@@ -378,7 +378,7 @@ export function CommissionTable({ year, months }: { year: number; months: Month[
                 const c = calcRow(row);
                 return (
                   <tr key={`cassa-${m.id}`} className={m.closed ? "opacity-60" : ""}>
-                    <td className="sticky left-0 bg-white font-medium whitespace-nowrap">
+                    <td className="sticky left-0 bg-card font-medium whitespace-nowrap">
                       {MONTH_LABELS[m.month - 1]}
                     </td>
                     <td>

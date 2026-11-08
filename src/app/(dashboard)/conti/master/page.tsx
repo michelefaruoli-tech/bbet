@@ -39,12 +39,12 @@ export default async function MasterPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader title="Conti">
+      <PageHeader title="Conti" section="master">
         <Tabs items={CONTI_TABS} active="/conti/master" label="Scegli conto" />
       </PageHeader>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <KpiCard title="Saldo Master" value={balance} perspective="master" subtitle="entra così com’è nella conta di cassa" />
+        <KpiCard title="Saldo Master" section="master" value={balance} perspective="master" subtitle="entra così com’è nella conta di cassa" />
         <KpiCard title="Totale Avere (+)" value={totalAvere} subtitle="pagamenti: Master deve a te" />
         <KpiCard title="Totale Dare (−)" value={totalDare} subtitle="ricariche e bonus: tu devi a Master" />
       </div>

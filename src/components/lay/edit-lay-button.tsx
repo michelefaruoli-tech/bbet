@@ -59,7 +59,7 @@ export function EditLayButton({ operation }: { operation: EditableLayOperation }
             if (e.target === e.currentTarget && !pending) setOpen(false);
           }}
         >
-          <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-xl">
+          <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl border border-slate-200 bg-card shadow-xl">
             <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
               <h3 id="edit-lay-title" className="font-semibold text-slate-800">
                 Modifica operazione

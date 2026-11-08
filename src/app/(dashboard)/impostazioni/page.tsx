@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { SectionIcon } from "@/components/layout/sections";
 import { requireSession } from "@/lib/auth";
 import { formatDateTimeIT } from "@/lib/timezone";
 import { Card, Badge } from "@/components/ui";
@@ -26,7 +27,10 @@ export default async function ImpostazioniPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-[28px] font-bold tracking-tight">Impostazioni</h1>
+        <h1 className="flex items-center gap-3 text-[28px] font-bold tracking-tight">
+            <SectionIcon section="oggi" />
+            Impostazioni
+          </h1>
         <p className="text-sm text-muted">Account, utenze e chi ha modificato cosa</p>
       </div>
 

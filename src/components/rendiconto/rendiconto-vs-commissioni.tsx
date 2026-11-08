@@ -51,7 +51,7 @@ export function RendicontoVsCommissioni({
             : "Attenzione — mancano soldi rispetto alle Commissioni"}
       </div>
 
-      <div className="grid gap-0 bg-white md:grid-cols-[1fr_auto_1fr_auto_1fr]">
+      <div className="grid gap-0 bg-card md:grid-cols-[1fr_auto_1fr_auto_1fr]">
         <Link
           href="/cassa/conta"
           className={cn(
@@ -160,7 +160,7 @@ export function CommissioniTotaleBreakdown({
   totale: number;
 }) {
   return (
-    <div className="overflow-hidden rounded-2xl border-2 border-amber-500 bg-white shadow-md">
+    <div className="overflow-hidden rounded-2xl border-2 border-amber-500 bg-card shadow-md">
       <div className="bg-amber-600 px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-white">
         Totale Rendiconto da Commissioni {year} — dato principale
       </div>

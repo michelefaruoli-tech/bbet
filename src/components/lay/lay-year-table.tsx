@@ -71,7 +71,7 @@ export function LayYearTable({ years, cells, selectedYears }: Props) {
               const month = idx + 1;
               return (
                 <tr key={month}>
-                  <td className="sticky left-0 z-10 bg-white font-medium whitespace-nowrap">{label}</td>
+                  <td className="sticky left-0 z-10 bg-card font-medium whitespace-nowrap">{label}</td>
                   {visibleYears.map((y, yi) => {
                     const data = cell(y, month);
                     const key = `${y}-${month}`;

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { SectionIcon } from "@/components/layout/sections";
 import { formatEUR } from "@/lib/format";
 import { formatDateIT } from "@/lib/timezone";
 import { Card } from "@/components/ui";
@@ -14,7 +15,10 @@ export default async function ArchivioPage() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap justify-between gap-3">
         <div>
-          <h1 className="text-[28px] font-bold tracking-tight">Archivio annuale</h1>
+          <h1 className="flex items-center gap-3 text-[28px] font-bold tracking-tight">
+            <SectionIcon section="archivio" />
+            Archivio annuale
+          </h1>
           <p className="text-sm text-muted">
             Chiusura 31/12 · Riporto fondo cassa · Possibilità di riaprire se sbagli · Backup Excel
           </p>

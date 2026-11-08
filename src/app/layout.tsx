@@ -20,7 +20,16 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="it" className={`${inter.variable} h-full`}>
+    <html lang="it" className={`${inter.variable} h-full`} suppressHydrationWarning>
+      <head>
+        {/* Applica il tema scelto (giorno/notte) prima che la pagina compaia */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{var t=localStorage.getItem('bbet-theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t}}catch(e){}",
+          }}
+        />
+      </head>
       <body className="min-h-full antialiased">{children}</body>
     </html>
   );

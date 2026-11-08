@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { SectionIcon } from "@/components/layout/sections";
 import { formatEUR, toNumber } from "@/lib/format";
 import { calcCommissionCashBalance } from "@/lib/calculations";
 import { getFullDashboard } from "@/lib/calculations-server";
@@ -132,7 +133,10 @@ export default async function CommissioniPage({
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-[28px] font-bold tracking-tight">Commissioni {year}</h1>
+          <h1 className="flex items-center gap-3 text-[28px] font-bold tracking-tight">
+            <SectionIcon section="cassa" />
+            Commissioni {year}
+          </h1>
           <p className="text-sm text-muted">
             Totale = Commissioni annuali + Fondo cassa (chiusura anno prima) − Prelievi
           </p>

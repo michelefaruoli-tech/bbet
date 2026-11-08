@@ -35,15 +35,15 @@ export default async function GiocateTrisPage() {
 
   return (
     <>
-      <PageHeader title="Conti">
+      <PageHeader title="Conti" section="tris">
         <Tabs items={CONTI_TABS} active="/conti/tris" label="Scegli conto" />
       </PageHeader>
 
-      <section className="flex flex-wrap items-center justify-between gap-5 rounded-xl border border-minus-line bg-minus-soft px-6 py-5">
+      <section className="flex flex-wrap items-center justify-between gap-5 rounded-xl border border-l-4 border-line border-l-sec-tris bg-sec-tris-soft px-6 py-5">
         <div className="flex flex-col gap-1">
-          <span className="text-[13px] font-medium text-minus-dark">Conto Tris nei Sospesi</span>
+          <span className="text-[13px] font-semibold text-sec-tris">Conto Tris nei Sospesi</span>
           <BalanceText value={tris.balance} perspective="tris" className="text-[30px]" />
-          <span className="text-sm text-[#3F3F46]">
+          <span className="text-sm text-ink-soft">
             Ogni giocata che salvi qui aggiorna da sola questo saldo. I soldi dati o ricevuti li registri nel conto Tris
             dei Sospesi.
           </span>
@@ -51,7 +51,7 @@ export default async function GiocateTrisPage() {
         {tris.account && (
           <Link
             href={`/clienti/${tris.account.id}`}
-            className="inline-flex min-h-11 items-center rounded-[10px] bg-ink px-5 font-semibold text-white hover:bg-black"
+            className="inline-flex min-h-11 items-center rounded-[10px] bg-btn px-5 font-semibold text-white hover:bg-btn-hover"
           >
             Apri conto Tris
           </Link>
@@ -61,15 +61,15 @@ export default async function GiocateTrisPage() {
       <TrisPlayForm trisBalance={tris.balance} />
 
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border border-line bg-white p-5">
+        <div className="rounded-xl border border-line bg-card p-5">
           <span className="text-[13px] font-medium text-muted">{MONTHS_LONG[m - 1]} · Dare</span>
           <div className="text-2xl font-bold text-minus-dark tnum">{formatEUR(dare)}</div>
         </div>
-        <div className="rounded-xl border border-line bg-white p-5">
+        <div className="rounded-xl border border-line bg-card p-5">
           <span className="text-[13px] font-medium text-muted">{MONTHS_LONG[m - 1]} · Avere</span>
           <div className="text-2xl font-bold text-plus tnum">{formatEUR(avere)}</div>
         </div>
-        <div className="rounded-xl border border-line bg-white p-5">
+        <div className="rounded-xl border border-line bg-card p-5">
           <span className="text-[13px] font-medium text-muted">Effetto sul conto Tris</span>
           <div className={`text-2xl font-bold tnum ${effect > 0 ? "text-minus-dark" : effect < 0 ? "text-plus" : ""}`}>
             {Math.abs(effect) < 0.005

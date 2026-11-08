@@ -100,11 +100,11 @@ export function LayOperationsHistory({
                   <td className={amountClass(amount)}>{formatEUR(Math.abs(amount))}</td>
                   <td>
                     {isTris ? (
-                      <span className="rounded bg-minus-line px-1.5 py-0.5 text-xs font-semibold text-[#5C3208]">
+                      <span className="rounded bg-minus-line px-1.5 py-0.5 text-xs font-semibold text-minus-ink">
                         Tris storico
                       </span>
                     ) : m.category === "POSTA" ? (
-                      <span className="rounded bg-[#F0F0EC] px-1.5 py-0.5 text-xs font-semibold text-[#3F3F46]">
+                      <span className="rounded bg-chip px-1.5 py-0.5 text-xs font-semibold text-ink-soft">
                         Posta · {amount >= 0 ? "deposito" : "prelievo"}
                       </span>
                     ) : (

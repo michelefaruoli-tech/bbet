@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SectionIcon } from "@/components/layout/sections";
 import { prisma } from "@/lib/prisma";
 import { calcMasterBalance } from "@/lib/calculations";
 import { requireSession } from "@/lib/auth";
@@ -40,7 +41,10 @@ export default async function MasterSchedaPage() {
         <Link href="/conti/master" className="text-sm text-accent hover:underline">
           ← Torna al Master
         </Link>
-        <h1 className="text-[28px] font-bold tracking-tight">Scheda Master</h1>
+        <h1 className="flex items-center gap-3 text-[28px] font-bold tracking-tight">
+            <SectionIcon section="master" />
+            Scheda Master
+          </h1>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-4">

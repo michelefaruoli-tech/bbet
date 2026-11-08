@@ -93,6 +93,7 @@ export default async function ClientiPage({
     <>
       <PageHeader
         title="Clienti"
+        section="clienti"
         subtitle={
           <>
             Clienti: <BalanceText value={clientsNet} plural /> · Tris: <BalanceText value={tris.balance} perspective="tris" /> ·
@@ -123,7 +124,7 @@ export default async function ClientiPage({
           />
           <input type="hidden" name="stato" value={stato} />
         </form>
-        <nav aria-label="Filtra clienti" className="flex flex-wrap gap-1 rounded-[10px] bg-[#EDEDE8] p-1">
+        <nav aria-label="Filtra clienti" className="flex flex-wrap gap-1 rounded-[10px] bg-tabbar p-1">
           {FILTERS.map((f) => (
             <Link
               key={f.key}
@@ -131,7 +132,7 @@ export default async function ClientiPage({
               aria-current={stato === f.key ? "page" : undefined}
               className={cn(
                 "inline-flex min-h-10 items-center rounded-lg px-3.5 text-sm font-semibold",
-                stato === f.key ? "bg-ink text-white" : "text-muted hover:text-ink",
+                stato === f.key ? "bg-btn text-white" : "text-muted hover:text-ink",
               )}
             >
               {f.label} ({counts[f.key]})
@@ -146,7 +147,7 @@ export default async function ClientiPage({
         periodo si chiude da solo.
       </p>
 
-      <div className="overflow-x-auto rounded-xl border border-line bg-white">
+      <div className="overflow-x-auto rounded-xl border border-line bg-card">
         <table className="data-table">
           <thead>
             <tr>
@@ -158,12 +159,12 @@ export default async function ClientiPage({
           </thead>
           <tbody>
             {tris.account && !q && (
-              <tr className="bg-minus-soft">
+              <tr className="bg-sec-tris-soft [&>td:first-child]:border-l-4 [&>td:first-child]:border-l-sec-tris">
                 <td>
                   <Link href={`/clienti/${tris.account.id}`} className="font-semibold hover:underline">
                     Tris
                   </Link>{" "}
-                  <Badge tone="warn">CONTO FISSO</Badge>
+                  <span className="rounded-full bg-sec-tris px-2 py-0.5 text-xs font-bold text-white">CONTO FISSO</span>
                   <br />
                   <span className="text-[13px] text-muted">
                     qui solo saldo e soldi · le giocate sono in{" "}
@@ -184,12 +185,12 @@ export default async function ClientiPage({
               </tr>
             )}
             {posta.account && !q && (
-              <tr className="bg-[#F6F6F3]">
+              <tr className="bg-sec-posta-soft [&>td:first-child]:border-l-4 [&>td:first-child]:border-l-sec-posta">
                 <td>
                   <Link href={`/clienti/${posta.account.id}`} className="font-semibold hover:underline">
                     Posta
                   </Link>{" "}
-                  <Badge>CONTO FISSO</Badge>
+                  <span className="rounded-full bg-sec-posta px-2 py-0.5 text-xs font-bold text-white">CONTO FISSO</span>
                   <br />
                   <span className="text-[13px] text-muted">
                     cassa LAY · qui depositi e prelievi ·{" "}

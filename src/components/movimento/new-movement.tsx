@@ -10,16 +10,17 @@ import { cn } from "@/lib/cn";
 import { TrisPlayForm } from "@/components/tris/tris-play-form";
 import { QuickLayForm } from "@/components/lay/quick-lay-form";
 import { QuickMasterRow } from "@/components/master/quick-master-row";
+import { SECTIONS, SectionIcon } from "@/components/layout/sections";
 
 type Customer = { id: string; label: string; balance: number; isTris: boolean; isPosta?: boolean };
 
 const KINDS = [
-  { key: "cliente", title: "Cliente", sub: "Dare / Avere" },
-  { key: "tris", title: "Giocata Tris", sub: "aggiorna i Sospesi" },
-  { key: "lay", title: "LAY", sub: "entrata / uscita" },
-  { key: "master", title: "Master", sub: "ricarica, pagamento…" },
-  { key: "prelievo", title: "Prelievo", sub: "dalla cassa" },
-  { key: "commissioni", title: "Commissioni", sub: "rendiconto del mese" },
+  { key: "cliente", title: "Cliente", sub: "Dare / Avere", section: "clienti" },
+  { key: "tris", title: "Giocata Tris", sub: "aggiorna i Sospesi", section: "tris" },
+  { key: "lay", title: "LAY", sub: "entrata / uscita", section: "lay" },
+  { key: "master", title: "Master", sub: "ricarica, pagamento…", section: "master" },
+  { key: "prelievo", title: "Prelievo", sub: "dalle commissioni", section: "cassa" },
+  { key: "commissioni", title: "Commissioni", sub: "rendiconto del mese", section: "cassa" },
 ] as const;
 
 type Kind = (typeof KINDS)[number]["key"];
@@ -59,12 +60,17 @@ export function NewMovement({
               aria-pressed={kind === k.key}
               onClick={() => setKind(k.key)}
               className={cn(
-                "flex min-h-14 flex-col items-start justify-center gap-0.5 rounded-xl border bg-white px-3.5 py-2 text-left text-[15px] font-semibold",
-                kind === k.key ? "border-2 border-accent bg-accent-soft" : "border-[#D4D4CF] hover:border-ink",
+                "flex min-h-16 items-center gap-3 rounded-xl border bg-card px-3.5 py-2 text-left text-[15px] font-semibold",
+                kind === k.key
+                  ? cn("border-2 border-l-8", SECTIONS[k.section].soft, SECTIONS[k.section].border, "border-ink")
+                  : "border-field hover:border-ink",
               )}
             >
-              {k.title}
-              <span className="text-[13px] font-medium text-muted">{k.sub}</span>
+              <SectionIcon section={k.section} size="sm" />
+              <span className="flex flex-col gap-0.5">
+                {k.title}
+                <span className="text-[13px] font-medium text-muted">{k.sub}</span>
+              </span>
             </button>
           ))}
         </div>
@@ -76,7 +82,7 @@ export function NewMovement({
         {kind === "tris" && <TrisPlayForm trisBalance={trisBalance} />}
         {kind === "lay" && <QuickLayForm />}
         {kind === "master" && (
-          <div className="rounded-xl border border-line bg-white px-6 py-5">
+          <div className="rounded-xl border border-line bg-card px-6 py-5">
             <p className="mb-3 text-sm text-muted">
               Avere = pagamento (Master ti deve) · Dare = ricarica (tu devi a Master). Per bonus o rettifiche usa{" "}
               <Link href="/conti/master" className="text-accent hover:underline">
@@ -100,9 +106,9 @@ export function NewMovement({
 
 function GoTo({ href, text, label }: { href: string; text: string; label: string }) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-white px-6 py-5">
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-card px-6 py-5">
       <p className="text-sm">{text}</p>
-      <Link href={href} className="inline-flex min-h-11 items-center rounded-[10px] bg-ink px-5 font-semibold text-white hover:bg-black">
+      <Link href={href} className="inline-flex min-h-11 items-center rounded-[10px] bg-btn px-5 font-semibold text-white hover:bg-btn-hover">
         {label}
       </Link>
     </div>
@@ -126,7 +132,7 @@ function ClientMovement({ customers }: { customers: Customer[] }) {
 
   return (
     <form
-      className="flex flex-col gap-4 rounded-xl border border-line bg-white px-6 py-5"
+      className="flex flex-col gap-4 rounded-xl border border-line bg-card px-6 py-5"
       onSubmit={(e) => {
         e.preventDefault();
         if (!customer || !value) {
@@ -225,7 +231,7 @@ function ClientMovement({ customers }: { customers: Customer[] }) {
         <input id="mv-notes" className="inp" value={notes} onChange={(e) => setNotes(e.target.value)} />
       </div>
       {customer && value > 0 && (
-        <div className="rounded-[10px] bg-[#F6F6F3] px-4 py-3 text-[15px]">
+        <div className="rounded-[10px] bg-paper px-4 py-3 text-[15px]">
           Dopo il salvataggio <strong>{customer.label}</strong>: <strong>{words(after, customer.isTris, true, customer.isPosta)}</strong>
         </div>
       )}

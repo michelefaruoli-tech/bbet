@@ -17,6 +17,7 @@ export default async function ContaPage() {
     <>
       <PageHeader
         title="Conta di cassa"
+        section="cassa"
         subtitle={`Una volta al mese, o quando vuoi: conti i soldi, il resto lo calcola l'app · ultima modifica ${
           current ? formatDateTimeIT(current.updatedAt) : "—"
         }`}

@@ -81,19 +81,19 @@ export default async function LayPage({
 
   return (
     <>
-      <PageHeader title="Conti">
+      <PageHeader title="Conti" section="lay">
         <Tabs items={CONTI_TABS} active="/conti" label="Scegli conto" />
       </PageHeader>
 
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border border-line bg-white p-5">
+        <div className="rounded-xl border border-line bg-card p-5">
           <span className="text-[13px] font-medium text-muted">Saldo LAY complessivo</span>
           <div className="text-[28px] font-bold">
             <SignedAmount value={summary.cumulativeBalance} />
           </div>
           <span className="text-[13px] text-muted">nel conteggio di cassa si sottrae</span>
         </div>
-        <div className="rounded-xl border border-line bg-white p-5">
+        <div className="rounded-xl border border-line bg-card p-5">
           <span className="text-[13px] font-medium text-muted">
             {MONTHS_LONG[curM - 1][0].toUpperCase() + MONTHS_LONG[curM - 1].slice(1)} (in corso)
           </span>
@@ -102,7 +102,7 @@ export default async function LayPage({
           </div>
           <span className="text-[13px] text-muted">{curLive?.count ?? 0} operazioni</span>
         </div>
-        <div className="rounded-xl border border-line bg-white p-5">
+        <div className="rounded-xl border border-line bg-card p-5">
           {lastClosure ? (
             <>
               <span className="text-[13px] font-medium text-muted">
@@ -145,7 +145,7 @@ export default async function LayPage({
                 aria-current={y === year ? "page" : undefined}
                 className={cn(
                   "inline-flex min-h-9 items-center rounded-lg px-3 text-sm font-semibold",
-                  y === year ? "bg-ink text-white" : "text-muted hover:text-ink",
+                  y === year ? "bg-btn text-white" : "text-muted hover:text-ink",
                 )}
               >
                 {y}
@@ -165,9 +165,9 @@ export default async function LayPage({
               aria-current={String(c.month) === filterMonth ? "true" : undefined}
               className={cn(
                 "flex flex-col gap-0.5 rounded-[10px] border px-3 py-2.5 text-sm",
-                c.closed && "border-line bg-white",
+                c.closed && "border-line bg-card",
                 !c.closed && !c.future && "border-dashed border-accent bg-accent-soft",
-                c.future && "pointer-events-none border-line bg-white opacity-50",
+                c.future && "pointer-events-none border-line bg-card opacity-50",
                 String(c.month) === filterMonth && "ring-2 ring-ink",
               )}
             >
@@ -181,7 +181,7 @@ export default async function LayPage({
         </div>
       </Card>
 
-      <section id="operazioni" className="rounded-xl border border-line bg-white px-6 py-5">
+      <section id="operazioni" className="rounded-xl border border-line bg-card px-6 py-5">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-base font-semibold">
             Operazioni{filterMonth ? ` · ${MONTHS_LONG[Number(filterMonth) - 1]} ${year}` : ""}

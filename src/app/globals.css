@@ -1,45 +1,185 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f6f6f3;
-  --foreground: #18181b;
-  --surface: #ffffff;
+  color-scheme: light;
+  --paper: #f4f4f0;
+  --card: #ffffff;
+  --ink: #18181b;
+  --ink-soft: #3f3f46;
+  --muted: #5f5f66;
   --line: #e4e4df;
   --line-soft: #efefea;
-  --muted: #5f5f66;
+  --field: #d4d4cf;
+  --tabbar: #e9e9e3;
+  --chip: #f0f0ec;
+  --btn: #18181b;
+  --btn-hover: #000000;
   --accent: #0e6e62;
   --accent-dark: #0a5249;
-  --accent-soft: #f1f7f6;
+  --accent-soft: #e8f4f2;
   /* "ti devono" / in attivo */
   --plus: #1d4ed8;
-  --plus-soft: #eef3fe;
+  --plus-soft: #eaf0fe;
+  --plus-line: #bfd0f7;
   /* "gli devi" / mancano */
   --minus: #b45309;
   --minus-dark: #8a4b0b;
-  --minus-soft: #fff8ee;
+  --minus-soft: #fff6ea;
   --minus-line: #f2c894;
+  --minus-ink: #5c3208;
+  /* Colori delle sezioni */
+  --sec-oggi: #18181b;
+  --sec-clienti: #2563eb;
+  --sec-clienti-soft: #eaf1fe;
+  --sec-lay: #0d9488;
+  --sec-lay-soft: #e6f6f4;
+  --sec-tris: #ea580c;
+  --sec-tris-soft: #fff1e8;
+  --sec-master: #7c3aed;
+  --sec-master-soft: #f3edfe;
+  --sec-posta: #db2777;
+  --sec-posta-soft: #fdebf4;
+  --sec-cassa: #16a34a;
+  --sec-cassa-soft: #e9f7ee;
+  --sec-archivio: #64748b;
+  --sec-archivio-soft: #eef1f5;
+}
+
+/* Tema notte: scelto col tasto (data-theme="dark") */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #0f0f11;
+  --card: #1a1a1d;
+  --ink: #f4f4f5;
+  --ink-soft: #d4d4d8;
+  --muted: #a1a1aa;
+  --line: #2e2e33;
+  --line-soft: #26262a;
+  --field: #3f3f46;
+  --tabbar: #232327;
+  --chip: #2a2a2e;
+  --btn: #3f3f46;
+  --btn-hover: #52525b;
+  --accent: #2bb3a1;
+  --accent-dark: #5fd1c1;
+  --accent-soft: #10302c;
+  --plus: #7aa2ff;
+  --plus-soft: #16213d;
+  --plus-line: #2d4380;
+  --minus: #f5a54a;
+  --minus-dark: #f8b968;
+  --minus-soft: #2e2113;
+  --minus-line: #6b4a1f;
+  --minus-ink: #fcd9a8;
+  --sec-oggi: #f4f4f5;
+  --sec-clienti: #6b9bff;
+  --sec-clienti-soft: #172240;
+  --sec-lay: #2dd4bf;
+  --sec-lay-soft: #0f2d2a;
+  --sec-tris: #fb923c;
+  --sec-tris-soft: #33200f;
+  --sec-master: #a78bfa;
+  --sec-master-soft: #251c3d;
+  --sec-posta: #f472b6;
+  --sec-posta-soft: #361827;
+  --sec-cassa: #4ade80;
+  --sec-cassa-soft: #12291a;
+  --sec-archivio: #94a3b8;
+  --sec-archivio-soft: #1e2430;
+
+  /* Pagine vecchie con colori Tailwind fissi: scala grigi invertita e tinte scure */
+  --color-white: #1a1a1d;
+  --color-slate-50: #1c1c20;
+  --color-slate-100: #232327;
+  --color-slate-200: #2e2e33;
+  --color-slate-300: #3f3f46;
+  --color-slate-400: #8b8b94;
+  --color-slate-500: #a1a1aa;
+  --color-slate-600: #b4b4bc;
+  --color-slate-700: #d4d4d8;
+  --color-slate-800: #e4e4e7;
+  --color-slate-900: #f4f4f5;
+  --color-emerald-50: #10302c;
+  --color-emerald-100: #134039;
+  --color-amber-50: #2e2113;
+  --color-amber-100: #3d2c15;
+  --color-red-50: #3a1515;
+  --color-red-100: #4a1a1a;
+  --color-sky-50: #13253a;
+  --color-violet-50: #221a38;
+  --color-gray-50: #1c1c20;
+  --color-gray-100: #232327;
+  --color-amber-200: #6b4a1f;
+  --color-amber-700: #f8b968;
+  --color-amber-800: #fcd34d;
+  --color-amber-900: #fde68a;
+  --color-emerald-200: #1f5f55;
+  --color-emerald-300: #2b8a7c;
+  --color-emerald-600: #34d399;
+  --color-emerald-700: #5fd1c1;
+  --color-emerald-800: #6ee7b7;
+  --color-emerald-900: #a7f3d0;
+  --color-red-200: #7f1d1d;
+  --color-red-600: #f87171;
+  --color-red-700: #fca5a5;
+  --color-red-800: #fecaca;
+  --color-sky-200: #1e3a5f;
+  --color-sky-300: #2b5585;
+  --color-sky-700: #7dd3fc;
+  --color-sky-800: #bae6fd;
+  --color-violet-200: #3b2d63;
+  --color-violet-300: #4c3a80;
+  --color-violet-600: #a78bfa;
+  --color-violet-700: #c4b5fd;
+  --color-violet-800: #ddd6fe;
+  --color-violet-900: #ede9fe;
 }
 
 @theme inline {
   --font-sans: var(--font-inter), system-ui, sans-serif;
-  --color-ink: #18181b;
-  --color-muted: #5f5f66;
-  --color-line: #e4e4df;
-  --color-paper: #f6f6f3;
-  --color-accent: #0e6e62;
-  --color-accent-dark: #0a5249;
-  --color-accent-soft: #f1f7f6;
-  --color-plus: #1d4ed8;
-  --color-plus-soft: #eef3fe;
-  --color-minus: #b45309;
-  --color-minus-dark: #8a4b0b;
-  --color-minus-soft: #fff8ee;
-  --color-minus-line: #f2c894;
+  --color-paper: var(--paper);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+  --color-field: var(--field);
+  --color-tabbar: var(--tabbar);
+  --color-chip: var(--chip);
+  --color-btn: var(--btn);
+  --color-btn-hover: var(--btn-hover);
+  --color-accent: var(--accent);
+  --color-accent-dark: var(--accent-dark);
+  --color-accent-soft: var(--accent-soft);
+  --color-plus: var(--plus);
+  --color-plus-soft: var(--plus-soft);
+  --color-plus-line: var(--plus-line);
+  --color-minus: var(--minus);
+  --color-minus-dark: var(--minus-dark);
+  --color-minus-soft: var(--minus-soft);
+  --color-minus-line: var(--minus-line);
+  --color-minus-ink: var(--minus-ink);
+  --color-sec-oggi: var(--sec-oggi);
+  --color-sec-clienti: var(--sec-clienti);
+  --color-sec-clienti-soft: var(--sec-clienti-soft);
+  --color-sec-lay: var(--sec-lay);
+  --color-sec-lay-soft: var(--sec-lay-soft);
+  --color-sec-tris: var(--sec-tris);
+  --color-sec-tris-soft: var(--sec-tris-soft);
+  --color-sec-master: var(--sec-master);
+  --color-sec-master-soft: var(--sec-master-soft);
+  --color-sec-posta: var(--sec-posta);
+  --color-sec-posta-soft: var(--sec-posta-soft);
+  --color-sec-cassa: var(--sec-cassa);
+  --color-sec-cassa-soft: var(--sec-cassa-soft);
+  --color-sec-archivio: var(--sec-archivio);
+  --color-sec-archivio-soft: var(--sec-archivio-soft);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--paper);
+  color: var(--ink);
   font-family: var(--font-inter), system-ui, sans-serif;
   min-height: 100vh;
 }
@@ -52,7 +192,8 @@ input,
 select,
 textarea {
   font: inherit;
-  background: #ffffff;
+  background: var(--card);
+  color: var(--ink);
 }
 
 table.data-table {
@@ -89,32 +230,32 @@ table.sospesi-table {
 }
 
 table.sospesi-table tbody tr.sospesi-row td {
-  border-top: 1px solid #94a3b8;
-  border-bottom: 1px solid #94a3b8;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
 }
 
 table.sospesi-table tbody tr.sospesi-row td:first-child {
-  border-left: 1px solid #94a3b8;
+  border-left: 1px solid var(--line);
   border-radius: 8px 0 0 8px;
 }
 
 table.sospesi-table tbody tr.sospesi-row td:last-child {
-  border-right: 1px solid #94a3b8;
+  border-right: 1px solid var(--line);
   border-radius: 0 8px 8px 0;
 }
 
 table.sospesi-table tbody tr.sospesi-row-even td {
-  background: #f1f5f9;
+  background: var(--card);
 }
 
 table.sospesi-table tbody tr.sospesi-row-odd td {
-  background: #e2e8f0;
+  background: var(--chip);
 }
 
 table.sospesi-table tbody tr.sospesi-row:hover td {
-  background: #d1fae5;
+  background: var(--accent-soft);
 }
 
 table.sospesi-table tbody tr.sospesi-section td {
@@ -126,21 +267,21 @@ table.sospesi-table tbody tr.sospesi-section td {
 
 /* Tabella LAY: contorno per colonna anno */
 table.lay-year-table .lay-year-col {
-  border-left: 2px solid #6ee7b7;
-  border-right: 2px solid #6ee7b7;
+  border-left: 2px solid var(--line);
+  border-right: 2px solid var(--line);
 }
 
 table.lay-year-table thead .lay-year-col {
-  border-top: 2px solid #10b981;
-  background: #d1fae5;
+  border-top: 2px solid var(--accent);
+  background: var(--accent-soft);
 }
 
 table.lay-year-table tfoot .lay-year-col {
-  border-bottom: 2px solid #10b981;
+  border-bottom: 2px solid var(--accent);
 }
 
 table.lay-year-table .lay-year-col-first {
-  border-left: 2px solid #10b981;
+  border-left: 2px solid var(--accent);
 }
 
 table.lay-year-table tbody tr:last-child .lay-year-col,
@@ -172,19 +313,20 @@ table.lay-year-table tfoot tr:first-child .lay-year-col {
 .field textarea {
   width: 100%;
   min-height: 44px;
-  border: 1px solid #d4d4cf;
+  border: 1px solid var(--field);
   border-radius: 10px;
   padding: 0.5rem 0.75rem;
-  background: #ffffff;
+  background: var(--card);
 }
 
 .inp {
   min-height: 44px;
-  border: 1px solid #d4d4cf;
+  border: 1px solid var(--field);
   border-radius: 10px;
   padding: 0 12px;
   font-size: 15px;
-  background: #ffffff;
+  background: var(--card);
+  color: var(--ink);
 }
 
 .inp:focus,

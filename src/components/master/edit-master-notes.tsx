@@ -63,7 +63,7 @@ export function EditMasterNotes({
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
         rows={2}
-        className="w-full rounded border border-slate-300 bg-white px-2 py-1 text-sm"
+        className="w-full rounded border border-slate-300 bg-card px-2 py-1 text-sm"
         placeholder="Note..."
         autoFocus
       />

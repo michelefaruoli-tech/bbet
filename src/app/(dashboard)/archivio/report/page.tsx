@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SectionIcon } from "@/components/layout/sections";
 import { Card } from "@/components/ui";
 
 const REPORTS = [
@@ -15,7 +16,10 @@ export default function ReportPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-[28px] font-bold tracking-tight">Report</h1>
+        <h1 className="flex items-center gap-3 text-[28px] font-bold tracking-tight">
+            <SectionIcon section="archivio" />
+            Report
+          </h1>
         <p className="text-sm text-muted">
           Backup Excel completo · esportazioni CSV per sezione
         </p>

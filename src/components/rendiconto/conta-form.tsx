@@ -58,7 +58,7 @@ export function ContaForm({ defaults, auto, cashFund }: Props) {
         : { text: `${formatEUR(-difference)} in più`, tone: "plus" };
 
   const field = (key: keyof typeof values, label: string, hint?: string) => (
-    <div className="flex items-center justify-between gap-3 border-t border-[#EFEFEA] py-2.5 text-[15px]">
+    <div className="flex items-center justify-between gap-3 border-t border-line-soft py-2.5 text-[15px]">
       <label htmlFor={`conta-${key}`}>
         {label}
         {hint && <span className="block text-[13px] text-muted">{hint}</span>}
@@ -75,7 +75,7 @@ export function ContaForm({ defaults, auto, cashFund }: Props) {
   );
 
   const line = (label: React.ReactNode, value: React.ReactNode, strong = false) => (
-    <div className={cn("flex items-center justify-between gap-3 border-t border-[#EFEFEA] py-2.5 text-[15px]", strong && "font-semibold")}>
+    <div className={cn("flex items-center justify-between gap-3 border-t border-line-soft py-2.5 text-[15px]", strong && "font-semibold")}>
       <span>{label}</span>
       <span className="tnum">{value}</span>
     </div>
@@ -107,9 +107,9 @@ export function ContaForm({ defaults, auto, cashFund }: Props) {
       }}
     >
       <div className="flex flex-wrap gap-4">
-        <section className="min-w-0 flex-[1_1_380px] rounded-xl border border-line bg-white px-6 py-5">
+        <section className="min-w-0 flex-[1_1_380px] rounded-xl border border-line bg-card px-6 py-5">
           <h2 className="mb-2 flex items-center gap-2.5 text-base font-semibold">
-            <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-ink text-sm text-white">1</span>
+            <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-btn text-sm text-white">1</span>
             Quello che conti tu
           </h2>
           {field("online", "Online")}
@@ -120,9 +120,9 @@ export function ContaForm({ defaults, auto, cashFund }: Props) {
           {line("Totale contato", formatEUR(counted), true)}
         </section>
 
-        <section className="min-w-0 flex-[1_1_380px] rounded-xl border border-line bg-white px-6 py-5">
+        <section className="min-w-0 flex-[1_1_380px] rounded-xl border border-line bg-card px-6 py-5">
           <h2 className="mb-2 flex items-center gap-2.5 text-base font-semibold">
-            <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-ink text-sm text-white">2</span>
+            <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-btn text-sm text-white">2</span>
             Quello che l&apos;app sa già
           </h2>
           {line(
@@ -151,7 +151,7 @@ export function ContaForm({ defaults, auto, cashFund }: Props) {
           "flex flex-wrap items-center justify-between gap-6 rounded-xl border px-6 py-5",
           result.tone === "ok" && "border-accent bg-accent-soft",
           result.tone === "warn" && "border-minus-line bg-minus-soft",
-          result.tone === "plus" && "border-[#BFD0F7] bg-plus-soft",
+          result.tone === "plus" && "border-plus-line bg-plus-soft",
         )}
       >
         <div className="grid grid-cols-[auto_auto] gap-x-6 gap-y-1 text-[15px] tnum">

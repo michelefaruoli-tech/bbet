@@ -42,7 +42,7 @@ export function QuickSuspendedRow({ customerId, name }: { customerId: string; na
   }
 
   const btn =
-    "inline-flex min-h-9 items-center rounded-lg border bg-white px-3 text-[13px] font-semibold disabled:opacity-40";
+    "inline-flex min-h-9 items-center rounded-lg border bg-card px-3 text-[13px] font-semibold disabled:opacity-40";
 
   return (
     <form
@@ -57,7 +57,7 @@ export function QuickSuspendedRow({ customerId, name }: { customerId: string; na
         onChange={(e) => setAmount(e.target.value)}
         placeholder="€"
         aria-label="Importo"
-        className="h-9 w-20 rounded-lg border border-[#D4D4CF] px-2 text-right text-sm tnum"
+        className="h-9 w-20 rounded-lg border border-field px-2 text-right text-sm tnum"
       />
       <button
         type="button"
@@ -71,7 +71,7 @@ export function QuickSuspendedRow({ customerId, name }: { customerId: string; na
         type="button"
         disabled={pending || !amount.trim()}
         onClick={() => save("AVERE")}
-        className={cn(btn, "border-[#BFD0F7] text-plus")}
+        className={cn(btn, "border-plus-line text-plus")}
       >
         + Avere
       </button>

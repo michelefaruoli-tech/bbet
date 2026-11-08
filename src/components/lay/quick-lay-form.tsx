@@ -28,7 +28,7 @@ export function QuickLayForm({ compact = false }: { compact?: boolean }) {
 
   return (
     <form
-      className={cn("flex flex-wrap items-end gap-4", !compact && "rounded-xl border border-line bg-white px-6 py-5")}
+      className={cn("flex flex-wrap items-end gap-4", !compact && "rounded-xl border border-line bg-card px-6 py-5")}
       onSubmit={(e) => {
         e.preventDefault();
         if (!amount.trim()) return;

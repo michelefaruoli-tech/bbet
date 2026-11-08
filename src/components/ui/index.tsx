@@ -1,6 +1,7 @@
 import { cn } from "@/lib/cn";
 import { formatEUR } from "@/lib/format";
 import Link from "next/link";
+import { SECTIONS, SectionIcon, type SectionKey } from "@/components/layout/sections";
 
 /* ------------------------------------------------------------------
    Saldi scritti a parole: niente segni da interpretare.
@@ -81,16 +82,21 @@ export function PageHeader({
   title,
   subtitle,
   children,
+  section,
 }: {
   title: string;
   subtitle?: React.ReactNode;
   children?: React.ReactNode;
+  section?: SectionKey;
 }) {
   return (
-    <header className="flex flex-wrap items-end justify-between gap-3">
-      <div>
-        <h1 className="text-[28px] font-bold tracking-tight">{title}</h1>
-        {subtitle && <div className="mt-1 text-[13px] font-medium text-muted">{subtitle}</div>}
+    <header className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex items-center gap-3">
+        {section && <SectionIcon section={section} />}
+        <div>
+          <h1 className="text-[28px] font-bold leading-tight tracking-tight">{title}</h1>
+          {subtitle && <div className="mt-1 text-[13px] font-medium text-muted">{subtitle}</div>}
+        </div>
       </div>
       {children}
     </header>
@@ -103,24 +109,27 @@ export function Tabs({
   active,
   label,
 }: {
-  items: Array<{ href: string; label: string }>;
+  items: Array<{ href: string; label: string; section?: SectionKey }>;
   active: string;
   label: string;
 }) {
   return (
-    <nav aria-label={label} className="flex flex-wrap gap-1 rounded-[10px] bg-[#EDEDE8] p-1">
+    <nav aria-label={label} className="flex flex-wrap gap-1 rounded-[10px] bg-tabbar p-1">
       {items.map((it) => {
         const on = it.href === active;
+        const sec = it.section ? SECTIONS[it.section] : null;
+        const Icon = sec?.icon;
         return (
           <Link
             key={it.href}
             href={it.href}
             aria-current={on ? "page" : undefined}
             className={cn(
-              "inline-flex min-h-11 items-center rounded-lg px-4 text-[15px] font-semibold",
-              on ? "bg-ink text-white" : "text-muted hover:text-ink",
+              "inline-flex min-h-11 items-center gap-2 rounded-lg px-4 text-[15px] font-semibold",
+              on ? cn(sec ? sec.bg : "bg-btn", "text-white shadow-sm") : "text-muted hover:text-ink",
             )}
           >
+            {Icon && <Icon aria-hidden="true" className={cn("h-4 w-4", !on && sec?.text)} />}
             {it.label}
           </Link>
         );
@@ -136,19 +145,33 @@ type KpiCardProps = {
   subtitle?: string;
   highlight?: "ok" | "warn" | "neutral";
   perspective?: Perspective | "plain";
+  section?: SectionKey;
 };
 
-export function KpiCard({ title, value, href, subtitle, highlight = "neutral", perspective = "plain" }: KpiCardProps) {
+export function KpiCard({
+  title,
+  value,
+  href,
+  subtitle,
+  highlight = "neutral",
+  perspective = "plain",
+  section,
+}: KpiCardProps) {
+  const sec = section ? SECTIONS[section] : null;
   const content = (
     <div
       className={cn(
-        "flex h-full flex-col gap-1.5 rounded-xl border border-line bg-white p-5 transition",
-        href && "hover:border-accent",
+        "flex h-full flex-col gap-1.5 rounded-xl border border-line bg-card p-5 transition",
+        sec && cn("border-l-4", sec.border),
+        href && "hover:shadow-md",
         highlight === "ok" && "border-accent bg-accent-soft",
         highlight === "warn" && "border-minus-line bg-minus-soft",
       )}
     >
-      <span className="text-[13px] font-medium text-muted">{title}</span>
+      <span className="flex items-center gap-2 text-[13px] font-semibold text-muted">
+        {section && <SectionIcon section={section} size="sm" />}
+        <span className={sec ? sec.text : undefined}>{title}</span>
+      </span>
       {perspective === "plain" ? (
         <span className="text-[26px] font-bold tnum">{formatEUR(value)}</span>
       ) : (
@@ -179,7 +202,7 @@ export function Card({
   className?: string;
 }) {
   return (
-    <section className={cn("rounded-xl border border-line bg-white", className)}>
+    <section className={cn("rounded-xl border border-line bg-card", className)}>
       {(title || action) && (
         <div className="flex flex-wrap items-center justify-between gap-2 px-6 pt-5">
           {title && <h2 className="text-base font-semibold">{title}</h2>}
@@ -204,10 +227,10 @@ export function Button({
       className={cn(
         "inline-flex min-h-11 items-center justify-center gap-2 rounded-[10px] px-5 text-[15px] font-semibold transition disabled:opacity-50",
         variant === "primary" && "bg-accent text-white hover:bg-accent-dark",
-        variant === "dark" && "bg-ink text-white hover:bg-black",
-        variant === "secondary" && "border border-[#D4D4CF] bg-white text-ink hover:border-ink",
-        variant === "danger" && "border border-red-200 bg-white text-red-700 hover:bg-red-50",
-        variant === "ghost" && "text-muted hover:bg-black/5",
+        variant === "dark" && "bg-btn text-white hover:bg-btn-hover",
+        variant === "secondary" && "border border-field bg-card text-ink hover:border-ink",
+        variant === "danger" && "border border-red-200 bg-card text-red-700 hover:bg-red-50",
+        variant === "ghost" && "text-muted hover:bg-btn-hover/5",
         className,
       )}
       {...props}
@@ -229,9 +252,9 @@ export function Badge({
       className={cn(
         "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold",
         tone === "ok" && "bg-accent-soft text-accent-dark",
-        tone === "warn" && "bg-minus-line text-[#5C3208]",
+        tone === "warn" && "bg-minus-line text-minus-ink",
         tone === "danger" && "bg-red-100 text-red-800",
-        tone === "neutral" && "bg-[#F0F0EC] text-[#3F3F46]",
+        tone === "neutral" && "bg-chip text-ink-soft",
       )}
     >
       {children}

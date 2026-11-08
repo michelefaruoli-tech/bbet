@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { SectionIcon } from "@/components/layout/sections";
 import { getLaySummary } from "@/lib/calculations-server";
 import { formatEUR, amountClass, toNumber } from "@/lib/format";
 import { formatDateIT } from "@/lib/timezone";
@@ -47,7 +48,10 @@ export default async function PrelieviPage({
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap justify-between gap-3">
         <div>
-          <h1 className="text-[28px] font-bold tracking-tight">Prelievi</h1>
+          <h1 className="flex items-center gap-3 text-[28px] font-bold tracking-tight">
+            <SectionIcon section="cassa" />
+            Prelievi
+          </h1>
           <p className="text-sm text-muted">
             Solo da Commissioni o LAY · sempre in contanti · aggiorna i saldi automaticamente
           </p>
