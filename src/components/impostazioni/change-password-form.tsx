@@ -57,7 +57,7 @@ export function ChangePasswordForm() {
           {pending ? "Salvataggio..." : "Cambia password"}
         </Button>
         {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
-        {ok && <p className="mt-2 text-sm text-emerald-700">{ok}</p>}
+        {ok && <p className="mt-2 text-sm text-accent-dark">{ok}</p>}
       </div>
     </form>
   );

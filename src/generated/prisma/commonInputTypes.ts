@@ -304,6 +304,23 @@ export type EnumLayCategoryWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumLayCategoryFilter<$PrismaModel>
 }
 
+export type EnumTrisPlayTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.TrisPlayType | Prisma.EnumTrisPlayTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.TrisPlayType[] | Prisma.ListEnumTrisPlayTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TrisPlayType[] | Prisma.ListEnumTrisPlayTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTrisPlayTypeFilter<$PrismaModel> | $Enums.TrisPlayType
+}
+
+export type EnumTrisPlayTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.TrisPlayType | Prisma.EnumTrisPlayTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.TrisPlayType[] | Prisma.ListEnumTrisPlayTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TrisPlayType[] | Prisma.ListEnumTrisPlayTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTrisPlayTypeWithAggregatesFilter<$PrismaModel> | $Enums.TrisPlayType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumTrisPlayTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumTrisPlayTypeFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -605,6 +622,23 @@ export type NestedEnumLayCategoryWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumLayCategoryFilter<$PrismaModel>
   _max?: Prisma.NestedEnumLayCategoryFilter<$PrismaModel>
+}
+
+export type NestedEnumTrisPlayTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.TrisPlayType | Prisma.EnumTrisPlayTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.TrisPlayType[] | Prisma.ListEnumTrisPlayTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TrisPlayType[] | Prisma.ListEnumTrisPlayTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTrisPlayTypeFilter<$PrismaModel> | $Enums.TrisPlayType
+}
+
+export type NestedEnumTrisPlayTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.TrisPlayType | Prisma.EnumTrisPlayTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.TrisPlayType[] | Prisma.ListEnumTrisPlayTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TrisPlayType[] | Prisma.ListEnumTrisPlayTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTrisPlayTypeWithAggregatesFilter<$PrismaModel> | $Enums.TrisPlayType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumTrisPlayTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumTrisPlayTypeFilter<$PrismaModel>
 }
 
 

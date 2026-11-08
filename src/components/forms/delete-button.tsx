@@ -28,7 +28,7 @@ export function DeleteMovementButton({
           router.refresh();
         });
       }}
-      className="!px-2 !py-1 text-xs"
+      className="!min-h-8 !px-2 text-xs"
     >
       {pending ? "..." : label}
     </Button>

@@ -59,6 +59,7 @@ export const ModelName = {
   CashFundMovement: 'CashFundMovement',
   Withdrawal: 'Withdrawal',
   LayMovement: 'LayMovement',
+  TrisPlay: 'TrisPlay',
   LayMonthlyClosure: 'LayMonthlyClosure',
   TrisMonthlyClosure: 'TrisMonthlyClosure',
   AnnualArchive: 'AnnualArchive',
@@ -107,6 +108,7 @@ export const CustomerScalarFieldEnum = {
   notes: 'notes',
   active: 'active',
   currentPeriod: 'currentPeriod',
+  systemKey: 'systemKey',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   deletedAt: 'deletedAt'
@@ -224,6 +226,22 @@ export const LayMovementScalarFieldEnum = {
 } as const
 
 export type LayMovementScalarFieldEnum = (typeof LayMovementScalarFieldEnum)[keyof typeof LayMovementScalarFieldEnum]
+
+
+export const TrisPlayScalarFieldEnum = {
+  id: 'id',
+  date: 'date',
+  time: 'time',
+  playType: 'playType',
+  amount: 'amount',
+  notes: 'notes',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt'
+} as const
+
+export type TrisPlayScalarFieldEnum = (typeof TrisPlayScalarFieldEnum)[keyof typeof TrisPlayScalarFieldEnum]
 
 
 export const LayMonthlyClosureScalarFieldEnum = {

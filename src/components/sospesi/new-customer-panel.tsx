@@ -13,9 +13,8 @@ export function NewCustomerPanel() {
       <div className="flex justify-end">
         <Button
           type="button"
-          variant="primary"
+          variant="secondary"
           onClick={() => setOpen(true)}
-          className="!bg-emerald-600 !px-5 !py-2.5 !text-base !font-semibold shadow-md ring-2 ring-emerald-300 hover:!bg-emerald-700"
         >
           + Nuovo cliente
         </Button>
@@ -30,7 +29,7 @@ export function NewCustomerPanel() {
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="text-xs text-slate-500 hover:text-slate-700 hover:underline"
+          className="text-sm text-muted hover:text-ink hover:underline"
         >
           Chiudi
         </button>

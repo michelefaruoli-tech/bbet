@@ -3,7 +3,7 @@
 export function YearSelector({ year, years }: { year: number; years: number[] }) {
   return (
     <form method="get" className="flex items-center gap-2">
-      <label htmlFor="year" className="text-sm text-slate-600">Anno</label>
+      <label htmlFor="year" className="text-sm text-muted">Anno</label>
       <select
         id="year"
         name="year"

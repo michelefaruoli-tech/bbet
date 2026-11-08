@@ -25,7 +25,7 @@ export function CloseYearButton({ year }: { year: number }) {
           return;
         startTransition(async () => {
           const result = await closeYearAction(year);
-          if (result?.error) alert(result.error);
+          if (result && "error" in result && result.error) alert(String(result.error));
           router.refresh();
         });
       }}

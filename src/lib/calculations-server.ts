@@ -4,32 +4,80 @@ import {
   buildFinancialStatement,
   calcLayBalance,
   calcMasterBalance,
-  calcTrisFromMovements,
-  applyTrisDebt,
 } from "./calculations";
 import { openSuspendedTotals } from "./sospesi-period";
 
 export async function getSuspendedSummary() {
-  const customers = await prisma.customer.findMany({
-    where: { deletedAt: null, active: true },
-    include: {
-      movements: { where: { deletedAt: null } },
-    },
-  });
+  const [customers, tris] = await Promise.all([
+    prisma.customer.findMany({
+      where: { deletedAt: null, active: true, systemKey: null },
+      include: {
+        movements: { where: { deletedAt: null } },
+      },
+    }),
+    getTrisAccount(),
+  ]);
 
   let positiveCredits = 0;
   let negativeBalances = 0;
-  let netTotal = 0;
+  let clientsNet = 0;
 
   const customerSummaries = customers.map((c) => {
     const { openMovements: _open, ...totals } = openSuspendedTotals(c.currentPeriod, c.movements);
     if (totals.balance > 0) positiveCredits += totals.balance;
     if (totals.balance < 0) negativeBalances += totals.balance;
-    netTotal += totals.balance;
-    return { customer: c, ...totals };
+    clientsNet += totals.balance;
+    const last = c.movements.reduce<Date | null>(
+      (acc, m) => (!acc || m.createdAt > acc ? m.createdAt : acc),
+      null,
+    );
+    return { customer: c, ...totals, lastMovementAt: last };
   });
 
-  return { positiveCredits, negativeBalances, netTotal, customerSummaries };
+  const round2 = (n: number) => Math.round(n * 100) / 100;
+  return {
+    positiveCredits,
+    negativeBalances,
+    /** Solo clienti (senza conto Tris) */
+    clientsNet: round2(clientsNet),
+    /** Saldo conto Tris: positivo = il Tris ti deve, negativo = gli devi */
+    trisBalance: tris.balance,
+    /** Saldo sospesi totale = clienti + conto Tris (è quello che entra nel rendiconto) */
+    netTotal: round2(clientsNet + tris.balance),
+    customerSummaries,
+    tris,
+  };
+}
+
+/**
+ * Conto fisso Tris nei Sospesi.
+ * Saldo = movimenti di denaro (Dare − Avere, come un cliente) + giocate (Avere − Dare).
+ * Niente periodi: si sommano tutti i movimenti.
+ */
+export async function getTrisAccount() {
+  const account = await prisma.customer.findUnique({ where: { systemKey: "TRIS" } });
+  const [moves, plays] = await Promise.all([
+    account
+      ? prisma.suspendedMovement.findMany({
+          where: { customerId: account.id, deletedAt: null },
+          orderBy: [{ date: "desc" }, { createdAt: "desc" }],
+          include: { createdBy: { select: { name: true } } },
+        })
+      : Promise.resolve([]),
+    prisma.trisPlay.findMany({
+      where: { deletedAt: null },
+      orderBy: [{ date: "desc" }, { createdAt: "desc" }],
+      include: { createdBy: { select: { name: true } } },
+    }),
+  ]);
+
+  let moneyBalance = 0;
+  for (const m of moves) moneyBalance += m.movementType === "DARE" ? toNumber(m.amount) : -toNumber(m.amount);
+  let playsBalance = 0;
+  for (const p of plays) playsBalance += p.playType === "AVERE" ? toNumber(p.amount) : -toNumber(p.amount);
+  const balance = Math.round((moneyBalance + playsBalance) * 100) / 100;
+
+  return { account, moves, plays, moneyBalance, playsBalance, balance };
 }
 
 export async function getMasterSummary() {
@@ -48,20 +96,18 @@ function yearMonthKey(year: number, month: number) {
 }
 
 export async function getLaySummary() {
-  const movements = await prisma.layMovement.findMany({
-    where: { deletedAt: null },
-    orderBy: [{ date: "desc" }, { createdAt: "desc" }],
-    include: { createdBy: { select: { name: true } } },
-  });
-  const closures = await prisma.layMonthlyClosure.findMany({
-    orderBy: [{ year: "asc" }, { month: "asc" }],
-  });
-  const trisClosures = await prisma.trisMonthlyClosure.findMany({
-    orderBy: [{ year: "asc" }, { month: "asc" }],
-  });
+  const [movements, closures] = await Promise.all([
+    prisma.layMovement.findMany({
+      where: { deletedAt: null },
+      orderBy: [{ date: "desc" }, { createdAt: "desc" }],
+      include: { createdBy: { select: { name: true } } },
+    }),
+    prisma.layMonthlyClosure.findMany({
+      orderBy: [{ year: "asc" }, { month: "asc" }],
+    }),
+  ]);
 
   const closedKeys = new Set(closures.map((c) => yearMonthKey(c.year, c.month)));
-  const trisClosedKeys = new Set(trisClosures.map((c) => yearMonthKey(c.year, c.month)));
 
   // Movimenti dei mesi NON ancora chiusi (evita doppio conteggio con le chiusure)
   const openMovements = movements.filter((m) => {
@@ -70,54 +116,16 @@ export async function getLaySummary() {
   });
 
   const openBalance = calcLayBalance(openMovements);
-  // Saldo cassa LAY = ultimo cumulativo chiuso + movimenti del mese aperto
+  // Saldo cassa LAY = ultimo cumulativo chiuso + movimenti dei mesi aperti
   const lastClosure = closures.length > 0 ? closures[closures.length - 1] : null;
   const closedCash = lastClosure ? toNumber(lastClosure.cumulativeBalance) : 0;
-  const cumulativeBalance = closedCash + openBalance;
-
-  // Tris: debito. Avere (+) lo riduce, Dare (−) lo aumenta.
-  const openTrisMovements = movements.filter((m) => {
-    if (m.category !== "TRIS") return false;
-    const d = new Date(m.date);
-    return !trisClosedKeys.has(yearMonthKey(d.getUTCFullYear(), d.getUTCMonth() + 1));
-  });
-  const trisOpen = calcTrisFromMovements(openTrisMovements);
-  const lastTris = trisClosures.length > 0 ? trisClosures[trisClosures.length - 1] : null;
-  const trisFromArchive = lastTris ? toNumber(lastTris.cumulativeBalance) : 0;
-  const trisCumulative = applyTrisDebt(trisFromArchive, trisOpen.balance);
-
-  // Contatori mese calendario corrente (si azzerano ogni mese)
-  const now = new Date();
-  const curY = now.getFullYear();
-  const curM = now.getMonth() + 1;
-  const monthTrisMovements = movements.filter((m) => {
-    if (m.category !== "TRIS") return false;
-    const d = new Date(m.date);
-    return d.getUTCFullYear() === curY && d.getUTCMonth() + 1 === curM;
-  });
-  const trisMonth = calcTrisFromMovements(monthTrisMovements);
-
-  const positives =
-    closures.reduce((s, c) => s + toNumber(c.positiveTotal), 0) +
-    openMovements.filter((m) => toNumber(m.amount) > 0).reduce((s, m) => s + toNumber(m.amount), 0);
-  const negatives =
-    closures.reduce((s, c) => s + toNumber(c.negativeTotal), 0) +
-    openMovements.filter((m) => toNumber(m.amount) < 0).reduce((s, m) => s + Math.abs(toNumber(m.amount)), 0);
+  const cumulativeBalance = Math.round((closedCash + openBalance) * 100) / 100;
 
   return {
     currentBalance: openBalance,
     cumulativeBalance,
-    positives,
-    negatives,
+    openMovements,
     movementCount: movements.length,
-    trisCumulative,
-    trisCurrent: trisOpen,
-    trisMonthAvere: trisMonth.positive,
-    trisMonthDare: trisMonth.negative,
-    trisMonthBalance: trisMonth.balance,
-    trisMonthYear: curY,
-    trisMonthMonth: curM,
-    trisClosures,
     movements,
     closures,
   };
@@ -244,7 +252,7 @@ export async function getFullDashboard() {
     cashTotal: toNumber(manual.cashTotal),
     cashFund,
     suspendedCredit: suspended.netTotal,
-    tris: lay.trisCumulative,
+    tris: suspended.trisBalance,
     masterBalance: master.balance,
     layBalance: lay.cumulativeBalance,
   });

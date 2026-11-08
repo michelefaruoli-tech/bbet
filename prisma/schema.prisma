@@ -40,6 +40,12 @@ enum WithdrawalSource {
   ALTRO
 }
 
+/// Giocata Tris: Dare = il debito verso il Tris sale · Avere = il debito scende
+enum TrisPlayType {
+  DARE
+  AVERE
+}
+
 enum CashFundMovementType {
   INCREMENTO
   RIDUZIONE
@@ -62,6 +68,7 @@ model User {
   cashFundMovements   CashFundMovement[]   @relation("CashFundCreatedBy")
   withdrawals         Withdrawal[]         @relation("WithdrawalCreatedBy")
   layMovements        LayMovement[]        @relation("LayCreatedBy")
+  trisPlays           TrisPlay[]           @relation("TrisPlayCreatedBy")
   statementSnapshots  FinancialStatementSnapshot[] @relation("SnapshotCreatedBy")
   auditLogs           AuditLog[]
 }
@@ -75,6 +82,8 @@ model Customer {
   active        Boolean   @default(true)
   /** Periodo aperto corrente: a saldo 0 si archivia e si passa al successivo */
   currentPeriod Int       @default(1)
+  /** Conto fisso di sistema (es. "TRIS"): niente periodi, non si elimina */
+  systemKey     String?   @unique
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   deletedAt     DateTime?
@@ -208,6 +217,26 @@ model LayMovement {
 
   @@index([date])
   @@index([category])
+  @@index([deletedAt])
+}
+
+/// Giocate Tris (separate dal LAY). Ogni giocata cambia il saldo del conto Tris nei Sospesi:
+/// Avere = il debito scende (saldo conto +) · Dare = il debito sale (saldo conto −).
+model TrisPlay {
+  id          String       @id @default(cuid())
+  date        DateTime     @db.Date
+  time        String?
+  playType    TrisPlayType
+  amount      Decimal      @db.Decimal(14, 2)
+  notes       String?
+  createdById String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  deletedAt   DateTime?
+
+  createdBy User @relation("TrisPlayCreatedBy", fields: [createdById], references: [id])
+
+  @@index([date])
   @@index([deletedAt])
 }
 

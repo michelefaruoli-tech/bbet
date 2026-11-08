@@ -35,26 +35,26 @@ export default async function MasterSchedaPage() {
     .reduce((s, m) => s + Math.abs(toNumber(m.amount)), 0);
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center gap-3">
-        <Link href="/master" className="text-sm text-emerald-600 hover:underline">
+        <Link href="/conti/master" className="text-sm text-accent hover:underline">
           ← Torna al Master
         </Link>
-        <h1 className="text-2xl font-bold">Scheda Master</h1>
+        <h1 className="text-[28px] font-bold tracking-tight">Scheda Master</h1>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-4">
         <Card title="Totale Avere (+)">
-          <p className="text-xl font-bold text-emerald-600">{formatEUR(totalAvere)}</p>
-          <p className="mt-1 text-xs text-slate-400">Master deve a noi</p>
+          <p className="text-xl font-bold text-accent">{formatEUR(totalAvere)}</p>
+          <p className="mt-1 text-xs text-muted">Master deve a noi</p>
         </Card>
         <Card title="Totale Dare (−)">
           <p className="text-xl font-bold text-red-600">{formatEUR(totalDare)}</p>
-          <p className="mt-1 text-xs text-slate-400">Noi a loro</p>
+          <p className="mt-1 text-xs text-muted">Noi a loro</p>
         </Card>
         <Card title="Saldo attuale">
           <p className={`text-xl font-bold ${amountClass(balance)}`}>{formatEUR(balance)}</p>
-          <p className="mt-1 text-xs text-slate-400">
+          <p className="mt-1 text-xs text-muted">
             {balance > 0 ? "Loro devono a noi" : balance < 0 ? "Noi dobbiamo a loro" : "In pari"}
           </p>
         </Card>
@@ -64,14 +64,14 @@ export default async function MasterSchedaPage() {
       </div>
 
       <Card title="Inserimento rapido Avere/Dare">
-        <p className="mb-2 text-sm text-slate-500">
+        <p className="mb-2 text-sm text-muted">
           Avere (+) = Master deve a noi · Dare (−) = noi dobbiamo a loro
         </p>
         <QuickMasterRow />
       </Card>
 
       <Card title="Nuovo movimento (completo)">
-        <p className="mb-3 text-sm text-slate-500">
+        <p className="mb-3 text-sm text-muted">
           Usa questo form se ti serve data diversa da oggi, descrizione o note.
         </p>
         <MasterMovementForm />
@@ -105,7 +105,7 @@ export default async function MasterSchedaPage() {
                       {m.time ? ` ${m.time}` : ""}
                     </td>
                     <td className={amountClass(amount)}>{masterDareAvereLabel(amount, m.movementType)}</td>
-                    <td className="text-xs text-slate-500">{m.movementType}</td>
+                    <td className="text-xs text-muted">{m.movementType}</td>
                     <td className={amountClass(amount)}>{formatEUR(Math.abs(amount))}</td>
                     <td>{m.description ?? "—"}</td>
                     <td>
@@ -120,7 +120,7 @@ export default async function MasterSchedaPage() {
               })}
               {movements.length === 0 && (
                 <tr>
-                  <td colSpan={showAuthor ? 8 : 7} className="py-6 text-center text-slate-400">
+                  <td colSpan={showAuthor ? 8 : 7} className="py-6 text-center text-muted">
                     Nessun movimento registrato
                   </td>
                 </tr>

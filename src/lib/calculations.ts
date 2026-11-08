@@ -147,7 +147,7 @@ export type FinancialStatementValues = {
   lay: number;
   /** Somma campi manuali: Online + Credito± + Conti personali + Contanti + Monete */
   manualSum: number;
-  /** Somma dei 4 automatici come entrano nel totale */
+  /** Somma degli automatici come entrano nel totale (Sospesi incl. Tris + Master − LAY) */
   automaticSum: number;
   calculatedTotal: number;
   cashTotal: number;
@@ -172,8 +172,8 @@ export function buildFinancialStatement(input: {
   // Positivo = Master deve a noi · Negativo = noi dobbiamo a loro
   const master = input.masterBalance;
   const lay = input.layBalance;
-  // Tris: se positivo (debito) entra col segno contrario (es. +2085 → −2085)
-  const trisInTotal = input.tris * -1;
+  // Tris: è un conto dei Sospesi, il suo saldo è già dentro suspendedCredit.
+  // `tris` resta solo come informazione (saldo del conto Tris).
   const suggestedCashTotal = input.cash + input.coins;
 
   const round2 = (n: number) => Math.round(n * 100) / 100;
@@ -191,7 +191,7 @@ export function buildFinancialStatement(input: {
   // Sospesi: entrano così come sono (positivo resta positivo)
   const suspendedInTotal = input.suspendedCredit;
   const layInTotal = -lay;
-  const automaticSum = round2(suspendedInTotal + master + layInTotal + trisInTotal);
+  const automaticSum = round2(suspendedInTotal + master + layInTotal);
 
   // Totale Rendiconto = somma manuali + somma automatici
   const total = round2(manualSum + automaticSum);

@@ -49,7 +49,7 @@ export function CommissionHistory({ entries }: { entries: HistoryEntry[] }) {
             ))}
             {entries.length === 0 && (
               <tr>
-                <td colSpan={3} className="py-4 text-center text-slate-400">
+                <td colSpan={3} className="py-4 text-center text-muted">
                   Nessuna modifica registrata ancora
                 </td>
               </tr>

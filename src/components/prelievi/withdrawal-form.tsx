@@ -20,7 +20,7 @@ export function WithdrawalForm() {
 
   return (
     <div className="space-y-3">
-      <p className="text-sm text-slate-600">
+      <p className="text-sm text-muted">
         Il prelievo è sempre in <strong>contanti</strong>. Scegli solo da dove togliere i soldi:
         <strong> Commissioni</strong> oppure <strong>LAY</strong>. La data è automatica (oggi).
       </p>
@@ -71,7 +71,7 @@ export function WithdrawalForm() {
         }}
       >
         <div>
-          <label className="mb-1 block text-xs font-medium text-slate-500">Da dove</label>
+          <label className="mb-1 block text-xs font-medium text-muted">Da dove</label>
           <select
             value={source}
             onChange={(e) => setSource(e.target.value as "COMMISSIONI" | "LAY")}
@@ -82,7 +82,7 @@ export function WithdrawalForm() {
           </select>
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-slate-500">Importo (€)</label>
+          <label className="mb-1 block text-xs font-medium text-muted">Importo (€)</label>
           <input
             type="text"
             inputMode="decimal"
@@ -93,7 +93,7 @@ export function WithdrawalForm() {
           />
         </div>
         <div className="min-w-[10rem] flex-1">
-          <label className="mb-1 block text-xs font-medium text-slate-500">Note (opzionale)</label>
+          <label className="mb-1 block text-xs font-medium text-muted">Note (opzionale)</label>
           <input
             type="text"
             value={notes}
@@ -105,8 +105,8 @@ export function WithdrawalForm() {
         <Button type="submit" disabled={pending || !amount.trim()}>
           {pending ? "Salvo..." : "Registra prelievo"}
         </Button>
-        <span className="text-xs text-slate-400">Data: {today} · Destinazione: Contanti</span>
-        {message && <span className="text-sm text-emerald-600">{message}</span>}
+        <span className="text-xs text-muted">Data: {today} · Destinazione: Contanti</span>
+        {message && <span className="text-sm text-accent">{message}</span>}
         {error && <span className="text-sm text-red-600">{error}</span>}
       </form>
     </div>

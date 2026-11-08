@@ -64,7 +64,7 @@ export function QuickMasterRow() {
       <Button type="submit" disabled={pending || !amount.trim()} className="!px-2 !py-1 text-xs">
         {pending ? "..." : "Salva"}
       </Button>
-      {message && <span className="text-xs text-emerald-600">{message}</span>}
+      {message && <span className="text-xs text-accent">{message}</span>}
       {error && <span className="text-xs text-red-600">{error}</span>}
     </form>
   );

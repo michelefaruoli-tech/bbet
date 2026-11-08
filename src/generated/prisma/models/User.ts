@@ -211,6 +211,7 @@ export type UserWhereInput = {
   cashFundMovements?: Prisma.CashFundMovementListRelationFilter
   withdrawals?: Prisma.WithdrawalListRelationFilter
   layMovements?: Prisma.LayMovementListRelationFilter
+  trisPlays?: Prisma.TrisPlayListRelationFilter
   statementSnapshots?: Prisma.FinancialStatementSnapshotListRelationFilter
   auditLogs?: Prisma.AuditLogListRelationFilter
 }
@@ -229,6 +230,7 @@ export type UserOrderByWithRelationInput = {
   cashFundMovements?: Prisma.CashFundMovementOrderByRelationAggregateInput
   withdrawals?: Prisma.WithdrawalOrderByRelationAggregateInput
   layMovements?: Prisma.LayMovementOrderByRelationAggregateInput
+  trisPlays?: Prisma.TrisPlayOrderByRelationAggregateInput
   statementSnapshots?: Prisma.FinancialStatementSnapshotOrderByRelationAggregateInput
   auditLogs?: Prisma.AuditLogOrderByRelationAggregateInput
 }
@@ -250,6 +252,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   cashFundMovements?: Prisma.CashFundMovementListRelationFilter
   withdrawals?: Prisma.WithdrawalListRelationFilter
   layMovements?: Prisma.LayMovementListRelationFilter
+  trisPlays?: Prisma.TrisPlayListRelationFilter
   statementSnapshots?: Prisma.FinancialStatementSnapshotListRelationFilter
   auditLogs?: Prisma.AuditLogListRelationFilter
 }, "id" | "email">
@@ -296,6 +299,7 @@ export type UserCreateInput = {
   cashFundMovements?: Prisma.CashFundMovementCreateNestedManyWithoutCreatedByInput
   withdrawals?: Prisma.WithdrawalCreateNestedManyWithoutCreatedByInput
   layMovements?: Prisma.LayMovementCreateNestedManyWithoutCreatedByInput
+  trisPlays?: Prisma.TrisPlayCreateNestedManyWithoutCreatedByInput
   statementSnapshots?: Prisma.FinancialStatementSnapshotCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
@@ -314,6 +318,7 @@ export type UserUncheckedCreateInput = {
   cashFundMovements?: Prisma.CashFundMovementUncheckedCreateNestedManyWithoutCreatedByInput
   withdrawals?: Prisma.WithdrawalUncheckedCreateNestedManyWithoutCreatedByInput
   layMovements?: Prisma.LayMovementUncheckedCreateNestedManyWithoutCreatedByInput
+  trisPlays?: Prisma.TrisPlayUncheckedCreateNestedManyWithoutCreatedByInput
   statementSnapshots?: Prisma.FinancialStatementSnapshotUncheckedCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
@@ -332,6 +337,7 @@ export type UserUpdateInput = {
   cashFundMovements?: Prisma.CashFundMovementUpdateManyWithoutCreatedByNestedInput
   withdrawals?: Prisma.WithdrawalUpdateManyWithoutCreatedByNestedInput
   layMovements?: Prisma.LayMovementUpdateManyWithoutCreatedByNestedInput
+  trisPlays?: Prisma.TrisPlayUpdateManyWithoutCreatedByNestedInput
   statementSnapshots?: Prisma.FinancialStatementSnapshotUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
@@ -350,6 +356,7 @@ export type UserUncheckedUpdateInput = {
   cashFundMovements?: Prisma.CashFundMovementUncheckedUpdateManyWithoutCreatedByNestedInput
   withdrawals?: Prisma.WithdrawalUncheckedUpdateManyWithoutCreatedByNestedInput
   layMovements?: Prisma.LayMovementUncheckedUpdateManyWithoutCreatedByNestedInput
+  trisPlays?: Prisma.TrisPlayUncheckedUpdateManyWithoutCreatedByNestedInput
   statementSnapshots?: Prisma.FinancialStatementSnapshotUncheckedUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -511,6 +518,20 @@ export type UserUpdateOneRequiredWithoutLayMovementsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutLayMovementsInput, Prisma.UserUpdateWithoutLayMovementsInput>, Prisma.UserUncheckedUpdateWithoutLayMovementsInput>
 }
 
+export type UserCreateNestedOneWithoutTrisPlaysInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTrisPlaysInput, Prisma.UserUncheckedCreateWithoutTrisPlaysInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTrisPlaysInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutTrisPlaysNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTrisPlaysInput, Prisma.UserUncheckedCreateWithoutTrisPlaysInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTrisPlaysInput
+  upsert?: Prisma.UserUpsertWithoutTrisPlaysInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutTrisPlaysInput, Prisma.UserUpdateWithoutTrisPlaysInput>, Prisma.UserUncheckedUpdateWithoutTrisPlaysInput>
+}
+
 export type UserCreateNestedOneWithoutStatementSnapshotsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutStatementSnapshotsInput, Prisma.UserUncheckedCreateWithoutStatementSnapshotsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutStatementSnapshotsInput
@@ -552,6 +573,7 @@ export type UserCreateWithoutSuspendedMovementsInput = {
   cashFundMovements?: Prisma.CashFundMovementCreateNestedManyWithoutCreatedByInput
   withdrawals?: Prisma.WithdrawalCreateNestedManyWithoutCreatedByInput
   layMovements?: Prisma.LayMovementCreateNestedManyWithoutCreatedByInput
+  trisPlays?: Prisma.TrisPlayCreateNestedManyWithoutCreatedByInput
   statementSnapshots?: Prisma.FinancialStatementSnapshotCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
@@ -569,6 +591,7 @@ export type UserUncheckedCreateWithoutSuspendedMovementsInput = {
   cashFundMovements?: Prisma.CashFundMovementUncheckedCreateNestedManyWithoutCreatedByInput
   withdrawals?: Prisma.WithdrawalUncheckedCreateNestedManyWithoutCreatedByInput
   layMovements?: Prisma.LayMovementUncheckedCreateNestedManyWithoutCreatedByInput
+  trisPlays?: Prisma.TrisPlayUncheckedCreateNestedManyWithoutCreatedByInput
   statementSnapshots?: Prisma.FinancialStatementSnapshotUncheckedCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
@@ -602,6 +625,7 @@ export type UserUpdateWithoutSuspendedMovementsInput = {
   cashFundMovements?: Prisma.CashFundMovementUpdateManyWithoutCreatedByNestedInput
   withdrawals?: Prisma.WithdrawalUpdateManyWithoutCreatedByNestedInput
   layMovements?: Prisma.LayMovementUpdateManyWithoutCreatedByNestedInput
+  trisPlays?: Prisma.TrisPlayUpdateManyWithoutCreatedByNestedInput
   statementSnapshots?: Prisma.FinancialStatementSnapshotUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
@@ -619,6 +643,7 @@ export type UserUncheckedUpdateWithoutSuspendedMovementsInput = {
   cashFundMovements?: Prisma.CashFundMovementUncheckedUpdateManyWithoutCreatedByNestedInput
   withdrawals?: Prisma.WithdrawalUncheckedUpdateManyWithoutCreatedByNestedInput
   layMovements?: Prisma.LayMovementUncheckedUpdateManyWithoutCreatedByNestedInput
+  trisPlays?: Prisma.TrisPlayUncheckedUpdateManyWithoutCreatedByNestedInput
   statementSnapshots?: Prisma.FinancialStatementSnapshotUncheckedUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -636,6 +661,7 @@ export type UserCreateWithoutMasterMovementsInput = {
   cashFundMovements?: Prisma.CashFundMovementCreateNestedManyWithoutCreatedByInput
   withdrawals?: Prisma.WithdrawalCreateNestedManyWithoutCreatedByInput
   layMovements?: Prisma.LayMovementCreateNestedManyWithoutCreatedByInput
+  trisPlays?: Prisma.TrisPlayCreateNestedManyWithoutCreatedByInput
   statementSnapshots?: Prisma.FinancialStatementSnapshotCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
@@ -653,6 +679,7 @@ export type UserUncheckedCreateWithoutMasterMovementsInput = {
   cashFundMovements?: Prisma.CashFundMovementUncheckedCreateNestedManyWithoutCreatedByInput
   withdrawals?: Prisma.WithdrawalUncheckedCreateNestedManyWithoutCreatedByInput
   layMovements?: Prisma.LayMovementUncheckedCreateNestedManyWithoutCreatedByInput
+  trisPlays?: Prisma.TrisPlayUncheckedCreateNestedManyWithoutCreatedByInput
   statementSnapshots?: Prisma.FinancialStatementSnapshotUncheckedCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
@@ -686,6 +713,7 @@ export type UserUpdateWithoutMasterMovementsInput = {
   cashFundMovements?: Prisma.CashFundMovementUpdateManyWithoutCreatedByNestedInput
   withdrawals?: Prisma.WithdrawalUpdateManyWithoutCreatedByNestedInput
   layMovements?: Prisma.LayMovementUpdateManyWithoutCreatedByNestedInput
+  trisPlays?: Prisma.TrisPlayUpdateManyWithoutCreatedByNestedInput
   statementSnapshots?: Prisma.FinancialStatementSnapshotUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
@@ -703,6 +731,7 @@ export type UserUncheckedUpdateWithoutMasterMovementsInput = {
   cashFundMovements?: Prisma.CashFundMovementUncheckedUpdateManyWithoutCreatedByNestedInput
   withdrawals?: Prisma.WithdrawalUncheckedUpdateManyWithoutCreatedByNestedInput
   layMovements?: Prisma.LayMovementUncheckedUpdateManyWithoutCreatedByNestedInput
+  trisPlays?: Prisma.TrisPlayUncheckedUpdateManyWithoutCreatedByNestedInput
   statementSnapshots?: Prisma.FinancialStatementSnapshotUncheckedUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -720,6 +749,7 @@ export type UserCreateWithoutCashFundMovementsInput = {
   masterMovements?: Prisma.MasterMovementCreateNestedManyWithoutCreatedByInput
   withdrawals?: Prisma.WithdrawalCreateNestedManyWithoutCreatedByInput
   layMovements?: Prisma.LayMovementCreateNestedManyWithoutCreatedByInput
+  trisPlays?: Prisma.TrisPlayCreateNestedManyWithoutCreatedByInput
   statementSnapshots?: Prisma.FinancialStatementSnapshotCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
@@ -737,6 +767,7 @@ export type UserUncheckedCreateWithoutCashFundMovementsInput = {
   masterMovements?: Prisma.MasterMovementUncheckedCreateNestedManyWithoutCreatedByInput
   withdrawals?: Prisma.WithdrawalUncheckedCreateNestedManyWithoutCreatedByInput
   layMovements?: Prisma.LayMovementUncheckedCreateNestedManyWithoutCreatedByInput
+  trisPlays?: Prisma.TrisPlayUncheckedCreateNestedManyWithoutCreatedByInput
   statementSnapshots?: Prisma.FinancialStatementSnapshotUncheckedCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
@@ -770,6 +801,7 @@ export type UserUpdateWithoutCashFundMovementsInput = {
   masterMovements?: Prisma.MasterMovementUpdateManyWithoutCreatedByNestedInput
   withdrawals?: Prisma.WithdrawalUpdateManyWithoutCreatedByNestedInput
   layMovements?: Prisma.LayMovementUpdateManyWithoutCreatedByNestedInput
+  trisPlays?: Prisma.TrisPlayUpdateManyWithoutCreatedByNestedInput
   statementSnapshots?: Prisma.FinancialStatementSnapshotUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
@@ -787,6 +819,7 @@ export type UserUncheckedUpdateWithoutCashFundMovementsInput = {
   masterMovements?: Prisma.MasterMovementUncheckedUpdateManyWithoutCreatedByNestedInput
   withdrawals?: Prisma.WithdrawalUncheckedUpdateManyWithoutCreatedByNestedInput
   layMovements?: Prisma.LayMovementUncheckedUpdateManyWithoutCreatedByNestedInput
+  trisPlays?: Prisma.TrisPlayUncheckedUpdateManyWithoutCreatedByNestedInput
   statementSnapshots?: Prisma.FinancialStatementSnapshotUncheckedUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -804,6 +837,7 @@ export type UserCreateWithoutWithdrawalsInput = {
   masterMovements?: Prisma.MasterMovementCreateNestedManyWithoutCreatedByInput
   cashFundMovements?: Prisma.CashFundMovementCreateNestedManyWithoutCreatedByInput
   layMovements?: Prisma.LayMovementCreateNestedManyWithoutCreatedByInput
+  trisPlays?: Prisma.TrisPlayCreateNestedManyWithoutCreatedByInput
   statementSnapshots?: Prisma.FinancialStatementSnapshotCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
@@ -821,6 +855,7 @@ export type UserUncheckedCreateWithoutWithdrawalsInput = {
   masterMovements?: Prisma.MasterMovementUncheckedCreateNestedManyWithoutCreatedByInput
   cashFundMovements?: Prisma.CashFundMovementUncheckedCreateNestedManyWithoutCreatedByInput
   layMovements?: Prisma.LayMovementUncheckedCreateNestedManyWithoutCreatedByInput
+  trisPlays?: Prisma.TrisPlayUncheckedCreateNestedManyWithoutCreatedByInput
   statementSnapshots?: Prisma.FinancialStatementSnapshotUncheckedCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
@@ -854,6 +889,7 @@ export type UserUpdateWithoutWithdrawalsInput = {
   masterMovements?: Prisma.MasterMovementUpdateManyWithoutCreatedByNestedInput
   cashFundMovements?: Prisma.CashFundMovementUpdateManyWithoutCreatedByNestedInput
   layMovements?: Prisma.LayMovementUpdateManyWithoutCreatedByNestedInput
+  trisPlays?: Prisma.TrisPlayUpdateManyWithoutCreatedByNestedInput
   statementSnapshots?: Prisma.FinancialStatementSnapshotUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
@@ -871,6 +907,7 @@ export type UserUncheckedUpdateWithoutWithdrawalsInput = {
   masterMovements?: Prisma.MasterMovementUncheckedUpdateManyWithoutCreatedByNestedInput
   cashFundMovements?: Prisma.CashFundMovementUncheckedUpdateManyWithoutCreatedByNestedInput
   layMovements?: Prisma.LayMovementUncheckedUpdateManyWithoutCreatedByNestedInput
+  trisPlays?: Prisma.TrisPlayUncheckedUpdateManyWithoutCreatedByNestedInput
   statementSnapshots?: Prisma.FinancialStatementSnapshotUncheckedUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -888,6 +925,7 @@ export type UserCreateWithoutLayMovementsInput = {
   masterMovements?: Prisma.MasterMovementCreateNestedManyWithoutCreatedByInput
   cashFundMovements?: Prisma.CashFundMovementCreateNestedManyWithoutCreatedByInput
   withdrawals?: Prisma.WithdrawalCreateNestedManyWithoutCreatedByInput
+  trisPlays?: Prisma.TrisPlayCreateNestedManyWithoutCreatedByInput
   statementSnapshots?: Prisma.FinancialStatementSnapshotCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
@@ -905,6 +943,7 @@ export type UserUncheckedCreateWithoutLayMovementsInput = {
   masterMovements?: Prisma.MasterMovementUncheckedCreateNestedManyWithoutCreatedByInput
   cashFundMovements?: Prisma.CashFundMovementUncheckedCreateNestedManyWithoutCreatedByInput
   withdrawals?: Prisma.WithdrawalUncheckedCreateNestedManyWithoutCreatedByInput
+  trisPlays?: Prisma.TrisPlayUncheckedCreateNestedManyWithoutCreatedByInput
   statementSnapshots?: Prisma.FinancialStatementSnapshotUncheckedCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
@@ -938,6 +977,7 @@ export type UserUpdateWithoutLayMovementsInput = {
   masterMovements?: Prisma.MasterMovementUpdateManyWithoutCreatedByNestedInput
   cashFundMovements?: Prisma.CashFundMovementUpdateManyWithoutCreatedByNestedInput
   withdrawals?: Prisma.WithdrawalUpdateManyWithoutCreatedByNestedInput
+  trisPlays?: Prisma.TrisPlayUpdateManyWithoutCreatedByNestedInput
   statementSnapshots?: Prisma.FinancialStatementSnapshotUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
@@ -955,6 +995,95 @@ export type UserUncheckedUpdateWithoutLayMovementsInput = {
   masterMovements?: Prisma.MasterMovementUncheckedUpdateManyWithoutCreatedByNestedInput
   cashFundMovements?: Prisma.CashFundMovementUncheckedUpdateManyWithoutCreatedByNestedInput
   withdrawals?: Prisma.WithdrawalUncheckedUpdateManyWithoutCreatedByNestedInput
+  trisPlays?: Prisma.TrisPlayUncheckedUpdateManyWithoutCreatedByNestedInput
+  statementSnapshots?: Prisma.FinancialStatementSnapshotUncheckedUpdateManyWithoutCreatedByNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutTrisPlaysInput = {
+  id?: string
+  email: string
+  password: string
+  name: string
+  role?: $Enums.Role
+  active?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  suspendedMovements?: Prisma.SuspendedMovementCreateNestedManyWithoutCreatedByInput
+  masterMovements?: Prisma.MasterMovementCreateNestedManyWithoutCreatedByInput
+  cashFundMovements?: Prisma.CashFundMovementCreateNestedManyWithoutCreatedByInput
+  withdrawals?: Prisma.WithdrawalCreateNestedManyWithoutCreatedByInput
+  layMovements?: Prisma.LayMovementCreateNestedManyWithoutCreatedByInput
+  statementSnapshots?: Prisma.FinancialStatementSnapshotCreateNestedManyWithoutCreatedByInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutTrisPlaysInput = {
+  id?: string
+  email: string
+  password: string
+  name: string
+  role?: $Enums.Role
+  active?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  suspendedMovements?: Prisma.SuspendedMovementUncheckedCreateNestedManyWithoutCreatedByInput
+  masterMovements?: Prisma.MasterMovementUncheckedCreateNestedManyWithoutCreatedByInput
+  cashFundMovements?: Prisma.CashFundMovementUncheckedCreateNestedManyWithoutCreatedByInput
+  withdrawals?: Prisma.WithdrawalUncheckedCreateNestedManyWithoutCreatedByInput
+  layMovements?: Prisma.LayMovementUncheckedCreateNestedManyWithoutCreatedByInput
+  statementSnapshots?: Prisma.FinancialStatementSnapshotUncheckedCreateNestedManyWithoutCreatedByInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutTrisPlaysInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutTrisPlaysInput, Prisma.UserUncheckedCreateWithoutTrisPlaysInput>
+}
+
+export type UserUpsertWithoutTrisPlaysInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutTrisPlaysInput, Prisma.UserUncheckedUpdateWithoutTrisPlaysInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutTrisPlaysInput, Prisma.UserUncheckedCreateWithoutTrisPlaysInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutTrisPlaysInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutTrisPlaysInput, Prisma.UserUncheckedUpdateWithoutTrisPlaysInput>
+}
+
+export type UserUpdateWithoutTrisPlaysInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  suspendedMovements?: Prisma.SuspendedMovementUpdateManyWithoutCreatedByNestedInput
+  masterMovements?: Prisma.MasterMovementUpdateManyWithoutCreatedByNestedInput
+  cashFundMovements?: Prisma.CashFundMovementUpdateManyWithoutCreatedByNestedInput
+  withdrawals?: Prisma.WithdrawalUpdateManyWithoutCreatedByNestedInput
+  layMovements?: Prisma.LayMovementUpdateManyWithoutCreatedByNestedInput
+  statementSnapshots?: Prisma.FinancialStatementSnapshotUpdateManyWithoutCreatedByNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutTrisPlaysInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  suspendedMovements?: Prisma.SuspendedMovementUncheckedUpdateManyWithoutCreatedByNestedInput
+  masterMovements?: Prisma.MasterMovementUncheckedUpdateManyWithoutCreatedByNestedInput
+  cashFundMovements?: Prisma.CashFundMovementUncheckedUpdateManyWithoutCreatedByNestedInput
+  withdrawals?: Prisma.WithdrawalUncheckedUpdateManyWithoutCreatedByNestedInput
+  layMovements?: Prisma.LayMovementUncheckedUpdateManyWithoutCreatedByNestedInput
   statementSnapshots?: Prisma.FinancialStatementSnapshotUncheckedUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -973,6 +1102,7 @@ export type UserCreateWithoutStatementSnapshotsInput = {
   cashFundMovements?: Prisma.CashFundMovementCreateNestedManyWithoutCreatedByInput
   withdrawals?: Prisma.WithdrawalCreateNestedManyWithoutCreatedByInput
   layMovements?: Prisma.LayMovementCreateNestedManyWithoutCreatedByInput
+  trisPlays?: Prisma.TrisPlayCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
@@ -990,6 +1120,7 @@ export type UserUncheckedCreateWithoutStatementSnapshotsInput = {
   cashFundMovements?: Prisma.CashFundMovementUncheckedCreateNestedManyWithoutCreatedByInput
   withdrawals?: Prisma.WithdrawalUncheckedCreateNestedManyWithoutCreatedByInput
   layMovements?: Prisma.LayMovementUncheckedCreateNestedManyWithoutCreatedByInput
+  trisPlays?: Prisma.TrisPlayUncheckedCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -1023,6 +1154,7 @@ export type UserUpdateWithoutStatementSnapshotsInput = {
   cashFundMovements?: Prisma.CashFundMovementUpdateManyWithoutCreatedByNestedInput
   withdrawals?: Prisma.WithdrawalUpdateManyWithoutCreatedByNestedInput
   layMovements?: Prisma.LayMovementUpdateManyWithoutCreatedByNestedInput
+  trisPlays?: Prisma.TrisPlayUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
@@ -1040,6 +1172,7 @@ export type UserUncheckedUpdateWithoutStatementSnapshotsInput = {
   cashFundMovements?: Prisma.CashFundMovementUncheckedUpdateManyWithoutCreatedByNestedInput
   withdrawals?: Prisma.WithdrawalUncheckedUpdateManyWithoutCreatedByNestedInput
   layMovements?: Prisma.LayMovementUncheckedUpdateManyWithoutCreatedByNestedInput
+  trisPlays?: Prisma.TrisPlayUncheckedUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -1057,6 +1190,7 @@ export type UserCreateWithoutAuditLogsInput = {
   cashFundMovements?: Prisma.CashFundMovementCreateNestedManyWithoutCreatedByInput
   withdrawals?: Prisma.WithdrawalCreateNestedManyWithoutCreatedByInput
   layMovements?: Prisma.LayMovementCreateNestedManyWithoutCreatedByInput
+  trisPlays?: Prisma.TrisPlayCreateNestedManyWithoutCreatedByInput
   statementSnapshots?: Prisma.FinancialStatementSnapshotCreateNestedManyWithoutCreatedByInput
 }
 
@@ -1074,6 +1208,7 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   cashFundMovements?: Prisma.CashFundMovementUncheckedCreateNestedManyWithoutCreatedByInput
   withdrawals?: Prisma.WithdrawalUncheckedCreateNestedManyWithoutCreatedByInput
   layMovements?: Prisma.LayMovementUncheckedCreateNestedManyWithoutCreatedByInput
+  trisPlays?: Prisma.TrisPlayUncheckedCreateNestedManyWithoutCreatedByInput
   statementSnapshots?: Prisma.FinancialStatementSnapshotUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
@@ -1107,6 +1242,7 @@ export type UserUpdateWithoutAuditLogsInput = {
   cashFundMovements?: Prisma.CashFundMovementUpdateManyWithoutCreatedByNestedInput
   withdrawals?: Prisma.WithdrawalUpdateManyWithoutCreatedByNestedInput
   layMovements?: Prisma.LayMovementUpdateManyWithoutCreatedByNestedInput
+  trisPlays?: Prisma.TrisPlayUpdateManyWithoutCreatedByNestedInput
   statementSnapshots?: Prisma.FinancialStatementSnapshotUpdateManyWithoutCreatedByNestedInput
 }
 
@@ -1124,6 +1260,7 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   cashFundMovements?: Prisma.CashFundMovementUncheckedUpdateManyWithoutCreatedByNestedInput
   withdrawals?: Prisma.WithdrawalUncheckedUpdateManyWithoutCreatedByNestedInput
   layMovements?: Prisma.LayMovementUncheckedUpdateManyWithoutCreatedByNestedInput
+  trisPlays?: Prisma.TrisPlayUncheckedUpdateManyWithoutCreatedByNestedInput
   statementSnapshots?: Prisma.FinancialStatementSnapshotUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
@@ -1138,6 +1275,7 @@ export type UserCountOutputType = {
   cashFundMovements: number
   withdrawals: number
   layMovements: number
+  trisPlays: number
   statementSnapshots: number
   auditLogs: number
 }
@@ -1148,6 +1286,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   cashFundMovements?: boolean | UserCountOutputTypeCountCashFundMovementsArgs
   withdrawals?: boolean | UserCountOutputTypeCountWithdrawalsArgs
   layMovements?: boolean | UserCountOutputTypeCountLayMovementsArgs
+  trisPlays?: boolean | UserCountOutputTypeCountTrisPlaysArgs
   statementSnapshots?: boolean | UserCountOutputTypeCountStatementSnapshotsArgs
   auditLogs?: boolean | UserCountOutputTypeCountAuditLogsArgs
 }
@@ -1200,6 +1339,13 @@ export type UserCountOutputTypeCountLayMovementsArgs<ExtArgs extends runtime.Typ
 /**
  * UserCountOutputType without action
  */
+export type UserCountOutputTypeCountTrisPlaysArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TrisPlayWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
 export type UserCountOutputTypeCountStatementSnapshotsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.FinancialStatementSnapshotWhereInput
 }
@@ -1226,6 +1372,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   cashFundMovements?: boolean | Prisma.User$cashFundMovementsArgs<ExtArgs>
   withdrawals?: boolean | Prisma.User$withdrawalsArgs<ExtArgs>
   layMovements?: boolean | Prisma.User$layMovementsArgs<ExtArgs>
+  trisPlays?: boolean | Prisma.User$trisPlaysArgs<ExtArgs>
   statementSnapshots?: boolean | Prisma.User$statementSnapshotsArgs<ExtArgs>
   auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1271,6 +1418,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   cashFundMovements?: boolean | Prisma.User$cashFundMovementsArgs<ExtArgs>
   withdrawals?: boolean | Prisma.User$withdrawalsArgs<ExtArgs>
   layMovements?: boolean | Prisma.User$layMovementsArgs<ExtArgs>
+  trisPlays?: boolean | Prisma.User$trisPlaysArgs<ExtArgs>
   statementSnapshots?: boolean | Prisma.User$statementSnapshotsArgs<ExtArgs>
   auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1286,6 +1434,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     cashFundMovements: Prisma.$CashFundMovementPayload<ExtArgs>[]
     withdrawals: Prisma.$WithdrawalPayload<ExtArgs>[]
     layMovements: Prisma.$LayMovementPayload<ExtArgs>[]
+    trisPlays: Prisma.$TrisPlayPayload<ExtArgs>[]
     statementSnapshots: Prisma.$FinancialStatementSnapshotPayload<ExtArgs>[]
     auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
   }
@@ -1697,6 +1846,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   cashFundMovements<T extends Prisma.User$cashFundMovementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$cashFundMovementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CashFundMovementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   withdrawals<T extends Prisma.User$withdrawalsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$withdrawalsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WithdrawalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   layMovements<T extends Prisma.User$layMovementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$layMovementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LayMovementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  trisPlays<T extends Prisma.User$trisPlaysArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$trisPlaysArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TrisPlayPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   statementSnapshots<T extends Prisma.User$statementSnapshotsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$statementSnapshotsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinancialStatementSnapshotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   auditLogs<T extends Prisma.User$auditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -2246,6 +2396,30 @@ export type User$layMovementsArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.LayMovementScalarFieldEnum | Prisma.LayMovementScalarFieldEnum[]
+}
+
+/**
+ * User.trisPlays
+ */
+export type User$trisPlaysArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TrisPlay
+   */
+  select?: Prisma.TrisPlaySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TrisPlay
+   */
+  omit?: Prisma.TrisPlayOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TrisPlayInclude<ExtArgs> | null
+  where?: Prisma.TrisPlayWhereInput
+  orderBy?: Prisma.TrisPlayOrderByWithRelationInput | Prisma.TrisPlayOrderByWithRelationInput[]
+  cursor?: Prisma.TrisPlayWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TrisPlayScalarFieldEnum | Prisma.TrisPlayScalarFieldEnum[]
 }
 
 /**

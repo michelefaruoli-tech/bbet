@@ -62,9 +62,9 @@ export function LayOperationsHistory({
             onChange={(e) => setShowTrisOnly(e.target.checked)}
             className="rounded border-slate-300"
           />
-          Solo operazioni Tris
+          Solo vecchie operazioni Tris (storico)
         </label>
-        <span className="text-xs text-slate-400">{filtered.length} operazioni</span>
+        <span className="text-xs text-muted">{filtered.length} operazioni</span>
       </div>
 
       <div className="overflow-x-auto">
@@ -100,11 +100,11 @@ export function LayOperationsHistory({
                   <td className={amountClass(amount)}>{formatEUR(Math.abs(amount))}</td>
                   <td>
                     {isTris ? (
-                      <span className="rounded bg-violet-100 px-1.5 py-0.5 text-xs font-medium text-violet-800">
-                        Sì
+                      <span className="rounded bg-minus-line px-1.5 py-0.5 text-xs font-semibold text-[#5C3208]">
+                        Tris storico
                       </span>
                     ) : (
-                      <span className="text-xs text-slate-400">No</span>
+                      <span className="text-xs text-muted">—</span>
                     )}
                   </td>
                   <td>
@@ -113,7 +113,7 @@ export function LayOperationsHistory({
                         Mese aperto
                       </span>
                     ) : (
-                      <span className="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-600">
+                      <span className="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-muted">
                         {MONTH_LABELS[d.getMonth()]} {d.getFullYear()}
                       </span>
                     )}
@@ -131,7 +131,7 @@ export function LayOperationsHistory({
             })}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={showAuthor ? 8 : 7} className="py-6 text-center text-slate-400">
+                <td colSpan={showAuthor ? 8 : 7} className="py-6 text-center text-muted">
                   Nessuna operazione per i filtri selezionati
                 </td>
               </tr>

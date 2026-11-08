@@ -36,7 +36,7 @@ export function CustomerForm({ customer }: Props) {
           setMessage("");
           try {
             await saveCustomerAction(fd);
-            setMessage("Salvato con successo");
+            setMessage("Salvato");
             setDirty(false);
             router.refresh();
           } catch {
@@ -63,9 +63,9 @@ export function CustomerForm({ customer }: Props) {
       </div>
       <div className="md:col-span-2 flex flex-wrap items-center gap-3">
         <Button type="submit" disabled={!dirty || pending}>
-          {pending ? "Salvataggio..." : "Salva cambiamenti"}
+          {pending ? "Salvataggio..." : "Salva"}
         </Button>
-        {message && <span className="text-sm text-emerald-600">{message}</span>}
+        {message && <span className="text-sm text-accent">{message}</span>}
         {error && <span className="text-sm text-red-600">{error}</span>}
       </div>
     </form>

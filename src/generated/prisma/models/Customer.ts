@@ -42,6 +42,7 @@ export type CustomerMinAggregateOutputType = {
   notes: string | null
   active: boolean | null
   currentPeriod: number | null
+  systemKey: string | null
   createdAt: Date | null
   updatedAt: Date | null
   deletedAt: Date | null
@@ -55,6 +56,7 @@ export type CustomerMaxAggregateOutputType = {
   notes: string | null
   active: boolean | null
   currentPeriod: number | null
+  systemKey: string | null
   createdAt: Date | null
   updatedAt: Date | null
   deletedAt: Date | null
@@ -68,6 +70,7 @@ export type CustomerCountAggregateOutputType = {
   notes: number
   active: number
   currentPeriod: number
+  systemKey: number
   createdAt: number
   updatedAt: number
   deletedAt: number
@@ -91,6 +94,7 @@ export type CustomerMinAggregateInputType = {
   notes?: true
   active?: true
   currentPeriod?: true
+  systemKey?: true
   createdAt?: true
   updatedAt?: true
   deletedAt?: true
@@ -104,6 +108,7 @@ export type CustomerMaxAggregateInputType = {
   notes?: true
   active?: true
   currentPeriod?: true
+  systemKey?: true
   createdAt?: true
   updatedAt?: true
   deletedAt?: true
@@ -117,6 +122,7 @@ export type CustomerCountAggregateInputType = {
   notes?: true
   active?: true
   currentPeriod?: true
+  systemKey?: true
   createdAt?: true
   updatedAt?: true
   deletedAt?: true
@@ -217,6 +223,7 @@ export type CustomerGroupByOutputType = {
   notes: string | null
   active: boolean
   currentPeriod: number
+  systemKey: string | null
   createdAt: Date
   updatedAt: Date
   deletedAt: Date | null
@@ -253,6 +260,7 @@ export type CustomerWhereInput = {
   notes?: Prisma.StringNullableFilter<"Customer"> | string | null
   active?: Prisma.BoolFilter<"Customer"> | boolean
   currentPeriod?: Prisma.IntFilter<"Customer"> | number
+  systemKey?: Prisma.StringNullableFilter<"Customer"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"Customer"> | Date | string | null
@@ -267,6 +275,7 @@ export type CustomerOrderByWithRelationInput = {
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   active?: Prisma.SortOrder
   currentPeriod?: Prisma.SortOrder
+  systemKey?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -275,6 +284,7 @@ export type CustomerOrderByWithRelationInput = {
 
 export type CustomerWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  systemKey?: string
   AND?: Prisma.CustomerWhereInput | Prisma.CustomerWhereInput[]
   OR?: Prisma.CustomerWhereInput[]
   NOT?: Prisma.CustomerWhereInput | Prisma.CustomerWhereInput[]
@@ -288,7 +298,7 @@ export type CustomerWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"Customer"> | Date | string | null
   movements?: Prisma.SuspendedMovementListRelationFilter
-}, "id">
+}, "id" | "systemKey">
 
 export type CustomerOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -298,6 +308,7 @@ export type CustomerOrderByWithAggregationInput = {
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   active?: Prisma.SortOrder
   currentPeriod?: Prisma.SortOrder
+  systemKey?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -319,6 +330,7 @@ export type CustomerScalarWhereWithAggregatesInput = {
   notes?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
   active?: Prisma.BoolWithAggregatesFilter<"Customer"> | boolean
   currentPeriod?: Prisma.IntWithAggregatesFilter<"Customer"> | number
+  systemKey?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Customer"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Customer"> | Date | string
   deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Customer"> | Date | string | null
@@ -332,6 +344,7 @@ export type CustomerCreateInput = {
   notes?: string | null
   active?: boolean
   currentPeriod?: number
+  systemKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -346,6 +359,7 @@ export type CustomerUncheckedCreateInput = {
   notes?: string | null
   active?: boolean
   currentPeriod?: number
+  systemKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -360,6 +374,7 @@ export type CustomerUpdateInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   currentPeriod?: Prisma.IntFieldUpdateOperationsInput | number
+  systemKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -374,6 +389,7 @@ export type CustomerUncheckedUpdateInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   currentPeriod?: Prisma.IntFieldUpdateOperationsInput | number
+  systemKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -388,6 +404,7 @@ export type CustomerCreateManyInput = {
   notes?: string | null
   active?: boolean
   currentPeriod?: number
+  systemKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -401,6 +418,7 @@ export type CustomerUpdateManyMutationInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   currentPeriod?: Prisma.IntFieldUpdateOperationsInput | number
+  systemKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -414,6 +432,7 @@ export type CustomerUncheckedUpdateManyInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   currentPeriod?: Prisma.IntFieldUpdateOperationsInput | number
+  systemKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -427,6 +446,7 @@ export type CustomerCountOrderByAggregateInput = {
   notes?: Prisma.SortOrder
   active?: Prisma.SortOrder
   currentPeriod?: Prisma.SortOrder
+  systemKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -444,6 +464,7 @@ export type CustomerMaxOrderByAggregateInput = {
   notes?: Prisma.SortOrder
   active?: Prisma.SortOrder
   currentPeriod?: Prisma.SortOrder
+  systemKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -457,6 +478,7 @@ export type CustomerMinOrderByAggregateInput = {
   notes?: Prisma.SortOrder
   active?: Prisma.SortOrder
   currentPeriod?: Prisma.SortOrder
+  systemKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -509,6 +531,7 @@ export type CustomerCreateWithoutMovementsInput = {
   notes?: string | null
   active?: boolean
   currentPeriod?: number
+  systemKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -522,6 +545,7 @@ export type CustomerUncheckedCreateWithoutMovementsInput = {
   notes?: string | null
   active?: boolean
   currentPeriod?: number
+  systemKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -551,6 +575,7 @@ export type CustomerUpdateWithoutMovementsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   currentPeriod?: Prisma.IntFieldUpdateOperationsInput | number
+  systemKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -564,6 +589,7 @@ export type CustomerUncheckedUpdateWithoutMovementsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   currentPeriod?: Prisma.IntFieldUpdateOperationsInput | number
+  systemKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -608,6 +634,7 @@ export type CustomerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   notes?: boolean
   active?: boolean
   currentPeriod?: boolean
+  systemKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
@@ -623,6 +650,7 @@ export type CustomerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   notes?: boolean
   active?: boolean
   currentPeriod?: boolean
+  systemKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
@@ -636,6 +664,7 @@ export type CustomerSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   notes?: boolean
   active?: boolean
   currentPeriod?: boolean
+  systemKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
@@ -649,12 +678,13 @@ export type CustomerSelectScalar = {
   notes?: boolean
   active?: boolean
   currentPeriod?: boolean
+  systemKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
 }
 
-export type CustomerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "surname" | "phone" | "notes" | "active" | "currentPeriod" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["customer"]>
+export type CustomerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "surname" | "phone" | "notes" | "active" | "currentPeriod" | "systemKey" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["customer"]>
 export type CustomerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   movements?: boolean | Prisma.Customer$movementsArgs<ExtArgs>
   _count?: boolean | Prisma.CustomerCountOutputTypeDefaultArgs<ExtArgs>
@@ -678,6 +708,10 @@ export type $CustomerPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
      * * Periodo aperto corrente: a saldo 0 si archivia e si passa al successivo
      */
     currentPeriod: number
+    /**
+     * * Conto fisso di sistema (es. "TRIS"): niente periodi, non si elimina
+     */
+    systemKey: string | null
     createdAt: Date
     updatedAt: Date
     deletedAt: Date | null
@@ -1112,6 +1146,7 @@ export interface CustomerFieldRefs {
   readonly notes: Prisma.FieldRef<"Customer", 'String'>
   readonly active: Prisma.FieldRef<"Customer", 'Boolean'>
   readonly currentPeriod: Prisma.FieldRef<"Customer", 'Int'>
+  readonly systemKey: Prisma.FieldRef<"Customer", 'String'>
   readonly createdAt: Prisma.FieldRef<"Customer", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Customer", 'DateTime'>
   readonly deletedAt: Prisma.FieldRef<"Customer", 'DateTime'>

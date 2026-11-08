@@ -91,7 +91,7 @@ export function ResetUserPasswordForm({
         </Button>
       </div>
       {error && <p className="text-xs text-red-600">{error}</p>}
-      {ok && <p className="text-xs text-emerald-700">{ok}</p>}
+      {ok && <p className="text-xs text-accent-dark">{ok}</p>}
     </form>
   );
 }

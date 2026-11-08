@@ -26,7 +26,7 @@ export function EditMasterNotes({
         </span>
         <button
           type="button"
-          className="shrink-0 text-xs text-emerald-700 hover:underline"
+          className="shrink-0 text-xs text-accent-dark hover:underline"
           onClick={() => {
             setNotes(initialNotes ?? "");
             setEditing(true);
@@ -73,7 +73,7 @@ export function EditMasterNotes({
         </Button>
         <button
           type="button"
-          className="text-xs text-slate-500 hover:underline"
+          className="text-xs text-muted hover:underline"
           disabled={pending}
           onClick={() => {
             setNotes(initialNotes ?? "");

@@ -39,7 +39,7 @@ export function LayFilters({ years, selectedYears, filterYear, filterMonth }: Pr
     if (y) params.set("anno", y);
     if (m) params.set("mese", m);
     const qs = params.toString();
-    router.push(qs ? `/lay?${qs}` : "/lay");
+    router.push(qs ? `/lay?${qs}` : "/conti");
   }
 
   function toggleYear(y: number) {
@@ -53,7 +53,7 @@ export function LayFilters({ years, selectedYears, filterYear, filterMonth }: Pr
   return (
     <div className="space-y-3">
       <div>
-        <p className="mb-1.5 text-xs font-medium text-slate-500">Anni in tabella (se non entra bene, togli anni)</p>
+        <p className="mb-1.5 text-xs font-medium text-muted">Anni in tabella (se non entra bene, togli anni)</p>
         <div className="flex flex-wrap gap-1.5">
           <button
             type="button"
@@ -61,7 +61,7 @@ export function LayFilters({ years, selectedYears, filterYear, filterMonth }: Pr
             className={`rounded-full px-2.5 py-1 text-xs font-medium ${
               selectedYears.length === years.length
                 ? "bg-emerald-600 text-white"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                : "bg-slate-100 text-muted hover:bg-slate-200"
             }`}
           >
             Tutti
@@ -74,7 +74,7 @@ export function LayFilters({ years, selectedYears, filterYear, filterMonth }: Pr
                 type="button"
                 onClick={() => toggleYear(y)}
                 className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-                  active ? "bg-emerald-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  active ? "bg-emerald-600 text-white" : "bg-slate-100 text-muted hover:bg-slate-200"
                 }`}
               >
                 {y}
@@ -86,7 +86,7 @@ export function LayFilters({ years, selectedYears, filterYear, filterMonth }: Pr
 
       <div className="flex flex-wrap items-end gap-2">
         <div>
-          <label className="mb-1 block text-xs font-medium text-slate-500">Filtro elenco — Anno</label>
+          <label className="mb-1 block text-xs font-medium text-muted">Filtro elenco — Anno</label>
           <select
             className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
             value={filterYear}
@@ -99,7 +99,7 @@ export function LayFilters({ years, selectedYears, filterYear, filterMonth }: Pr
           </select>
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-slate-500">Filtro elenco — Mese</label>
+          <label className="mb-1 block text-xs font-medium text-muted">Filtro elenco — Mese</label>
           <select
             className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
             value={filterMonth}
@@ -115,9 +115,9 @@ export function LayFilters({ years, selectedYears, filterYear, filterMonth }: Pr
           <button
             type="button"
             onClick={() => {
-              router.push("/lay");
+              router.push("/conti");
             }}
-            className="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50"
+            className="rounded-lg border border-slate-300 px-3 py-2 text-sm text-muted hover:bg-slate-50"
           >
             Azzera filtri
           </button>

@@ -54,8 +54,8 @@ export function LayYearTable({ years, cells, selectedYears }: Props) {
       <div className="overflow-x-auto">
         <table className="data-table lay-year-table text-sm">
           <thead>
-            <tr className="bg-emerald-50">
-              <th className="sticky left-0 z-10 min-w-[6rem] bg-emerald-50">Mese</th>
+            <tr className="bg-accent-soft">
+              <th className="sticky left-0 z-10 min-w-[6rem] bg-accent-soft">Mese</th>
               {visibleYears.map((y, yi) => (
                 <th
                   key={y}
@@ -103,7 +103,7 @@ export function LayYearTable({ years, cells, selectedYears }: Props) {
                               : value < 0
                                 ? "bg-red-50"
                                 : value > 0
-                                  ? "bg-emerald-50/60"
+                                  ? "bg-accent-soft/60"
                                   : ""
                           } ${isSelected ? "ring-2 ring-emerald-600" : ""}`}
                           title={
@@ -138,7 +138,7 @@ export function LayYearTable({ years, cells, selectedYears }: Props) {
                 </td>
               ))}
             </tr>
-            <tr className="bg-slate-50 text-xs text-slate-600">
+            <tr className="bg-slate-50 text-xs text-muted">
               <td className="sticky left-0 z-10 bg-slate-50" colSpan={visibleYears.length + 1}>
                 Totale complessivo:{" "}
                 <strong className={amountClass(grandTotal)}>{formatEUR(grandTotal)}</strong>
@@ -155,7 +155,7 @@ export function LayYearTable({ years, cells, selectedYears }: Props) {
         <div
           className={`rounded-lg border-2 p-4 ${
             selected.closed
-              ? "border-emerald-300 bg-emerald-50/50"
+              ? "border-emerald-300 bg-accent-soft/50"
               : "border-amber-300 bg-amber-50/50"
           }`}
         >
@@ -173,7 +173,7 @@ export function LayYearTable({ years, cells, selectedYears }: Props) {
               <button
                 type="button"
                 onClick={() => setSelectedKey(null)}
-                className="text-xs text-slate-500 hover:text-slate-800"
+                className="text-xs text-muted hover:text-slate-800"
               >
                 Chiudi pannello
               </button>
@@ -181,27 +181,27 @@ export function LayYearTable({ years, cells, selectedYears }: Props) {
           </div>
           <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
             <div>
-              <p className="text-xs text-slate-500">Positivo</p>
-              <p className="font-semibold text-emerald-600">
+              <p className="text-xs text-muted">Positivo</p>
+              <p className="font-semibold text-accent">
                 {formatEUR(selected.positiveTotal)}
               </p>
             </div>
             <div>
-              <p className="text-xs text-slate-500">Negativo</p>
+              <p className="text-xs text-muted">Negativo</p>
               <p className="font-semibold text-red-600">{formatEUR(selected.negativeTotal)}</p>
             </div>
             <div>
-              <p className="text-xs text-slate-500">Saldo mese</p>
+              <p className="text-xs text-muted">Saldo mese</p>
               <p className={`font-semibold ${amountClass(selected.balance)}`}>
                 {formatEUR(selected.balance)}
               </p>
             </div>
             <div>
-              <p className="text-xs text-slate-500">Tris nel mese</p>
+              <p className="text-xs text-muted">Tris nel mese</p>
               <p className="font-semibold">{formatEUR(selected.trisBalance)}</p>
             </div>
             <div>
-              <p className="text-xs text-slate-500">Cumulativo cassa</p>
+              <p className="text-xs text-muted">Cumulativo cassa</p>
               <p className="font-semibold">
                 {selected.cumulativeBalance === null
                   ? "—"
@@ -209,7 +209,7 @@ export function LayYearTable({ years, cells, selectedYears }: Props) {
               </p>
             </div>
             <div>
-              <p className="text-xs text-slate-500">Movimenti</p>
+              <p className="text-xs text-muted">Movimenti</p>
               <p className="font-semibold">{selected.movementCount}</p>
             </div>
           </div>
@@ -222,14 +222,14 @@ export function LayYearTable({ years, cells, selectedYears }: Props) {
       )}
 
       {!selected && (
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-muted">
           Clicca un importo per il dettaglio. I mesi aperti (bordo tratteggiato) si aggiornano da soli
           quando inserisci operazioni.
         </p>
       )}
 
       {visibleYears.length === 0 && (
-        <p className="py-6 text-center text-slate-400">Seleziona almeno un anno dal filtro</p>
+        <p className="py-6 text-center text-muted">Seleziona almeno un anno dal filtro</p>
       )}
     </div>
   );

@@ -13,16 +13,16 @@ const REPORTS = [
 
 export default function ReportPage() {
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold">Report</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="text-[28px] font-bold tracking-tight">Report</h1>
+        <p className="text-sm text-muted">
           Backup Excel completo · esportazioni CSV per sezione
         </p>
       </div>
 
       <Card title="Backup manuale consigliato">
-        <p className="mb-3 text-sm text-slate-600">
+        <p className="mb-3 text-sm text-muted">
           Un solo file Excel con tutte le sezioni: clienti, sospesi, master, commissioni, LAY,
           prelievi, fondo cassa, rendiconto, snapshot e archivi. Utile prima di chiudere un anno o
           dopo modifiche importanti.
@@ -42,8 +42,8 @@ export default function ReportPage() {
               href={r.href}
               className={
                 r.highlight
-                  ? "text-sm font-medium text-emerald-700 hover:underline"
-                  : "text-sm text-emerald-600 hover:underline"
+                  ? "text-sm font-medium text-accent-dark hover:underline"
+                  : "text-sm text-accent hover:underline"
               }
             >
               Scarica →

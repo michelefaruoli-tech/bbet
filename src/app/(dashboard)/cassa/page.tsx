@@ -2,7 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { formatEUR, toNumber } from "@/lib/format";
 import { calcCommissionCashBalance } from "@/lib/calculations";
 import { getFullDashboard } from "@/lib/calculations-server";
-import { Card } from "@/components/ui";
+import { Card, Tabs } from "@/components/ui";
+import { CASSA_TABS } from "@/components/layout/sections";
 import { CommissionTable } from "@/components/commissioni/commission-table";
 import { CommissionHistory } from "@/components/commissioni/commission-history";
 import { YearSelector } from "@/components/commissioni/year-selector";
@@ -128,15 +129,18 @@ export default async function CommissioniPage({
     Math.round((totaleDaCommissioni - rendicontoTotale + Number.EPSILON) * 100) / 100;
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Commissioni {year}</h1>
-          <p className="text-sm text-slate-500">
+          <h1 className="text-[28px] font-bold tracking-tight">Commissioni {year}</h1>
+          <p className="text-sm text-muted">
             Totale = Commissioni annuali + Fondo cassa (chiusura anno prima) − Prelievi
           </p>
         </div>
-        <YearSelector year={year} years={yearOptions} />
+        <div className="flex flex-wrap items-center gap-3">
+          <YearSelector year={year} years={yearOptions} />
+          <Tabs items={CASSA_TABS} active="/cassa" label="Sezioni cassa" />
+        </div>
       </div>
 
       <CommissioniTotaleBreakdown
@@ -168,7 +172,7 @@ export default async function CommissioniPage({
         </Card>
         <Card title="Fondo cassa (fisso)">
           <p className="text-xl font-bold">{formatEUR(totFondo)}</p>
-          <p className="mt-1 text-xs text-slate-400">Chiusura anno precedente</p>
+          <p className="mt-1 text-xs text-muted">Chiusura anno precedente</p>
         </Card>
       </div>
 
@@ -190,8 +194,8 @@ export default async function CommissioniPage({
 
       <CommissionHistory entries={history} />
 
-      <p className="text-xs text-slate-400">
-        <a href="/api/export/commissioni" className="text-emerald-600 hover:underline">
+      <p className="text-xs text-muted">
+        <a href="/api/export/commissioni" className="text-accent hover:underline">
           Esporta CSV
         </a>
       </p>

@@ -66,7 +66,7 @@ export function EditLayButton({ operation }: { operation: EditableLayOperation }
               </h3>
               <button
                 type="button"
-                className="text-sm text-slate-500 hover:text-slate-800"
+                className="text-sm text-muted hover:text-slate-800"
                 disabled={pending}
                 onClick={() => setOpen(false)}
               >
@@ -124,17 +124,6 @@ export function EditLayButton({ operation }: { operation: EditableLayOperation }
                   defaultValue={formatNumber(absAmount)}
                   placeholder="0,00"
                 />
-              </div>
-              <div className="field md:col-span-2">
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    name="trisActive"
-                    value="true"
-                    defaultChecked={operation.category === "TRIS"}
-                  />
-                  Tris attivo (scala credito Tris e aggiorna il Rendiconto)
-                </label>
               </div>
               <div className="field md:col-span-2">
                 <label>Descrizione</label>

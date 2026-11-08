@@ -2,7 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { getLaySummary } from "@/lib/calculations-server";
 import { formatEUR, amountClass, toNumber } from "@/lib/format";
 import { formatDateIT } from "@/lib/timezone";
-import { Card } from "@/components/ui";
+import { Card, Tabs } from "@/components/ui";
+import { CASSA_TABS } from "@/components/layout/sections";
 import { WithdrawalForm } from "@/components/prelievi/withdrawal-form";
 import { DeleteWithdrawalButton } from "@/components/prelievi/delete-withdrawal-button";
 
@@ -43,17 +44,20 @@ export default async function PrelieviPage({
   const commissionWithdrawalsMonth = commissionMonth ? toNumber(commissionMonth.withdrawals) : 0;
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <div className="flex flex-wrap justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Prelievi</h1>
-          <p className="text-sm text-slate-500">
+          <h1 className="text-[28px] font-bold tracking-tight">Prelievi</h1>
+          <p className="text-sm text-muted">
             Solo da Commissioni o LAY · sempre in contanti · aggiorna i saldi automaticamente
           </p>
         </div>
-        <a href="/api/export/prelievi" className="text-sm text-emerald-600 hover:underline">
-          Esporta CSV
-        </a>
+        <div className="flex flex-wrap items-center gap-3">
+          <a href="/api/export/prelievi" className="text-sm text-accent hover:underline">
+            Esporta CSV
+          </a>
+          <Tabs items={CASSA_TABS} active="/cassa/prelievi" label="Sezioni cassa" />
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -75,18 +79,18 @@ export default async function PrelieviPage({
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Card title={`Commissioni ${MONTH_LABELS[month - 1]} ${year}`}>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-muted">
             Prelievi già nel mese: <strong>{formatEUR(commissionWithdrawalsMonth)}</strong>
           </p>
           <p className="mt-1 text-lg font-bold">
             Totale finale mese: {formatEUR(commissionFinal)}
           </p>
-          <p className="mt-1 text-xs text-slate-400">
+          <p className="mt-1 text-xs text-muted">
             Formula: Fatt + Bonus + Fondo cassa − Prelievi
           </p>
         </Card>
         <Card title="Come funziona">
-          <ul className="list-disc space-y-1 pl-5 text-sm text-slate-600">
+          <ul className="list-disc space-y-1 pl-5 text-sm text-muted">
             <li>
               <strong>Da Commissioni</strong>: scala il totale finale del mese in corso
             </li>
@@ -129,7 +133,7 @@ export default async function PrelieviPage({
                     {w.source === "LAY" ? (
                       <span className="rounded bg-sky-100 px-1.5 py-0.5 text-xs text-sky-800">LAY</span>
                     ) : (
-                      <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-xs text-emerald-800">
+                      <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-xs text-accent-dark">
                         Commissioni
                       </span>
                     )}
@@ -147,7 +151,7 @@ export default async function PrelieviPage({
               ))}
               {withdrawals.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="py-6 text-center text-slate-400">
+                  <td colSpan={8} className="py-6 text-center text-muted">
                     Nessun prelievo registrato quest’anno
                   </td>
                 </tr>

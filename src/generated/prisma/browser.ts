@@ -58,6 +58,12 @@ export type Withdrawal = Prisma.WithdrawalModel
  */
 export type LayMovement = Prisma.LayMovementModel
 /**
+ * Model TrisPlay
+ * Giocate Tris (separate dal LAY). Ogni giocata cambia il saldo del conto Tris nei Sospesi:
+ * Avere = il debito scende (saldo conto +) · Dare = il debito sale (saldo conto −).
+ */
+export type TrisPlay = Prisma.TrisPlayModel
+/**
  * Model LayMonthlyClosure
  * 
  */

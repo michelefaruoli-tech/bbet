@@ -7,14 +7,29 @@ import { requireSession } from "./auth";
 import { writeAuditLog } from "./audit";
 import { parseItalianNumber } from "./format";
 import { parseItalianDate, formatTimeIT } from "./timezone";
+import { closeLayMonthCore, reopenLayMonthCore } from "./lay-closing";
 import {
   calcCasinoNet,
   calcCommissionFinal,
   calcCommissionPartial,
   calcCustomerBalance,
-  detectTrisCategory,
   isSuspendedBalanceZero,
 } from "./calculations";
+
+/** Le pagine si ricaricano tutte: i numeri sono collegati (sospesi → rendiconto → home). */
+function revalidateAll() {
+  revalidatePath("/", "layout");
+}
+
+function todayDateUTC() {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Rome",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+  return new Date(`${parts}T00:00:00.000Z`);
+}
 
 const customerSchema = z.object({
   name: z.string().min(1),
@@ -55,12 +70,14 @@ export async function saveCustomerAction(formData: FormData) {
     });
   }
 
-  revalidatePath("/sospesi");
+  revalidateAll();
   return { success: true };
 }
 
 export async function archiveCustomerAction(id: string, active: boolean) {
   const session = await requireSession();
+  const current = await prisma.customer.findUnique({ where: { id } });
+  if (current?.systemKey) return { error: "Il conto Tris è fisso e non si archivia" };
   const updated = await prisma.customer.update({ where: { id }, data: { active } });
   await writeAuditLog({
     userId: session.id,
@@ -69,12 +86,14 @@ export async function archiveCustomerAction(id: string, active: boolean) {
     action: active ? "RESTORE" : "ARCHIVE",
     newValue: updated,
   });
-  revalidatePath("/sospesi");
+  revalidateAll();
   return { success: true };
 }
 
 export async function deleteCustomerAction(id: string) {
   const session = await requireSession();
+  const current = await prisma.customer.findUnique({ where: { id } });
+  if (current?.systemKey) return { error: "Il conto Tris è fisso e non si elimina" };
   const updated = await prisma.customer.update({
     where: { id },
     data: { deletedAt: new Date(), active: false },
@@ -86,7 +105,7 @@ export async function deleteCustomerAction(id: string) {
     action: "SOFT_DELETE",
     newValue: updated,
   });
-  revalidatePath("/sospesi");
+  revalidateAll();
   return { success: true };
 }
 
@@ -147,17 +166,14 @@ export async function saveSuspendedMovementAction(formData: FormData) {
 
   await maybeCloseSuspendedPeriod(customerId, session.id);
 
-  revalidatePath("/sospesi");
-  revalidatePath(`/sospesi/${customerId}`);
-  revalidatePath("/");
-  revalidatePath("/rendiconto");
+  revalidateAll();
   return { success: true };
 }
 
 /** Se il saldo del periodo aperto è 0, archivia e apre un periodo nuovo (contatori a zero). */
 async function maybeCloseSuspendedPeriod(customerId: string, userId: string) {
   const customer = await prisma.customer.findUnique({ where: { id: customerId } });
-  if (!customer) return;
+  if (!customer || customer.systemKey) return; // il conto Tris non ha periodi
 
   const openMovements = await prisma.suspendedMovement.findMany({
     where: { customerId, deletedAt: null, period: customer.currentPeriod },
@@ -203,10 +219,7 @@ export async function deleteSuspendedMovementAction(id: string, customerId: stri
 
   await maybeCloseSuspendedPeriod(customerId, session.id);
 
-  revalidatePath("/sospesi");
-  revalidatePath(`/sospesi/${customerId}`);
-  revalidatePath("/");
-  revalidatePath("/rendiconto");
+  revalidateAll();
   return { success: true };
 }
 
@@ -263,10 +276,7 @@ export async function saveMasterMovementAction(formData: FormData) {
     });
   }
 
-  revalidatePath("/master");
-  revalidatePath("/master/scheda");
-  revalidatePath("/");
-  revalidatePath("/rendiconto");
+  revalidateAll();
   return { success: true };
 }
 
@@ -296,8 +306,7 @@ export async function updateMasterNotesAction(formData: FormData) {
     newValue: { notes: updated.notes },
   });
 
-  revalidatePath("/master");
-  revalidatePath("/master/scheda");
+  revalidateAll();
   return { success: true };
 }
 
@@ -314,10 +323,7 @@ export async function deleteMasterMovementAction(id: string) {
     action: "SOFT_DELETE",
     newValue: updated,
   });
-  revalidatePath("/master");
-  revalidatePath("/master/scheda");
-  revalidatePath("/");
-  revalidatePath("/rendiconto");
+  revalidateAll();
   return { success: true };
 }
 
@@ -360,8 +366,7 @@ export async function saveCommissionMonthAction(formData: FormData) {
     newValue: updated,
   });
 
-  revalidatePath("/commissioni");
-  revalidatePath("/");
+  revalidateAll();
   return { success: true };
 }
 
@@ -371,14 +376,12 @@ export async function saveLayMovementAction(formData: FormData) {
   const rawAmount = parseItalianNumber(String(formData.get("amount")));
   const sign = formData.get("sign") === "negative" ? -1 : 1;
   const notes = (formData.get("notes") as string) || null;
-  const trisActive =
-    formData.get("trisActive") === "true" || formData.get("trisActive") === "on";
-  let category = (formData.get("category") as "GENERICO" | "TRIS" | "ALTRO") || "GENERICO";
-  if (trisActive) category = "TRIS";
-  else {
-    const detected = detectTrisCategory(notes);
-    if (detected) category = detected;
-  }
+  // Il Tris non passa più dal LAY: i movimenti nuovi sono sempre LAY normali.
+  // In modifica si conserva la categoria (i vecchi movimenti Tris restano nello storico).
+  const existingCategory = id
+    ? (await prisma.layMovement.findUnique({ where: { id }, select: { category: true } }))?.category
+    : null;
+  const category = existingCategory ?? "GENERICO";
 
   const dateStr = String(formData.get("date"));
   const date = parseItalianDate(dateStr) ?? new Date(dateStr);
@@ -416,10 +419,7 @@ export async function saveLayMovementAction(formData: FormData) {
     });
   }
 
-  revalidatePath("/lay");
-  revalidatePath("/lay/tris");
-  revalidatePath("/");
-  revalidatePath("/rendiconto");
+  revalidateAll();
   return { success: true };
 }
 
@@ -436,346 +436,80 @@ export async function deleteLayMovementAction(id: string) {
     action: "SOFT_DELETE",
     newValue: updated,
   });
-  revalidatePath("/lay");
-  revalidatePath("/lay/tris");
-  revalidatePath("/");
-  revalidatePath("/rendiconto");
+  revalidateAll();
   return { success: true };
 }
 
 export async function closeLayMonthAction(year: number, month: number) {
   const session = await requireSession();
-  const start = new Date(year, month - 1, 1);
-  const end = new Date(year, month, 0, 23, 59, 59);
-
-  // Se esistono chiusure successive (es. chiuso agosto saltando luglio),
-  // le riapriamo così si può chiudere il mese mancante in sequenza.
-  const laterClosures = await prisma.layMonthlyClosure.findMany({
-    where: {
-      OR: [{ year: { gt: year } }, { year, month: { gt: month } }],
-    },
-    orderBy: [{ year: "desc" }, { month: "desc" }],
-  });
-  for (const later of laterClosures) {
-    await prisma.layMonthlyClosure.delete({ where: { id: later.id } });
-    await writeAuditLog({
-      userId: session.id,
-      entityType: "LayMonthlyClosure",
-      entityId: later.id,
-      action: "REOPEN_MONTH",
-      oldValue: later,
-      newValue: {
-        year: later.year,
-        month: later.month,
-        reopened: true,
-        via: "closeEarlierMonth",
-        closing: `${month}/${year}`,
-      },
-    });
-  }
-
-  const laterTris = await prisma.trisMonthlyClosure.findMany({
-    where: {
-      OR: [{ year: { gt: year } }, { year, month: { gt: month } }],
-    },
-    orderBy: [{ year: "desc" }, { month: "desc" }],
-  });
-  for (const later of laterTris) {
-    await prisma.trisMonthlyClosure.delete({ where: { id: later.id } });
-    await writeAuditLog({
-      userId: session.id,
-      entityType: "TrisMonthlyClosure",
-      entityId: later.id,
-      action: "REOPEN_MONTH",
-      oldValue: later,
-      newValue: {
-        year: later.year,
-        month: later.month,
-        reopened: true,
-        via: "closeEarlierMonth",
-        closing: `${month}/${year}`,
-      },
-    });
-  }
-
-  const movements = await prisma.layMovement.findMany({
-    where: { deletedAt: null, date: { gte: start, lte: end } },
-  });
-
-  let positive = 0;
-  let negative = 0;
-  let trisPositive = 0;
-  let trisNegative = 0;
-
-  for (const m of movements) {
-    const amount = Number(m.amount);
-    if (amount >= 0) positive += amount;
-    else negative += Math.abs(amount);
-    if (m.category === "TRIS") {
-      if (amount >= 0) trisPositive += amount;
-      else trisNegative += Math.abs(amount);
-    }
-  }
-
-  const monthlyBalance = positive - negative;
-  const trisBalance = trisPositive - trisNegative;
-
-  const prevClosures = await prisma.layMonthlyClosure.findMany({
-    where: {
-      OR: [{ year: { lt: year } }, { year, month: { lt: month } }],
-    },
-    orderBy: [{ year: "asc" }, { month: "asc" }],
-  });
-  const lastLay = prevClosures[prevClosures.length - 1];
-  const prevCash = lastLay ? Number(lastLay.cumulativeBalance) : 0;
-  const cumulativeBalance = prevCash + monthlyBalance;
-
-  await prisma.layMonthlyClosure.upsert({
-    where: { year_month: { year, month } },
-    update: {
-      positiveTotal: positive,
-      negativeTotal: negative,
-      monthlyBalance,
-      trisPositive,
-      trisNegative,
-      trisBalance,
-      cumulativeBalance,
-      movementCount: movements.length,
-      closedAt: new Date(),
-    },
-    create: {
-      year,
-      month,
-      positiveTotal: positive,
-      negativeTotal: negative,
-      monthlyBalance,
-      trisPositive,
-      trisNegative,
-      trisBalance,
-      cumulativeBalance,
-      movementCount: movements.length,
-    },
-  });
-
-  // Archivia anche il rendiconto mensile Tris (separato)
-  // LAY: Avere = operazioni positive · Dare = operazioni negative
-  await closeTrisMonthInternal(year, month, session.id, {
-    avereTotal: trisPositive,
-    dareTotal: trisNegative,
-    monthlyBalance: trisBalance,
-    movementCount: movements.filter((m) => m.category === "TRIS").length,
-    notes: `Sincronizzato con chiusura LAY ${month}/${year}`,
-  });
-
-  await writeAuditLog({
-    userId: session.id,
-    entityType: "LayMonthlyClosure",
-    action: "CLOSE_MONTH",
-    newValue: { year, month, monthlyBalance, trisBalance, movementCount: movements.length },
-  });
-
-  revalidatePath("/lay");
-  revalidatePath("/lay/tris");
-  revalidatePath("/rendiconto");
-  revalidatePath("/");
-  return {
-    success: true,
-    year,
-    month,
-    monthlyBalance,
-    reopenedLater: laterClosures.map((c) => `${c.month}/${c.year}`),
-  };
+  const result = await closeLayMonthCore(year, month, session.id);
+  revalidateAll();
+  return { success: true, ...result };
 }
 
-async function closeTrisMonthInternal(
-  year: number,
-  month: number,
-  userId: string,
-  totals?: {
-    dareTotal: number;
-    avereTotal: number;
-    monthlyBalance: number;
-    movementCount: number;
-    notes?: string;
-  },
-) {
-  let dareTotal = totals?.dareTotal;
-  let avereTotal = totals?.avereTotal;
-  let monthlyBalance = totals?.monthlyBalance;
-  let movementCount = totals?.movementCount;
-  const notes = totals?.notes ?? null;
-
-  if (dareTotal === undefined || avereTotal === undefined || monthlyBalance === undefined) {
-    const start = new Date(year, month - 1, 1);
-    const end = new Date(year, month, 0, 23, 59, 59);
-    const trisMovements = await prisma.layMovement.findMany({
-      where: {
-        deletedAt: null,
-        category: "TRIS",
-        date: { gte: start, lte: end },
-      },
-    });
-    // Avere = positive · Dare = negative
-    avereTotal = 0;
-    dareTotal = 0;
-    for (const m of trisMovements) {
-      const amount = Number(m.amount);
-      if (amount >= 0) avereTotal += amount;
-      else dareTotal += Math.abs(amount);
-    }
-    monthlyBalance = avereTotal - dareTotal;
-    movementCount = trisMovements.length;
-  }
-
-  const prev = await prisma.trisMonthlyClosure.findMany({
-    where: {
-      OR: [{ year: { lt: year } }, { year, month: { lt: month } }],
-    },
-    orderBy: [{ year: "asc" }, { month: "asc" }],
-  });
-  const last = prev[prev.length - 1];
-  const prevCum = last ? Number(last.cumulativeBalance) : 0;
-  // Debito Tris: Avere riduce, Dare aumenta → cumulativo = precedente − (Avere − Dare)
-  const cumulativeBalance = prevCum - (monthlyBalance ?? 0);
-
-  const row = await prisma.trisMonthlyClosure.upsert({
-    where: { year_month: { year, month } },
-    update: {
-      dareTotal: dareTotal ?? 0,
-      avereTotal: avereTotal ?? 0,
-      monthlyBalance: monthlyBalance ?? 0,
-      cumulativeBalance,
-      movementCount: movementCount ?? 0,
-      notes,
-      closedAt: new Date(),
-    },
-    create: {
-      year,
-      month,
-      dareTotal: dareTotal ?? 0,
-      avereTotal: avereTotal ?? 0,
-      monthlyBalance: monthlyBalance ?? 0,
-      cumulativeBalance,
-      movementCount: movementCount ?? 0,
-      notes,
-    },
-  });
-
-  await writeAuditLog({
-    userId,
-    entityType: "TrisMonthlyClosure",
-    entityId: row.id,
-    action: "CLOSE_MONTH",
-    newValue: { year, month, monthlyBalance, cumulativeBalance },
-  });
-
-  return row;
-}
-
-export async function closeTrisMonthAction(year: number, month: number) {
-  const session = await requireSession();
-  await closeTrisMonthInternal(year, month, session.id);
-  revalidatePath("/lay");
-  revalidatePath("/rendiconto");
-  revalidatePath("/");
-  return { success: true };
-}
-
-export async function reopenTrisMonthAction(year: number, month: number) {
-  const session = await requireSession();
-  if (session.role !== "ADMIN") return { error: "Solo Master può riaprire un mese" };
-
-  const existing = await prisma.trisMonthlyClosure.findUnique({
-    where: { year_month: { year, month } },
-  });
-  if (!existing) return { error: `Mese Tris ${month}/${year} non trovato` };
-
-  const later = await prisma.trisMonthlyClosure.findFirst({
-    where: {
-      OR: [{ year: { gt: year } }, { year, month: { gt: month } }],
-    },
-  });
-  if (later) {
-    return {
-      error: `Prima riapri i mesi successivi (es. ${later.month}/${later.year})`,
-    };
-  }
-
-  await prisma.trisMonthlyClosure.delete({ where: { id: existing.id } });
-  await writeAuditLog({
-    userId: session.id,
-    entityType: "TrisMonthlyClosure",
-    entityId: existing.id,
-    action: "REOPEN_MONTH",
-    oldValue: existing,
-    newValue: { year, month, reopened: true },
-  });
-
-  revalidatePath("/lay");
-  revalidatePath("/lay/tris");
-  revalidatePath("/rendiconto");
-  revalidatePath("/");
-  return { success: true };
-}
-
-/** Riapre il mese LAY e anche il Tris di quel mese (se presente). */
+/** Riapre il mese LAY (e l'archivio Tris di quel mese). Resta aperto finché non lo richiudi a mano. */
 export async function reopenLayMonthAction(year: number, month: number) {
   const session = await requireSession();
-  if (session.role !== "ADMIN") return { error: "Solo Master può riaprire un mese" };
+  const result = await reopenLayMonthCore(year, month, session.id);
+  revalidateAll();
+  return result;
+}
 
-  const existing = await prisma.layMonthlyClosure.findUnique({
-    where: { year_month: { year, month } },
-  });
-  if (!existing) return { error: `Mese LAY ${month}/${year} non trovato` };
+// ---------- Giocate Tris ----------
 
-  const later = await prisma.layMonthlyClosure.findFirst({
-    where: {
-      OR: [{ year: { gt: year } }, { year, month: { gt: month } }],
-    },
-  });
-  if (later) {
-    return {
-      error: `Prima riapri i mesi LAY successivi (es. ${later.month}/${later.year})`,
-    };
+export async function saveTrisPlayAction(formData: FormData) {
+  const session = await requireSession();
+  const id = (formData.get("id") as string | null) || null;
+  const playType = formData.get("playType") === "AVERE" ? "AVERE" : "DARE";
+  const amount = Math.abs(parseItalianNumber(String(formData.get("amount") ?? "")));
+  if (!amount) return { error: "Inserisci un importo" };
+  const dateStr = String(formData.get("date") ?? "");
+  const date = parseItalianDate(dateStr) ?? (dateStr ? new Date(dateStr) : todayDateUTC());
+  const payload = {
+    date,
+    time: (formData.get("time") as string)?.trim() || formatTimeIT(),
+    playType: playType as "DARE" | "AVERE",
+    amount,
+    notes: ((formData.get("notes") as string) || "").trim() || null,
+  };
+
+  if (id) {
+    const old = await prisma.trisPlay.findUnique({ where: { id } });
+    if (!old || old.deletedAt) return { error: "Giocata non trovata" };
+    const updated = await prisma.trisPlay.update({ where: { id }, data: payload });
+    await writeAuditLog({
+      userId: session.id,
+      entityType: "TrisPlay",
+      entityId: id,
+      action: "UPDATE",
+      oldValue: old,
+      newValue: updated,
+    });
+  } else {
+    const created = await prisma.trisPlay.create({ data: { ...payload, createdById: session.id } });
+    await writeAuditLog({
+      userId: session.id,
+      entityType: "TrisPlay",
+      entityId: created.id,
+      action: "CREATE",
+      newValue: created,
+    });
   }
+  revalidateAll();
+  return { success: true };
+}
 
-  await prisma.layMonthlyClosure.delete({ where: { id: existing.id } });
+export async function deleteTrisPlayAction(id: string) {
+  const session = await requireSession();
+  const updated = await prisma.trisPlay.update({ where: { id }, data: { deletedAt: new Date() } });
   await writeAuditLog({
     userId: session.id,
-    entityType: "LayMonthlyClosure",
-    entityId: existing.id,
-    action: "REOPEN_MONTH",
-    oldValue: existing,
-    newValue: { year, month, reopened: true },
+    entityType: "TrisPlay",
+    entityId: id,
+    action: "SOFT_DELETE",
+    newValue: updated,
   });
-
-  // Riapre anche Tris dello stesso mese se archiviato
-  const tris = await prisma.trisMonthlyClosure.findUnique({
-    where: { year_month: { year, month } },
-  });
-  if (tris) {
-    const laterTris = await prisma.trisMonthlyClosure.findFirst({
-      where: {
-        OR: [{ year: { gt: year } }, { year, month: { gt: month } }],
-      },
-    });
-    if (!laterTris) {
-      await prisma.trisMonthlyClosure.delete({ where: { id: tris.id } });
-      await writeAuditLog({
-        userId: session.id,
-        entityType: "TrisMonthlyClosure",
-        entityId: tris.id,
-        action: "REOPEN_MONTH",
-        oldValue: tris,
-        newValue: { year, month, reopened: true, via: "reopenLayMonth" },
-      });
-    }
-  }
-
-  revalidatePath("/lay");
-  revalidatePath("/lay/tris");
-  revalidatePath("/rendiconto");
-  revalidatePath("/");
+  revalidateAll();
   return { success: true };
 }
 
@@ -862,11 +596,7 @@ export async function saveWithdrawalAction(formData: FormData) {
     });
   }
 
-  revalidatePath("/prelievi");
-  revalidatePath("/commissioni");
-  revalidatePath("/lay");
-  revalidatePath("/");
-  revalidatePath("/rendiconto");
+  revalidateAll();
   return { success: true };
 }
 
@@ -930,11 +660,7 @@ export async function deleteWithdrawalAction(id: string) {
     }
   }
 
-  revalidatePath("/prelievi");
-  revalidatePath("/commissioni");
-  revalidatePath("/lay");
-  revalidatePath("/");
-  revalidatePath("/rendiconto");
+  revalidateAll();
   return { success: true };
 }
 
@@ -967,8 +693,7 @@ export async function saveFinancialStatementAction(formData: FormData) {
     newValue: updated,
   });
 
-  revalidatePath("/rendiconto");
-  revalidatePath("/");
+  revalidateAll();
   return { success: true };
 }
 
@@ -1007,13 +732,12 @@ export async function saveFinancialSnapshotAction(formData: FormData) {
     newValue: snapshot,
   });
 
-  revalidatePath("/rendiconto");
+  revalidateAll();
   return { success: true };
 }
 
 export async function closeYearAction(year: number) {
   const session = await requireSession();
-  if (session.role !== "ADMIN") return { error: "Solo admin" };
 
   const { getSuspendedSummary, getMasterSummary, getLaySummary, getCashFundCurrent } =
     await import("./calculations-server");
@@ -1083,14 +807,12 @@ export async function closeYearAction(year: number) {
     newValue: { year },
   });
 
-  revalidatePath("/archivio");
-  revalidatePath("/commissioni");
+  revalidateAll();
   return { success: true };
 }
 
 export async function reopenYearAction(year: number) {
   const session = await requireSession();
-  if (session.role !== "ADMIN") return { error: "Solo admin può riaprire un anno" };
 
   const existing = await prisma.annualArchive.findUnique({ where: { year } });
   if (!existing) return { error: `L'anno ${year} non risulta chiuso` };
@@ -1111,23 +833,18 @@ export async function reopenYearAction(year: number) {
     newValue: { year, reopened: true },
   });
 
-  revalidatePath("/archivio");
-  revalidatePath("/commissioni");
-  revalidatePath("/");
-  revalidatePath("/rendiconto");
+  revalidateAll();
   return { success: true };
 }
 
-/** Crea un'utenza: Master (ADMIN) o Collaboratore (OPERATOR). Solo Master. */
+/** Crea un'utenza. Tutti gli utenti hanno gli stessi permessi. */
 export async function createUserAction(formData: FormData) {
   const session = await requireSession();
-  if (session.role !== "ADMIN") return { error: "Solo Master può creare utenze" };
 
   const name = String(formData.get("name") || "").trim();
   const email = String(formData.get("email") || "").trim().toLowerCase();
   const password = String(formData.get("password") || "");
-  const roleRaw = String(formData.get("role") || "OPERATOR");
-  const role = roleRaw === "ADMIN" ? "ADMIN" : "OPERATOR";
+  const role = "ADMIN" as const; // stessi permessi per tutti
 
   if (!name || !email || password.length < 6) {
     return { error: "Nome, email e password (min. 6 caratteri) obbligatori" };
@@ -1151,7 +868,7 @@ export async function createUserAction(formData: FormData) {
     newValue: { id: user.id, name, email, role },
   });
 
-  revalidatePath("/impostazioni");
+  revalidateAll();
   return { success: true };
 }
 
@@ -1195,14 +912,13 @@ export async function changePasswordAction(formData: FormData) {
     newValue: { changed: true },
   });
 
-  revalidatePath("/impostazioni");
+  revalidateAll();
   return { success: true };
 }
 
-/** Il Master può reimpostare la password dei Collaboratori. */
+/** Ogni utente può reimpostare la password di un altro utente. */
 export async function resetUserPasswordAction(formData: FormData) {
   const session = await requireSession();
-  if (session.role !== "ADMIN") return { error: "Solo Master può cambiare password ad altri utenti" };
 
   const userId = String(formData.get("userId") || "");
   const newPassword = String(formData.get("newPassword") || "");
@@ -1221,9 +937,6 @@ export async function resetUserPasswordAction(formData: FormData) {
 
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) return { error: "Utente non trovato" };
-  if (user.role !== "OPERATOR") {
-    return { error: "Puoi cambiare la password solo ai Collaboratori" };
-  }
 
   const { hashPassword } = await import("./auth");
   const hashed = await hashPassword(newPassword);
@@ -1241,13 +954,12 @@ export async function resetUserPasswordAction(formData: FormData) {
     newValue: { targetEmail: user.email, targetName: user.name },
   });
 
-  revalidatePath("/impostazioni");
+  revalidateAll();
   return { success: true };
 }
 
 export async function toggleUserActiveAction(userId: string) {
   const session = await requireSession();
-  if (session.role !== "ADMIN") return { error: "Solo Master" };
   if (userId === session.id) return { error: "Non puoi disattivare te stesso" };
 
   const user = await prisma.user.findUnique({ where: { id: userId } });
@@ -1267,6 +979,6 @@ export async function toggleUserActiveAction(userId: string) {
     newValue: { active: updated.active },
   });
 
-  revalidatePath("/impostazioni");
+  revalidateAll();
   return { success: true };
 }

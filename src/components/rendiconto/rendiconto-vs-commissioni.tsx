@@ -53,7 +53,7 @@ export function RendicontoVsCommissioni({
 
       <div className="grid gap-0 bg-white md:grid-cols-[1fr_auto_1fr_auto_1fr]">
         <Link
-          href="/rendiconto"
+          href="/cassa/conta"
           className={cn(
             "block bg-slate-900 px-5 text-white transition hover:bg-slate-800",
             big ? "py-6" : "py-4",
@@ -71,17 +71,17 @@ export function RendicontoVsCommissioni({
           >
             {formatEUR(rendicontoTotal)}
           </p>
-          <p className="mt-2 text-xs text-slate-400">
+          <p className="mt-2 text-xs text-muted">
             Manuali + Sospesi + Master + LAY + Tris →
           </p>
         </Link>
 
-        <div className="hidden items-center justify-center bg-slate-100 px-2 text-2xl font-bold text-slate-400 md:flex">
+        <div className="hidden items-center justify-center bg-slate-100 px-2 text-2xl font-bold text-muted md:flex">
           ↔
         </div>
 
         <Link
-          href="/commissioni"
+          href="/cassa"
           className={cn(
             "block bg-amber-50 px-5 transition hover:bg-amber-100",
             big ? "py-6" : "py-4",
@@ -110,7 +110,7 @@ export function RendicontoVsCommissioni({
           )}
         </Link>
 
-        <div className="hidden items-center justify-center bg-slate-100 px-2 text-2xl font-bold text-slate-400 md:flex">
+        <div className="hidden items-center justify-center bg-slate-100 px-2 text-2xl font-bold text-muted md:flex">
           =
         </div>
 
@@ -118,10 +118,10 @@ export function RendicontoVsCommissioni({
           className={cn(
             "px-5",
             big ? "py-6" : "py-4",
-            moneyOk ? "bg-emerald-50" : "bg-amber-50",
+            moneyOk ? "bg-accent-soft" : "bg-amber-50",
           )}
         >
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted">
             Differenza
           </p>
           <p
@@ -133,7 +133,7 @@ export function RendicontoVsCommissioni({
           >
             {formatEUR(difference)}
           </p>
-          <p className="mt-2 text-xs text-slate-500">
+          <p className="mt-2 text-xs text-muted">
             Commissioni − Rendiconto
             {difference > 0 && " · mancano soldi"}
             {difference < 0 && " · soldi in più"}
@@ -166,14 +166,14 @@ export function CommissioniTotaleBreakdown({
       </div>
 
       <div className="grid gap-3 p-4 sm:grid-cols-3">
-        <div className="rounded-xl border-2 border-emerald-300 bg-emerald-50 px-4 py-3">
-          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-800">
+        <div className="rounded-xl border-2 border-emerald-300 bg-accent-soft px-4 py-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-accent-dark">
             1 · Totale Commissioni annuale
           </p>
           <p className="mt-1 text-3xl font-black tabular-nums text-emerald-950">
             {formatEUR(commissioniAnnuali)}
           </p>
-          <p className="mt-1 text-xs text-emerald-700">Fatture + Bonus dell’anno</p>
+          <p className="mt-1 text-xs text-accent-dark">Fatture + Bonus dell’anno</p>
         </div>
 
         <div className="rounded-xl border-2 border-sky-400 bg-sky-50 px-4 py-3">
@@ -197,7 +197,7 @@ export function CommissioniTotaleBreakdown({
           </p>
           <p className="mt-1 text-xs text-rose-700">
             Si gestiscono in{" "}
-            <a href="/prelievi" className="font-semibold underline">
+            <a href="/cassa/prelievi" className="font-semibold underline">
               Prelievi
             </a>
             , qui solo il totale

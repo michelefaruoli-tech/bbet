@@ -405,6 +405,7 @@ export const ModelName = {
   CashFundMovement: 'CashFundMovement',
   Withdrawal: 'Withdrawal',
   LayMovement: 'LayMovement',
+  TrisPlay: 'TrisPlay',
   LayMonthlyClosure: 'LayMonthlyClosure',
   TrisMonthlyClosure: 'TrisMonthlyClosure',
   AnnualArchive: 'AnnualArchive',
@@ -428,7 +429,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "customer" | "suspendedMovement" | "masterMovement" | "commissionMonth" | "cashFundMovement" | "withdrawal" | "layMovement" | "layMonthlyClosure" | "trisMonthlyClosure" | "annualArchive" | "financialStatementCurrent" | "financialStatementSnapshot" | "auditLog" | "loginAttempt" | "appSettings"
+    modelProps: "user" | "customer" | "suspendedMovement" | "masterMovement" | "commissionMonth" | "cashFundMovement" | "withdrawal" | "layMovement" | "trisPlay" | "layMonthlyClosure" | "trisMonthlyClosure" | "annualArchive" | "financialStatementCurrent" | "financialStatementSnapshot" | "auditLog" | "loginAttempt" | "appSettings"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1021,6 +1022,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.LayMovementCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.LayMovementCountAggregateOutputType> | number
+        }
+      }
+    }
+    TrisPlay: {
+      payload: Prisma.$TrisPlayPayload<ExtArgs>
+      fields: Prisma.TrisPlayFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TrisPlayFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TrisPlayPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TrisPlayFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TrisPlayPayload>
+        }
+        findFirst: {
+          args: Prisma.TrisPlayFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TrisPlayPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TrisPlayFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TrisPlayPayload>
+        }
+        findMany: {
+          args: Prisma.TrisPlayFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TrisPlayPayload>[]
+        }
+        create: {
+          args: Prisma.TrisPlayCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TrisPlayPayload>
+        }
+        createMany: {
+          args: Prisma.TrisPlayCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TrisPlayCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TrisPlayPayload>[]
+        }
+        delete: {
+          args: Prisma.TrisPlayDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TrisPlayPayload>
+        }
+        update: {
+          args: Prisma.TrisPlayUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TrisPlayPayload>
+        }
+        deleteMany: {
+          args: Prisma.TrisPlayDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TrisPlayUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TrisPlayUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TrisPlayPayload>[]
+        }
+        upsert: {
+          args: Prisma.TrisPlayUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TrisPlayPayload>
+        }
+        aggregate: {
+          args: Prisma.TrisPlayAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTrisPlay>
+        }
+        groupBy: {
+          args: Prisma.TrisPlayGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TrisPlayGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TrisPlayCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TrisPlayCountAggregateOutputType> | number
         }
       }
     }
@@ -1677,6 +1752,7 @@ export const CustomerScalarFieldEnum = {
   notes: 'notes',
   active: 'active',
   currentPeriod: 'currentPeriod',
+  systemKey: 'systemKey',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   deletedAt: 'deletedAt'
@@ -1794,6 +1870,22 @@ export const LayMovementScalarFieldEnum = {
 } as const
 
 export type LayMovementScalarFieldEnum = (typeof LayMovementScalarFieldEnum)[keyof typeof LayMovementScalarFieldEnum]
+
+
+export const TrisPlayScalarFieldEnum = {
+  id: 'id',
+  date: 'date',
+  time: 'time',
+  playType: 'playType',
+  amount: 'amount',
+  notes: 'notes',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt'
+} as const
+
+export type TrisPlayScalarFieldEnum = (typeof TrisPlayScalarFieldEnum)[keyof typeof TrisPlayScalarFieldEnum]
 
 
 export const LayMonthlyClosureScalarFieldEnum = {
@@ -2102,6 +2194,20 @@ export type ListEnumLayCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$
 
 
 /**
+ * Reference to a field of type 'TrisPlayType'
+ */
+export type EnumTrisPlayTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TrisPlayType'>
+    
+
+
+/**
+ * Reference to a field of type 'TrisPlayType[]'
+ */
+export type ListEnumTrisPlayTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TrisPlayType[]'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -2273,6 +2379,7 @@ export type GlobalOmitConfig = {
   cashFundMovement?: Prisma.CashFundMovementOmit
   withdrawal?: Prisma.WithdrawalOmit
   layMovement?: Prisma.LayMovementOmit
+  trisPlay?: Prisma.TrisPlayOmit
   layMonthlyClosure?: Prisma.LayMonthlyClosureOmit
   trisMonthlyClosure?: Prisma.TrisMonthlyClosureOmit
   annualArchive?: Prisma.AnnualArchiveOmit

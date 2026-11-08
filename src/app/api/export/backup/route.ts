@@ -296,6 +296,26 @@ export async function GET() {
     ]),
   );
 
+  const trisPlays = await prisma.trisPlay.findMany({
+    orderBy: [{ date: "asc" }, { createdAt: "asc" }],
+    include: { createdBy: { select: { name: true } } },
+  });
+
+  sheetFromRows(
+    wb,
+    "Giocate Tris",
+    ["Data", "Ora", "Tipo", "Importo", "Note", "Utente", "Eliminata il"],
+    trisPlays.map((p) => [
+      d(p.date),
+      p.time ?? "",
+      p.playType === "DARE" ? "Dare (debito sale)" : "Avere (debito scende)",
+      n(p.amount),
+      p.notes ?? "",
+      p.createdBy.name,
+      p.deletedAt ? d(p.deletedAt) : "",
+    ]),
+  );
+
   sheetFromRows(
     wb,
     "Prelievi",

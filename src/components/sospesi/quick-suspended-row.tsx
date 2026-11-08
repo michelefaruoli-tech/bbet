@@ -4,68 +4,81 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { saveSuspendedMovementAction } from "@/lib/actions";
 import { formatDateIT, formatTimeIT } from "@/lib/timezone";
-import { Button } from "@/components/ui";
+import { cn } from "@/lib/cn";
 
-export function QuickSuspendedRow({ customerId }: { customerId: string }) {
+/** Registrazione veloce dalla riga cliente: importo + Dare o Avere. */
+export function QuickSuspendedRow({ customerId, name }: { customerId: string; name?: string }) {
   const router = useRouter();
-  const [type, setType] = useState<"DARE" | "AVERE">("DARE");
   const [amount, setAmount] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [pending, startTransition] = useTransition();
 
-  const today = formatDateIT(new Date());
+  function save(type: "DARE" | "AVERE") {
+    if (!amount.trim()) return;
+    const fd = new FormData();
+    fd.set("customerId", customerId);
+    fd.set("date", formatDateIT(new Date()));
+    fd.set("time", formatTimeIT());
+    fd.set("movementType", type);
+    fd.set("amount", amount);
+    startTransition(async () => {
+      setError("");
+      setMessage("");
+      try {
+        const res = await saveSuspendedMovementAction(fd);
+        if (res && "error" in res && res.error) {
+          setError(String(res.error));
+          return;
+        }
+        setAmount("");
+        setMessage(type === "DARE" ? "Dare salvato" : "Avere salvato");
+        router.refresh();
+        setTimeout(() => setMessage(""), 2500);
+      } catch {
+        setError("Non salvato");
+      }
+    });
+  }
+
+  const btn =
+    "inline-flex min-h-9 items-center rounded-lg border bg-white px-3 text-[13px] font-semibold disabled:opacity-40";
 
   return (
     <form
-      className="flex flex-wrap items-center gap-1.5"
-      onSubmit={(e) => {
-        e.preventDefault();
-        if (!amount.trim()) return;
-        const fd = new FormData();
-        fd.set("customerId", customerId);
-        fd.set("date", today);
-        fd.set("time", formatTimeIT());
-        fd.set("movementType", type);
-        fd.set("amount", amount);
-        startTransition(async () => {
-          setError("");
-          setMessage("");
-          try {
-            await saveSuspendedMovementAction(fd);
-            setAmount("");
-            setMessage("OK");
-            router.refresh();
-            setTimeout(() => setMessage(""), 2000);
-          } catch {
-            setError("Errore");
-          }
-        });
-      }}
+      className="flex flex-wrap items-center justify-end gap-1.5"
+      onSubmit={(e) => e.preventDefault()}
+      aria-label={name ? `Registra per ${name}` : "Registra movimento"}
     >
-      <select
-        value={type}
-        onChange={(e) => setType(e.target.value as "DARE" | "AVERE")}
-        className="w-24 rounded border border-slate-300 px-1 py-1 text-xs"
-        title="Tipo movimento"
-      >
-        <option value="DARE">Inviati</option>
-        <option value="AVERE">Ricevuti</option>
-      </select>
       <input
         type="text"
         inputMode="decimal"
         value={amount}
         onChange={(e) => setAmount(e.target.value)}
         placeholder="€"
-        className="w-20 rounded border border-slate-300 px-1.5 py-1 text-xs"
-        title="Importo"
+        aria-label="Importo"
+        className="h-9 w-20 rounded-lg border border-[#D4D4CF] px-2 text-right text-sm tnum"
       />
-      <Button type="submit" disabled={pending || !amount.trim()} className="!px-2 !py-1 text-xs">
-        {pending ? "..." : "Salva"}
-      </Button>
-      {message && <span className="text-xs text-emerald-600">{message}</span>}
-      {error && <span className="text-xs text-red-600">{error}</span>}
+      <button
+        type="button"
+        disabled={pending || !amount.trim()}
+        onClick={() => save("DARE")}
+        className={cn(btn, "border-minus-line text-minus-dark")}
+      >
+        + Dare
+      </button>
+      <button
+        type="button"
+        disabled={pending || !amount.trim()}
+        onClick={() => save("AVERE")}
+        className={cn(btn, "border-[#BFD0F7] text-plus")}
+      >
+        + Avere
+      </button>
+      <span aria-live="polite" className="w-full text-right text-xs">
+        {message && <span className="text-accent">{message}</span>}
+        {error && <span className="text-red-700">{error}</span>}
+      </span>
     </form>
   );
 }

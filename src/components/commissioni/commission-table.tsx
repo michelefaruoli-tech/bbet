@@ -178,8 +178,8 @@ export function CommissionTable({ year, months }: { year: number; months: Month[
         </p>
         <p className="mt-1 text-3xl font-bold text-amber-950">{formatEUR(saldoCassaReale)}</p>
         <div className="mt-3 grid gap-2 text-sm sm:grid-cols-3">
-          <div className="rounded-lg border border-emerald-200 bg-white/80 px-3 py-2">
-            <p className="text-xs text-emerald-700">Commissioni annuali</p>
+          <div className="rounded-lg border border-accent bg-white/80 px-3 py-2">
+            <p className="text-xs text-accent-dark">Commissioni annuali</p>
             <p className="font-bold text-emerald-950">
               {formatEUR(totals.invoice + totals.bonus)}
             </p>
@@ -191,7 +191,7 @@ export function CommissionTable({ year, months }: { year: number; months: Month[
           <div className="rounded-lg border border-rose-200 bg-white/80 px-3 py-2">
             <p className="text-xs text-rose-700">− Prelievi</p>
             <p className="font-bold text-rose-700">{formatEUR(totals.withdrawals)}</p>
-            <a href="/prelievi" className="text-xs text-rose-600 underline">
+            <a href="/cassa/prelievi" className="text-xs text-rose-600 underline">
               Gestisci in Prelievi →
             </a>
           </div>
@@ -203,15 +203,15 @@ export function CommissionTable({ year, months }: { year: number; months: Month[
 
       {/* TABELLA 1 — Fatture + Bonus (Commissioni) */}
       <div className="overflow-hidden rounded-xl border-2 border-emerald-300 bg-white">
-        <div className="border-b border-emerald-200 bg-emerald-50 px-4 py-2">
+        <div className="border-b border-accent bg-accent-soft px-4 py-2">
           <h3 className="font-semibold text-emerald-900">1 · Fatture + Bonus (Commissioni)</h3>
-          <p className="text-xs text-emerald-700">Parziale mese = Fatt + Bonus</p>
+          <p className="text-xs text-accent-dark">Parziale mese = Fatt + Bonus</p>
         </div>
         <div className="overflow-x-auto">
           <table className="data-table text-sm">
             <thead>
-              <tr className="bg-emerald-50/80 text-xs">
-                <th className="sticky left-0 bg-emerald-50">Mese</th>
+              <tr className="bg-accent-soft/80 text-xs">
+                <th className="sticky left-0 bg-accent-soft">Mese</th>
                 <th>Fatture</th>
                 <th>Bonus</th>
                 <th>Parziale</th>
@@ -355,7 +355,7 @@ export function CommissionTable({ year, months }: { year: number; months: Month[
           <p className="text-xs text-amber-800">
             Fondo cassa = chiusura anno precedente (fisso) · Prelievi in sola lettura (si inseriscono
             in{" "}
-            <a href="/prelievi" className="font-semibold underline">
+            <a href="/cassa/prelievi" className="font-semibold underline">
               Prelievi
             </a>
             )
@@ -420,7 +420,7 @@ export function CommissionTable({ year, months }: { year: number; months: Month[
                   * Contributo mese = Fatt + Bonus + Fondo − Prelievi del mese. La somma dei
                   contributi = <strong>Saldo cassa reale {formatEUR(saldoCassaReale)}</strong>. Per
                   inserire/modificare prelievi vai su{" "}
-                  <a href="/prelievi" className="font-semibold underline">
+                  <a href="/cassa/prelievi" className="font-semibold underline">
                     Prelievi
                   </a>
                   .
@@ -458,7 +458,7 @@ function SaveCell({
         {pending ? "..." : "Salva"}
       </Button>
       {status && (
-        <span className={`ml-1 text-xs ${status === "Salvato" ? "text-emerald-600" : "text-red-600"}`}>
+        <span className={`ml-1 text-xs ${status === "Salvato" ? "text-accent" : "text-red-600"}`}>
           {status}
         </span>
       )}

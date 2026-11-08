@@ -43,15 +43,8 @@ export function CreateUserForm() {
         <label>Password (min. 6)</label>
         <input name="password" type="password" required minLength={6} />
       </div>
-      <div className="field">
-        <label>Ruolo</label>
-        <select name="role" defaultValue="OPERATOR">
-          <option value="OPERATOR">Collaboratore</option>
-          <option value="ADMIN">Master</option>
-        </select>
-      </div>
       <div className="md:col-span-2">
-        <p className="mb-2 text-xs text-slate-500">
+        <p className="mb-2 text-xs text-muted">
           Per ora Master e Collaboratore hanno gli stessi poteri operativi. Il Master in più vede
           chi ha inserito/modificato i dati e gestisce le utenze.
         </p>
@@ -59,7 +52,7 @@ export function CreateUserForm() {
           {pending ? "Creazione..." : "Crea utenza"}
         </Button>
         {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
-        {ok && <p className="mt-2 text-sm text-emerald-700">{ok}</p>}
+        {ok && <p className="mt-2 text-sm text-accent-dark">{ok}</p>}
       </div>
     </form>
   );

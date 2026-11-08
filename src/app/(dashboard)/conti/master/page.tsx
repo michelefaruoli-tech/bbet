@@ -3,7 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { calcMasterBalance } from "@/lib/calculations";
 import { formatEUR, amountClass, toNumber } from "@/lib/format";
 import { formatDateIT } from "@/lib/timezone";
-import { Card } from "@/components/ui";
+import { BalanceText, Card, KpiCard, PageHeader, Tabs } from "@/components/ui";
+import { CONTI_TABS } from "@/components/layout/sections";
 import { QuickMasterRow } from "@/components/master/quick-master-row";
 import { EditMasterNotes } from "@/components/master/edit-master-notes";
 
@@ -37,42 +38,25 @@ export default async function MasterPage({
   const lastFive = movements.slice(0, 5);
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold">Master</h1>
-          <p className="text-sm text-slate-500">
-            Positivo = Master deve a noi · Negativo = noi dobbiamo a loro · Avere (+) / Dare (−)
-          </p>
-        </div>
-        <a href="/api/export/master" className="text-sm text-emerald-600 hover:underline">
+    <div className="flex flex-col gap-6">
+      <PageHeader title="Conti">
+        <Tabs items={CONTI_TABS} active="/conti/master" label="Scegli conto" />
+      </PageHeader>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <KpiCard title="Saldo Master" value={balance} perspective="master" subtitle="entra così com’è nella conta di cassa" />
+        <KpiCard title="Totale Avere (+)" value={totalAvere} subtitle="pagamenti: Master deve a te" />
+        <KpiCard title="Totale Dare (−)" value={totalDare} subtitle="ricariche e bonus: tu devi a Master" />
+      </div>
+      <p className="text-[13px] text-muted">
+        Ora: <BalanceText value={balance} perspective="master" /> ·{" "}
+        <a href="/api/export/master" className="text-accent hover:underline">
           Esporta CSV
         </a>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-4">
-        <Card title="Totale Avere (+)">
-          <p className="text-xl font-bold text-emerald-600">{formatEUR(totalAvere)}</p>
-          <p className="mt-1 text-xs text-slate-400">Master deve a noi</p>
-        </Card>
-        <Card title="Totale Dare (−)">
-          <p className="text-xl font-bold text-red-600">{formatEUR(totalDare)}</p>
-          <p className="mt-1 text-xs text-slate-400">Noi a loro</p>
-        </Card>
-        <Card title="Saldo Master">
-          <p className={`text-xl font-bold ${amountClass(balance)}`}>{formatEUR(balance)}</p>
-          <p className="mt-1 text-xs text-slate-400">
-            {balance > 0 ? "Loro devono a noi" : balance < 0 ? "Noi dobbiamo a loro" : "In pari"}
-          </p>
-        </Card>
-        <Card title="Nel Rendiconto">
-          <p className={`text-xl font-bold ${amountClass(balance)}`}>{formatEUR(balance)}</p>
-          <p className="mt-1 text-xs text-slate-400">Entra così com’è (stesso segno)</p>
-        </Card>
-      </div>
+      </p>
 
       <Card title="Conto Master">
-        <p className="mb-3 text-sm text-slate-500">
+        <p className="mb-3 text-sm text-muted">
           Mese corrente: {monthMovements.length} movimenti · Anno {year}: {yearMovements.length}{" "}
           movimenti · Totale storico: {movements.length}
         </p>
@@ -94,7 +78,7 @@ export default async function MasterPage({
               <tr className="sospesi-row sospesi-row-even">
                 <td>
                   <div className="font-medium">Master</div>
-                  <span className="text-xs text-slate-500">Conto unico</span>
+                  <span className="text-xs text-muted">Conto unico</span>
                 </td>
                 <td>{formatEUR(totalAvere)}</td>
                 <td>{formatEUR(totalDare)}</td>
@@ -106,8 +90,8 @@ export default async function MasterPage({
                 </td>
                 <td>
                   <Link
-                    href="/master/scheda"
-                    className="text-emerald-600 hover:underline text-sm whitespace-nowrap"
+                    href="/conti/master/scheda"
+                    className="text-accent hover:underline text-sm whitespace-nowrap"
                   >
                     Scheda
                   </Link>
@@ -154,7 +138,7 @@ export default async function MasterPage({
               })}
               {lastFive.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="py-6 text-center text-slate-400">
+                  <td colSpan={5} className="py-6 text-center text-muted">
                     Nessuna transazione ancora
                   </td>
                 </tr>
@@ -163,7 +147,7 @@ export default async function MasterPage({
           </table>
         </div>
         <p className="mt-3 text-sm">
-          <Link href="/master/scheda" className="text-emerald-600 hover:underline">
+          <Link href="/conti/master/scheda" className="text-accent hover:underline">
             Vedi tutta la cronologia →
           </Link>
         </p>

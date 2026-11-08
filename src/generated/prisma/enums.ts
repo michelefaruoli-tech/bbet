@@ -57,6 +57,14 @@ export const WithdrawalSource = {
 export type WithdrawalSource = (typeof WithdrawalSource)[keyof typeof WithdrawalSource]
 
 
+export const TrisPlayType = {
+  DARE: 'DARE',
+  AVERE: 'AVERE'
+} as const
+
+export type TrisPlayType = (typeof TrisPlayType)[keyof typeof TrisPlayType]
+
+
 export const CashFundMovementType = {
   INCREMENTO: 'INCREMENTO',
   RIDUZIONE: 'RIDUZIONE',
