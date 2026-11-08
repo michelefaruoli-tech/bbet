@@ -2,12 +2,13 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { isSuspendedBalanceZero } from "@/lib/calculations";
 import { openSuspendedTotals } from "@/lib/sospesi-period";
-import { getPostaAccount, getTrisAccount } from "@/lib/calculations-server";
+import { getMasterSummary, getPostaAccount, getTrisAccount } from "@/lib/calculations-server";
 import { formatMovementDateTime, formatDateIT } from "@/lib/timezone";
 import { BalanceText, Badge, PageHeader } from "@/components/ui";
 import { NewCustomerPanel } from "@/components/sospesi/new-customer-panel";
 import { QuickSuspendedRow } from "@/components/sospesi/quick-suspended-row";
 import { QuickPostaRow } from "@/components/sospesi/quick-posta-row";
+import { QuickMasterAccountRow } from "@/components/sospesi/quick-master-account-row";
 import { cn } from "@/lib/cn";
 import { toNumber } from "@/lib/format";
 
@@ -29,7 +30,7 @@ export default async function ClientiPage({
   const q = params.q?.trim() ?? "";
   const stato = (FILTERS.find((f) => f.key === params.stato)?.key ?? "aperti") as (typeof FILTERS)[number]["key"];
 
-  const [customers, tris, posta] = await Promise.all([
+  const [customers, tris, posta, master] = await Promise.all([
     prisma.customer.findMany({
       where: {
         deletedAt: null,
@@ -53,6 +54,7 @@ export default async function ClientiPage({
     }),
     getTrisAccount(),
     getPostaAccount(),
+    getMasterSummary(),
   ]);
 
   const rows = customers.map((c) => {
@@ -209,6 +211,34 @@ export default async function ClientiPage({
                 </td>
                 <td>
                   <QuickPostaRow />
+                </td>
+              </tr>
+            )}
+            {!q && (
+              <tr className="bg-sec-master-soft [&>td:first-child]:border-l-4 [&>td:first-child]:border-l-sec-master">
+                <td>
+                  <Link href="/conti/master" className="font-semibold hover:underline">
+                    Master
+                  </Link>{" "}
+                  <span className="rounded-full bg-sec-master px-2 py-0.5 text-xs font-bold text-white">CONTO FISSO</span>
+                  <br />
+                  <span className="text-[13px] text-muted">
+                    ricariche e pagamenti ·{" "}
+                    <Link href="/conti/master" className="text-accent hover:underline">
+                      apri Master
+                    </Link>
+                  </span>
+                </td>
+                <td>
+                  <BalanceText value={master.balance} perspective="master" />
+                </td>
+                <td className="text-[13px] text-muted">
+                  {master.movements[0]
+                    ? `${formatDateIT(master.movements[0].date)} · ${toNumber(master.movements[0].amount) >= 0 ? "Avere" : "Dare"}`
+                    : "—"}
+                </td>
+                <td>
+                  <QuickMasterAccountRow />
                 </td>
               </tr>
             )}
