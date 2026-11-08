@@ -34,24 +34,26 @@ export function LoginForm() {
         <div className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</div>
       )}
       <div>
-        <label className="mb-1 block text-sm font-medium text-slate-700">Email</label>
+        <label htmlFor="login-email" className="mb-1.5 block text-[13px] font-medium text-muted">Email</label>
         <input
+          id="login-email"
           name="email"
           type="email"
           required
           autoComplete="email"
-          className="w-full rounded-lg border border-slate-300 px-3 py-2"
+          className="inp w-full"
           placeholder="nome@azienda.it"
         />
       </div>
       <div>
-        <label className="mb-1 block text-sm font-medium text-slate-700">Password</label>
+        <label htmlFor="login-password" className="mb-1.5 block text-[13px] font-medium text-muted">Password</label>
         <input
+          id="login-password"
           name="password"
           type="password"
           required
           autoComplete="current-password"
-          className="w-full rounded-lg border border-slate-300 px-3 py-2"
+          className="inp w-full"
         />
       </div>
       <Button type="submit" disabled={pending} className="w-full">
