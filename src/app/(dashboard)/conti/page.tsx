@@ -32,6 +32,7 @@ export default async function LayPage({
   const years = Array.from(
     new Set([...summary.closures.map((c) => c.year), ...summary.movements.map((m) => new Date(m.date).getUTCFullYear()), curY]),
   ).sort((a, b) => b - a);
+  const showAll = params.anno === "tutti";
   const year = years.includes(Number(params.anno)) ? Number(params.anno) : curY;
   const filterMonth = params.mese ?? "";
 
@@ -49,6 +50,28 @@ export default async function LayPage({
     const count = closed ? closed.movementCount : (l?.count ?? 0);
     return { month, closed: Boolean(closed), future, balance, count, hasData: Boolean(closed || l) };
   });
+
+  // Totali per anno (mesi chiusi dall'archivio + mesi aperti dai movimenti)
+  const yearStats = new Map<number, { total: number; months: number }>();
+  const addMonth = (y: number, value: number) => {
+    const row = yearStats.get(y) ?? { total: 0, months: 0 };
+    row.total += value;
+    row.months += 1;
+    yearStats.set(y, row);
+  };
+  for (const c of summary.closures) addMonth(c.year, toNumber(c.monthlyBalance));
+  for (const [key, l] of live) {
+    if (closedMap.has(key)) continue;
+    addMonth(l.year, l.positive - l.negative);
+  }
+  const round2 = (n: number) => Math.round(n * 100) / 100;
+  const yearRows = [...yearStats.entries()]
+    .sort((a, b) => b[0] - a[0])
+    .map(([y, r]) => ({ year: y, total: round2(r.total), months: r.months, avg: round2(r.total / r.months) }));
+  const allTotal = round2(yearRows.reduce((s, r) => s + r.total, 0));
+  const allMonths = yearRows.reduce((s, r) => s + r.months, 0);
+  const allAvg = allMonths ? round2(allTotal / allMonths) : 0;
+  const selected = yearRows.find((r) => r.year === year);
 
   const curKey = `${curY}-${curM}`;
   const curLive = live.get(curKey);
@@ -135,17 +158,27 @@ export default async function LayPage({
       <QuickLayForm />
 
       <Card
-        title={`${year} mese per mese`}
+        title={showAll ? "Tutti gli anni" : `${year} mese per mese`}
         action={
           <nav aria-label="Anno" className="flex flex-wrap gap-1">
+            <Link
+              href="/conti?anno=tutti"
+              aria-current={showAll ? "page" : undefined}
+              className={cn(
+                "inline-flex min-h-9 items-center rounded-lg px-3 text-sm font-semibold",
+                showAll ? "bg-sec-lay text-white" : "text-sec-lay hover:underline",
+              )}
+            >
+              Tutti
+            </Link>
             {years.map((y) => (
               <Link
                 key={y}
                 href={`/conti?anno=${y}`}
-                aria-current={y === year ? "page" : undefined}
+                aria-current={!showAll && y === year ? "page" : undefined}
                 className={cn(
                   "inline-flex min-h-9 items-center rounded-lg px-3 text-sm font-semibold",
-                  y === year ? "bg-btn text-white" : "text-muted hover:text-ink",
+                  !showAll && y === year ? "bg-btn text-white" : "text-muted hover:text-ink",
                 )}
               >
                 {y}
@@ -154,6 +187,55 @@ export default async function LayPage({
           </nav>
         }
       >
+        {showAll ? (
+          <div className="overflow-x-auto">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Anno</th>
+                  <th className="!text-right">Mesi</th>
+                  <th className="!text-right">Totale anno</th>
+                  <th className="!text-right">Media mensile</th>
+                </tr>
+              </thead>
+              <tbody>
+                {yearRows.map((r) => (
+                  <tr key={r.year}>
+                    <td>
+                      <Link href={`/conti?anno=${r.year}`} className="font-semibold hover:underline">
+                        {r.year}
+                      </Link>
+                    </td>
+                    <td className="text-right text-muted">{r.months}</td>
+                    <td className="text-right">
+                      <SignedAmount value={r.total} />
+                    </td>
+                    <td className="text-right">
+                      <SignedAmount value={r.avg} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr className="bg-sec-lay-soft">
+                  <td className="font-bold">Tutti gli anni</td>
+                  <td className="text-right font-semibold">{allMonths}</td>
+                  <td className="text-right text-base">
+                    <SignedAmount value={allTotal} />
+                  </td>
+                  <td className="text-right text-base">
+                    <SignedAmount value={allAvg} />
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+            <p className="mt-3 text-[13px] text-muted">
+              Media = totale diviso i mesi con movimenti o chiusure. Il saldo LAY attuale può differire dal totale perché a
+              giugno 2026 il saldo di cassa è stato ripartito da −803 €.
+            </p>
+          </div>
+        ) : (
+        <>
         <p className="mb-3 text-[13px] text-muted">
           I mesi si chiudono da soli il 1° del mese dopo · clicca un mese per vederne le operazioni
         </p>
@@ -179,6 +261,28 @@ export default async function LayPage({
             </Link>
           ))}
         </div>
+        {selected && (
+          <div className="mt-4 flex flex-wrap items-center gap-x-8 gap-y-2 rounded-[10px] bg-sec-lay-soft px-4 py-3 tnum">
+            <div>
+              <span className="text-[13px] font-medium text-muted">Totale {year}</span>
+              <div className="text-xl font-bold">
+                <SignedAmount value={selected.total} />
+              </div>
+            </div>
+            <div>
+              <span className="text-[13px] font-medium text-muted">Media mensile</span>
+              <div className="text-xl font-bold">
+                <SignedAmount value={selected.avg} />
+              </div>
+            </div>
+            <span className="text-[13px] text-muted">su {selected.months} mesi</span>
+            <Link href="/conti?anno=tutti" className="ml-auto text-sm text-accent hover:underline">
+              Confronta tutti gli anni
+            </Link>
+          </div>
+        )}
+        </>
+        )}
       </Card>
 
       <section id="operazioni" className="rounded-xl border border-line bg-card px-6 py-5">
