@@ -74,7 +74,7 @@ export function LayOperationsHistory({
               <th>Data</th>
               <th>Tipo</th>
               <th>Importo</th>
-              <th>Tris</th>
+              <th>Tipo conto</th>
               <th>Stato</th>
               <th>Note</th>
               {showAuthor && <th>Inserito da</th>}
@@ -102,6 +102,10 @@ export function LayOperationsHistory({
                     {isTris ? (
                       <span className="rounded bg-minus-line px-1.5 py-0.5 text-xs font-semibold text-[#5C3208]">
                         Tris storico
+                      </span>
+                    ) : m.category === "POSTA" ? (
+                      <span className="rounded bg-[#F0F0EC] px-1.5 py-0.5 text-xs font-semibold text-[#3F3F46]">
+                        Posta · {amount >= 0 ? "deposito" : "prelievo"}
                       </span>
                     ) : (
                       <span className="text-xs text-muted">—</span>

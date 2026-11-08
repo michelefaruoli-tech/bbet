@@ -137,7 +137,7 @@ export function ContaForm({ defaults, auto, cashFund }: Props) {
           {line("Master", <span className={auto.master >= 0 ? "text-plus" : "text-minus"}>{formatEUR(auto.master)}</span>)}
           {line(
             <>
-              LAY
+              LAY (conto Posta)
               <span className="block text-[13px] text-muted">saldo {formatEUR(auto.lay)}, si sottrae</span>
             </>,
             formatEUR(-auto.lay),

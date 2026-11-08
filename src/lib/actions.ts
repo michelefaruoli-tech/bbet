@@ -118,6 +118,7 @@ export async function saveSuspendedMovementAction(formData: FormData) {
 
   const customer = await prisma.customer.findUnique({ where: { id: customerId } });
   if (!customer || customer.deletedAt) return { error: "Cliente non trovato" };
+  if (customer.systemKey === "POSTA") return savePostaMovementAction(formData);
 
   const payload = {
     customerId,
@@ -453,6 +454,47 @@ export async function reopenLayMonthAction(year: number, month: number) {
   const result = await reopenLayMonthCore(year, month, session.id);
   revalidateAll();
   return result;
+}
+
+// ---------- Conto Posta (cassa LAY) ----------
+
+/**
+ * Deposito o prelievo di Posta sulla cassa LAY.
+ * Avere = deposito (Posta mette soldi, LAY +) · Dare = prelievo (dai soldi a Posta, LAY −).
+ * Si salva come movimento LAY con categoria POSTA.
+ */
+export async function savePostaMovementAction(formData: FormData) {
+  const session = await requireSession();
+  const movementType = formData.get("movementType") === "AVERE" ? "AVERE" : "DARE";
+  const amount = Math.abs(parseItalianNumber(String(formData.get("amount") ?? "")));
+  if (!amount) return { error: "Inserisci un importo" };
+  const dateStr = String(formData.get("date") ?? "");
+  const date = parseItalianDate(dateStr) ?? (dateStr ? new Date(dateStr) : todayDateUTC());
+  const extra = [formData.get("description"), formData.get("notes")]
+    .map((v) => String(v ?? "").trim())
+    .filter(Boolean)
+    .join(" · ");
+
+  const created = await prisma.layMovement.create({
+    data: {
+      date,
+      time: (formData.get("time") as string)?.trim() || formatTimeIT(),
+      amount: movementType === "AVERE" ? amount : -amount,
+      category: "POSTA",
+      description: movementType === "AVERE" ? "Deposito Posta" : "Prelievo Posta",
+      notes: extra || null,
+      createdById: session.id,
+    },
+  });
+  await writeAuditLog({
+    userId: session.id,
+    entityType: "LayMovement",
+    entityId: created.id,
+    action: "CREATE",
+    newValue: { ...created, via: "contoPosta" },
+  });
+  revalidateAll();
+  return { success: true };
 }
 
 // ---------- Giocate Tris ----------

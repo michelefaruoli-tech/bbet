@@ -7,9 +7,11 @@ import { formatTimeIT } from "@/lib/timezone";
 export function SuspendedMovementForm({
   customerId,
   isTris = false,
+  isPosta = false,
 }: {
   customerId: string;
   isTris?: boolean;
+  isPosta?: boolean;
 }) {
   return (
     <MovementForm action={saveSuspendedMovementAction} hidden={{ customerId }}>
@@ -21,7 +23,12 @@ export function SuspendedMovementForm({
       <div className="field">
         <label>Tipo</label>
         <select name="movementType" required defaultValue="DARE">
-          {isTris ? (
+          {isPosta ? (
+            <>
+              <option value="DARE">Dare · prelievo (dai soldi a Posta, la cassa LAY scende)</option>
+              <option value="AVERE">Avere · deposito (Posta mette soldi, la cassa LAY sale)</option>
+            </>
+          ) : isTris ? (
             <>
               <option value="DARE">Dare · soldi dati al Tris (il debito scende)</option>
               <option value="AVERE">Avere · soldi ricevuti dal Tris (il debito sale)</option>

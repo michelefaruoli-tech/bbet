@@ -11,7 +11,7 @@ import { TrisPlayForm } from "@/components/tris/tris-play-form";
 import { QuickLayForm } from "@/components/lay/quick-lay-form";
 import { QuickMasterRow } from "@/components/master/quick-master-row";
 
-type Customer = { id: string; label: string; balance: number; isTris: boolean };
+type Customer = { id: string; label: string; balance: number; isTris: boolean; isPosta?: boolean };
 
 const KINDS = [
   { key: "cliente", title: "Cliente", sub: "Dare / Avere" },
@@ -24,8 +24,9 @@ const KINDS = [
 
 type Kind = (typeof KINDS)[number]["key"];
 
-function words(balance: number, isTris: boolean, future = false) {
+function words(balance: number, isTris: boolean, future = false, isPosta = false) {
   if (Math.abs(balance) < 0.005) return "in pari";
+  if (isPosta) return balance > 0 ? `Posta ${future ? "dovrà" : "deve"} mettere ${formatEUR(balance)}` : `da dare a Posta ${formatEUR(-balance)}`;
   if (balance > 0) return `${isTris ? "il Tris " : ""}${future ? "ti dovrà" : "ti deve"} ${formatEUR(balance)}`;
   return `${future ? "gli dovrai" : "gli devi"} ${formatEUR(-balance)}`;
 }
@@ -146,7 +147,7 @@ function ClientMovement({ customers }: { customers: Customer[] }) {
             setError(String(res.error));
             return;
           }
-          setMessage(`Salvato · ${customer.label}: ${words(after, customer.isTris)}`);
+          setMessage(`Salvato · ${customer.label}: ${words(after, customer.isTris, false, customer.isPosta)}`);
           setAmount("");
           setNotes("");
           router.refresh();
@@ -166,7 +167,7 @@ function ClientMovement({ customers }: { customers: Customer[] }) {
           ))}
         </select>
         {customer && (
-          <span className="text-sm text-muted">Saldo attuale: {words(customer.balance, customer.isTris)}</span>
+          <span className="text-sm text-muted">Saldo attuale: {words(customer.balance, customer.isTris, false, customer.isPosta)}</span>
         )}
       </div>
       <fieldset>
@@ -190,7 +191,11 @@ function ClientMovement({ customers }: { customers: Customer[] }) {
           </button>
         </div>
         <p className="mt-1.5 text-[13px] text-muted">
-          {customer?.isTris
+          {customer?.isPosta
+            ? type === "DARE"
+              ? "Dare = prelievo: dai soldi a Posta, la cassa LAY scende"
+              : "Avere = deposito: Posta mette soldi, la cassa LAY sale"
+            : customer?.isTris
             ? type === "DARE"
               ? "Dare = soldi dati al Tris"
               : "Avere = soldi ricevuti dal Tris"
@@ -221,7 +226,7 @@ function ClientMovement({ customers }: { customers: Customer[] }) {
       </div>
       {customer && value > 0 && (
         <div className="rounded-[10px] bg-[#F6F6F3] px-4 py-3 text-[15px]">
-          Dopo il salvataggio <strong>{customer.label}</strong>: <strong>{words(after, customer.isTris, true)}</strong>
+          Dopo il salvataggio <strong>{customer.label}</strong>: <strong>{words(after, customer.isTris, true, customer.isPosta)}</strong>
         </div>
       )}
       <div className="flex flex-wrap items-center justify-end gap-3">

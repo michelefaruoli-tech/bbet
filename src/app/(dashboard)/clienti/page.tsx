@@ -2,12 +2,14 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { isSuspendedBalanceZero } from "@/lib/calculations";
 import { openSuspendedTotals } from "@/lib/sospesi-period";
-import { getTrisAccount } from "@/lib/calculations-server";
+import { getPostaAccount, getTrisAccount } from "@/lib/calculations-server";
 import { formatMovementDateTime, formatDateIT } from "@/lib/timezone";
 import { BalanceText, Badge, PageHeader } from "@/components/ui";
 import { NewCustomerPanel } from "@/components/sospesi/new-customer-panel";
 import { QuickSuspendedRow } from "@/components/sospesi/quick-suspended-row";
+import { QuickPostaRow } from "@/components/sospesi/quick-posta-row";
 import { cn } from "@/lib/cn";
+import { toNumber } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +29,7 @@ export default async function ClientiPage({
   const q = params.q?.trim() ?? "";
   const stato = (FILTERS.find((f) => f.key === params.stato)?.key ?? "aperti") as (typeof FILTERS)[number]["key"];
 
-  const [customers, tris] = await Promise.all([
+  const [customers, tris, posta] = await Promise.all([
     prisma.customer.findMany({
       where: {
         deletedAt: null,
@@ -50,6 +52,7 @@ export default async function ClientiPage({
       },
     }),
     getTrisAccount(),
+    getPostaAccount(),
   ]);
 
   const rows = customers.map((c) => {
@@ -93,7 +96,8 @@ export default async function ClientiPage({
         subtitle={
           <>
             Clienti: <BalanceText value={clientsNet} plural /> · Tris: <BalanceText value={tris.balance} perspective="tris" /> ·
-            Saldo sospesi: <strong className="tnum text-ink">{total.toLocaleString("it-IT", { style: "currency", currency: "EUR" })}</strong>
+            Saldo sospesi: <strong className="tnum text-ink">{total.toLocaleString("it-IT", { style: "currency", currency: "EUR" })}</strong> ·
+            Cassa LAY: <BalanceText value={posta.balance} perspective="posta" />
           </>
         }
       >
@@ -176,6 +180,34 @@ export default async function ClientiPage({
                 </td>
                 <td>
                   <QuickSuspendedRow customerId={tris.account.id} name="Tris" />
+                </td>
+              </tr>
+            )}
+            {posta.account && !q && (
+              <tr className="bg-[#F6F6F3]">
+                <td>
+                  <Link href={`/clienti/${posta.account.id}`} className="font-semibold hover:underline">
+                    Posta
+                  </Link>{" "}
+                  <Badge>CONTO FISSO</Badge>
+                  <br />
+                  <span className="text-[13px] text-muted">
+                    cassa LAY · qui depositi e prelievi ·{" "}
+                    <Link href="/conti" className="text-accent hover:underline">
+                      vai al LAY
+                    </Link>
+                  </span>
+                </td>
+                <td>
+                  <BalanceText value={posta.balance} perspective="posta" />
+                </td>
+                <td className="text-[13px] text-muted">
+                  {posta.moves[0]
+                    ? `${formatDateIT(posta.moves[0].date)} · ${toNumber(posta.moves[0].amount) >= 0 ? "deposito" : "prelievo"}`
+                    : "—"}
+                </td>
+                <td>
+                  <QuickPostaRow />
                 </td>
               </tr>
             )}

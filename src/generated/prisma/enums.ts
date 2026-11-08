@@ -39,7 +39,8 @@ export type MasterMovementType = (typeof MasterMovementType)[keyof typeof Master
 export const LayCategory = {
   GENERICO: 'GENERICO',
   TRIS: 'TRIS',
-  ALTRO: 'ALTRO'
+  ALTRO: 'ALTRO',
+  POSTA: 'POSTA'
 } as const
 
 export type LayCategory = (typeof LayCategory)[keyof typeof LayCategory]

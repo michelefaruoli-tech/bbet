@@ -1,4 +1,4 @@
-import { getSuspendedSummary } from "@/lib/calculations-server";
+import { getPostaAccount, getSuspendedSummary } from "@/lib/calculations-server";
 import { PageHeader } from "@/components/ui";
 import { NewMovement } from "@/components/movimento/new-movement";
 
@@ -12,10 +12,13 @@ export default async function NuovoMovimentoPage({
   searchParams: Promise<{ tipo?: string }>;
 }) {
   const params = await searchParams;
-  const summary = await getSuspendedSummary();
+  const [summary, posta] = await Promise.all([getSuspendedSummary(), getPostaAccount()]);
   const customers = [
     ...(summary.tris.account
       ? [{ id: summary.tris.account.id, label: "Tris (conto fisso)", balance: summary.trisBalance, isTris: true }]
+      : []),
+    ...(posta.account
+      ? [{ id: posta.account.id, label: "Posta (cassa LAY)", balance: posta.balance, isTris: false, isPosta: true }]
       : []),
     ...summary.customerSummaries
       .map((c) => ({

@@ -29,6 +29,8 @@ enum LayCategory {
   GENERICO
   TRIS
   ALTRO
+  /// Deposito (+) o prelievo (−) di Posta sulla cassa LAY (conto fisso "Posta" nei Sospesi)
+  POSTA
 }
 
 enum WithdrawalSource {

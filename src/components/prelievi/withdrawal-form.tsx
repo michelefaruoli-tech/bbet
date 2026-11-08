@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { saveWithdrawalAction } from "@/lib/actions";
@@ -21,8 +22,12 @@ export function WithdrawalForm() {
   return (
     <div className="space-y-3">
       <p className="text-sm text-muted">
-        Il prelievo è sempre in <strong>contanti</strong>. Scegli solo da dove togliere i soldi:
-        <strong> Commissioni</strong> oppure <strong>LAY</strong>. La data è automatica (oggi).
+        Il prelievo è sempre in <strong>contanti</strong> dalle <strong>Commissioni</strong>. La data è automatica (oggi).
+        Per prelevare o depositare sulla cassa LAY usa il conto{" "}
+        <Link href="/clienti/posta-conto-fisso" className="text-accent hover:underline">
+          Posta
+        </Link>{" "}
+        nei Clienti.
       </p>
 
       <form
@@ -78,7 +83,6 @@ export function WithdrawalForm() {
             className="rounded-lg border border-slate-300 px-2 py-1.5 text-sm"
           >
             <option value="COMMISSIONI">Commissioni</option>
-            <option value="LAY">LAY</option>
           </select>
         </div>
         <div>

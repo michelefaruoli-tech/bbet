@@ -7,7 +7,9 @@ import { openSuspendedTotals } from "@/lib/sospesi-period";
 import { formatEUR } from "@/lib/format";
 import { formatMovementDateTime } from "@/lib/timezone";
 import { BalanceText, Card, KpiCard } from "@/components/ui";
-import { getTrisAccount } from "@/lib/calculations-server";
+import { getPostaAccount, getTrisAccount } from "@/lib/calculations-server";
+import { DeleteLayButton } from "@/components/lay/delete-lay-button";
+import { toNumber } from "@/lib/format";
 import { CustomerForm } from "@/components/sospesi/customer-form";
 import { SuspendedMovementForm } from "@/components/sospesi/suspended-movement-form";
 import { DeleteSuspendedButton } from "@/components/sospesi/delete-suspended-button";
@@ -32,6 +34,7 @@ export default async function CustomerDetailPage({
   if (!customer) notFound();
 
   if (customer.systemKey === "TRIS") return <TrisAccountPage />;
+  if (customer.systemKey === "POSTA") return <PostaAccountPage />;
 
   // KPI = solo periodo aperto; a saldo 0 i contatori sono azzerati
   const totals = openSuspendedTotals(customer.currentPeriod, customer.movements);
@@ -244,6 +247,83 @@ async function TrisAccountPage() {
                 <tr>
                   <td colSpan={6} className="py-6 text-center text-muted">
                     Nessun movimento di denaro
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+/** Conto fisso Posta: specchio della cassa LAY. Depositi e prelievi diventano movimenti LAY. */
+async function PostaAccountPage() {
+  const posta = await getPostaAccount();
+  if (!posta.account) notFound();
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-wrap items-center gap-3">
+        <Link href="/clienti" className="text-sm text-accent hover:underline">
+          ← Clienti
+        </Link>
+        <h1 className="text-[28px] font-bold tracking-tight">Conto Posta</h1>
+      </div>
+
+      <section className="flex flex-wrap items-center justify-between gap-5 rounded-xl border border-line bg-white px-6 py-5">
+        <div className="flex flex-col gap-1">
+          <span className="text-[13px] font-medium text-muted">Cassa LAY</span>
+          <BalanceText value={posta.balance} perspective="posta" className="text-[30px]" />
+          <span className="text-sm text-[#3F3F46]">
+            Il saldo LAY è {formatEUR(posta.layBalance)}. Ogni deposito o prelievo che registri qui aggiorna il LAY.
+          </span>
+        </div>
+        <Link href="/conti" className="inline-flex min-h-11 items-center rounded-[10px] bg-ink px-5 font-semibold text-white hover:bg-black">
+          Vai al LAY
+        </Link>
+      </section>
+
+      <Card title="Registra deposito o prelievo">
+        <SuspendedMovementForm customerId={posta.account.id} isPosta />
+      </Card>
+
+      <Card title="Depositi e prelievi">
+        <div className="overflow-x-auto">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Data / ora</th>
+                <th>Tipo</th>
+                <th>Importo</th>
+                <th>Note</th>
+                <th>Utente</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {posta.moves.map((m) => {
+                const deposit = toNumber(m.amount) >= 0;
+                return (
+                  <tr key={m.id}>
+                    <td className="whitespace-nowrap">{formatMovementDateTime(m.date, m.time, m.createdAt)}</td>
+                    <td className={deposit ? "font-semibold text-plus" : "font-semibold text-minus-dark"}>
+                      {deposit ? "Avere · deposito" : "Dare · prelievo"}
+                    </td>
+                    <td className="font-semibold">{formatEUR(Math.abs(toNumber(m.amount)))}</td>
+                    <td>{m.notes ?? "—"}</td>
+                    <td>{m.createdBy.name}</td>
+                    <td>
+                      <DeleteLayButton id={m.id} />
+                    </td>
+                  </tr>
+                );
+              })}
+              {posta.moves.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="py-6 text-center text-muted">
+                    Nessun deposito o prelievo ancora
                   </td>
                 </tr>
               )}

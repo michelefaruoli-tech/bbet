@@ -61,10 +61,13 @@ export default async function OggiPage() {
     ...lay.map((m) => ({
       id: `l-${m.id}`,
       at: m.createdAt,
-      kind: "LAY",
-      label: m.notes || m.description || "Movimento LAY",
+      kind: m.category === "POSTA" ? "Posta" : "LAY",
+      label:
+        m.category === "POSTA"
+          ? `${toNumber(m.amount) >= 0 ? "Deposito" : "Prelievo"}${m.notes ? ` · ${m.notes}` : ""}`
+          : m.notes || m.description || "Movimento LAY",
       amount: <SignedAmount value={toNumber(m.amount)} />,
-      href: "/conti",
+      href: m.category === "POSTA" ? "/clienti/posta-conto-fisso" : "/conti",
     })),
     ...plays.map((p) => ({
       id: `t-${p.id}`,

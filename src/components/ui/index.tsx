@@ -6,7 +6,7 @@ import Link from "next/link";
    Saldi scritti a parole: niente segni da interpretare.
    ------------------------------------------------------------------ */
 
-type Perspective = "customer" | "tris" | "master" | "lay";
+type Perspective = "customer" | "tris" | "master" | "lay" | "posta";
 
 /**
  * Trasforma un saldo in parole.
@@ -14,10 +14,16 @@ type Perspective = "customer" | "tris" | "master" | "lay";
  * - tris: saldo conto Tris. Positivo = "il Tris ti deve", negativo = "gli devi".
  * - master: positivo = "Master ti deve", negativo = "gli devi".
  * - lay: positivo = "in attivo", negativo = "in passivo".
+ * - posta: saldo conto Posta (= − saldo LAY). Positivo = "Posta deve mettere", negativo = "da dare a Posta".
  */
 export function balanceWords(value: number, perspective: Perspective = "customer") {
   const abs = Math.abs(value);
   if (abs < 0.005) return { tone: "zero" as const, label: "in pari", amount: 0 };
+  if (perspective === "posta") {
+    return value > 0
+      ? { tone: "minus" as const, label: "Posta deve mettere", amount: abs }
+      : { tone: "plus" as const, label: "da dare a Posta", amount: abs };
+  }
   if (perspective === "lay") {
     return value > 0
       ? { tone: "plus" as const, label: "in attivo", amount: abs }

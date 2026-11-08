@@ -131,6 +131,20 @@ export async function getLaySummary() {
   };
 }
 
+/**
+ * Conto fisso Posta: specchio della cassa LAY.
+ * Saldo (come un cliente) = − saldo LAY. Positivo = Posta deve mettere soldi.
+ */
+export async function getPostaAccount(lay?: Awaited<ReturnType<typeof getLaySummary>>) {
+  const [account, laySummary] = await Promise.all([
+    prisma.customer.findUnique({ where: { systemKey: "POSTA" } }),
+    lay ? Promise.resolve(lay) : getLaySummary(),
+  ]);
+  const moves = laySummary.movements.filter((m) => m.category === "POSTA");
+  const balance = Math.round(-laySummary.cumulativeBalance * 100) / 100;
+  return { account, moves, balance, layBalance: laySummary.cumulativeBalance };
+}
+
 export async function getCashFundCurrent(): Promise<number> {
   const last = await prisma.cashFundMovement.findFirst({ orderBy: { date: "desc" } });
   if (last) return toNumber(last.closingValue);
